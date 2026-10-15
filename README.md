@@ -5,4 +5,4 @@ Guardian Tales but it's a PvP game.
 - [Nilabhro Mondal](https://github.com/goldbarley)
 - [Abhinav Mishra](https://github.com/Mishra-4455)
 - [Aditya Raj](https://github.com/adiambassador)
-- [DeployedReject](github.com/deployedreject)
+- [DeployedReject](https://github.com/deployedreject)
