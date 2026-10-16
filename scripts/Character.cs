@@ -5,11 +5,14 @@
 /// <param name="characterType">The type of the character.</param>
 /// <param name="moveorder">The move order for the character.</param>
 using System;
+using System.Collections.Generic;
 
 public class Character
 {
     private int characterType;
     private int[] moveorder;
+    private LinkedList<AttackTable.Attack> Attacks;
+    private int energy = 100;
 
     public Character(int characterType, int[] moveorder)
     {
@@ -19,6 +22,7 @@ public class Character
         }
         this.characterType = characterType;
         this.moveorder = moveorder;
+        Attacks = AttackTable.Attacks[characterType];
     }
 
     private bool isValidMoveTypeAndMovesetLength(int characterType, int moveorderLength)

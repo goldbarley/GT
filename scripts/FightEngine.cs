@@ -6,4 +6,5 @@ public class FightEngine
     {
         this.map = MapTable.GetMap(map);
     }
+    //TODO Clock
 }
