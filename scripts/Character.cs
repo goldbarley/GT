@@ -4,9 +4,14 @@
 /// </summary>
 /// <param name="characterType">The type of the character.</param>
 /// <param name="moveorder">The move order for the character.</param>
+using System;
+
 public class Character
 {
-    ublic Character(int characterType, int[] moveorder)
+    private int characterType;
+    private int[] moveorder;
+
+    public Character(int characterType, int[] moveorder)
     {
         if (!isValidMoveTypeAndMovesetLength(characterType, moveorder.Length))
         {
