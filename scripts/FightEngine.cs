@@ -1,9 +1,9 @@
+public class FightEngine
+{
+    int[,] map;
 
-public class FightEngine {
-  int[][] map;
-
-  public FightEngine(int map) {
-    this.map = MapTable.getMap(map);
-  }
-
+    public FightEngine(int map)
+    {
+        this.map = MapTable.GetMap(map);
+    }
 }
