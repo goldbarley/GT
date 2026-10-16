@@ -1,4 +1,5 @@
 import java.lang.IllegalArgumentException;
+//Change everything to csharp syntax.
 
 public class Player {
   private int[] characters;
