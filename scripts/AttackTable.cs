@@ -55,7 +55,7 @@ public class AttackQueue
 	 */
 	private const int _queueCapacity = 32;
 
-	private class _AttackQueueMain
+	private class _AttackQueueData
 	{
 		public Attack[_queueCapacity] queue;
 		public int head = 0;
@@ -63,16 +63,8 @@ public class AttackQueue
 		public int size = 0;
 	}
 
-	private class _AttackQueueWaiting
-	{
-		public Attack[_queueCapacity] waiting;
-		public int head = 0;
-		public int tail = 0;
-		public int size = 0;
-	}
-
-	private _AttackQueueMain _mainQueue;
-	private _AttackQueueWaiting _waitingQueue;
+	private _AttackQueueData _mainQueue;
+	private _AttackQueueData _waitingQueue;
 
 	public bool IsFull()
 	{
@@ -197,7 +189,7 @@ public class AttackQueue
 	{
 		int rem = count;
 		bool nofit;
-		if ((nofit = !MoveHead(count)))
+		if ((nofit = !TryMoveHead(count)))
 			rem = Remaining();
 
 		int i = 0;
