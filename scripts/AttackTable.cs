@@ -9,6 +9,60 @@ public static class AttackTable
         return x >= 0 && x < map.GetLength(0) && y >= 0 && y < map.GetLength(1);
     }
 
+    public static int[,]
+
+    /*
+     * MageAttackSingle:
+     * x - current x position of the player
+     * y - current y position of the player
+     * angle - angle of attack (+x-axis is 0 rad)
+     * map - map ID
+     */
+    public static IVector2 MageAttackSingle(int x, int y, float angle, int map)
+    {
+        IVector2 dst = new IVector2(x, y);
+
+        if (!MapTable.IsValidMap(map) || !IsValidIndex(x, y, map))
+            goto exit;
+
+        MapElement [,] mat = MapTable.GetMap(map);
+
+        /* Number of tiles. */
+        const int range = 5;
+
+        dst = dst.RotateAcl(angle).Scale(range);
+        MapTable.UpdateMapTile(dst.x, dst.y, map, MapElement.A);
+
+        exit:
+        return dst;
+    }
+
+    public static IVector2[] MageAttackMultiple(int x, int y, float angle, int map)
+    {
+        const int natk = 3;
+        IVector2[] dst = new IVector2[natk] {
+            new IVector2(x, y),
+            new IVector2(x, y),
+            new IVector2(x, y)
+        };
+
+        if (MapTable.IsValidMap(map) || !IsValidIndex(x, y, map))
+            goto exit;
+
+        const int range = 4;
+
+        dst[0] = dst[0].RotateAcl(angle).Scale(range);
+        dst[1] = dst[1].RotateAcl(angle + 60).Scale(range);
+        dst[2] = dst[2].RotateAcl(angle - 120).Scale(range);
+
+        MapTable.UpdateMapTile(dst[0].x, dst[0].y, MapElement.A);
+        MapTable.UpdateMapTile(dst[1].x, dst[1].y, MapElement.A);
+        MapTable.UpdateMapTile(dst[2].x, dst[2].y, MapElement.A);
+
+        exit:
+        return dst;
+    }
+
     //Test Attacks. Replace with specific attacks for characters as needed.
     public static int[,] Attack1(int x, int y, int map)
     {
