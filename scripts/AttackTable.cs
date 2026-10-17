@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 
 public static class AttackTable
 {
@@ -50,10 +51,12 @@ public static class AttackTable
         dst.RotateAcl(angle).Scale(range);
         MapTable.UpdateMapTile(dst.x, dst.y, map, MapElement.A);
 
-        dst.RotateAcl(30);
+        /* 30 degrees */
+        dst.RotateAcl(0.5235987755982988);
         MapTable.UpdateMapTile(dst.x, dst.y, map, MapElement.A);
 
-        dst.RotateCl(60);
+        /* 60 degrees */
+        dst.RotateCl(1.0471975511965976);
         MapTable.UpdateMapTile(dst.x, dst.y, map, MapElement.A);
 
         exit:
