@@ -1,7 +1,12 @@
 using System.Collections.Generic;
 using System;
 
-using MoveType = int;
+public enum MoveType
+{
+	NOTHING = 0,
+	ATTACK = 1,
+	DEFENSE = 2
+}
 
 /*
  * Covers number of tiles.
@@ -18,26 +23,19 @@ public enum AttackRange
 }
 
 /* Duration is measured in seconds */
-public enum DefenseDuration
+public enum DefenseRoundCooldown
 {
 	DEFENSE_UNKNOWN = -1,
-	MAGE_DEFENSE_INVINCIBILITY = 2,
-	MAGE_DEFENSE_BARRIER = 3,
-	MAGE_DEFENSE_TELEPORT = 0
+	MAGE_DEFENSE_INVINCIBILITY = 4,
+	MAGE_DEFENSE_BARRIER = 2,
+	MAGE_DEFENSE_TELEPORT = 3
 }
 
 public class Attack
 {
-	/*
-	 * 0 - Attack
-	 * 1 - Defense
-	 *
-	 * 'type' is not boolean (but an int).
-	 * This is if we ever want to add more move sets.
-	 */
 	MoveType type;
 	AttackRange range;
-	DefenseDuration duration;
+	DefenseRoundCooldown cooldown;
 }
 
 /*
@@ -57,35 +55,53 @@ public class AttackQueue
 
 	private class _AttackQueueData
 	{
-		public Attack[_queueCapacity] queue;
+		public Attack[32] queue;
 		public int head = 0;
 		public int tail = 0;
 		public int size = 0;
+
+		public _AttackQueueData()
+		{
+			this.head = 0;
+			this.tail = 0;
+			this.size = 0;
+
+			for (int i = 0; i < _queueCapacity; ++i)
+			{
+				queue[i].type = MoveType.NOTHING;
+				queue[i].range = AttackRange.ATTACK_UNKNOWN;
+				queue[i].range = DefenseRoundCooldown.DEFENSE_UNKNOWN;
+			}
+		}
 	}
 
 	private _AttackQueueData _mainQueue;
 	private _AttackQueueData _waitingQueue;
 
+	public AttackQueue()
+	{
+		_mainQueue = new _AttackQueueData();
+		_waitingQueue = new _AttackQueueData();
+	}
+
 	public bool IsFull()
 	{
-		return (this._mainQueue.head + 1) % (_queueCapacity - 1)
-			== this._mainQueue.tail;
+		return this._mainQueue.size == _queueCapacity;
 	}
 
 	public bool IsFullWaiting()
 	{
-		return (this._waitingQueue.tail + 1) % this.SizeWaiting()
-			== this.__waitingQueuetail.tail;
+		return this._waitingQueue.size == _queueCapacity;
 	}
 
 	public bool IsEmpty()
 	{
-		return this._mainQueue.head == this._mainQueue.tail;
+		return this._mainQueue.size == 0;
 	}
 
 	public bool IsEmptyWaiting()
 	{
-		return this._waitingQueue.head == this._waitingQueue.tail;
+		return this._waitingQueue.size == 0;
 	}
 
 	public int Remaining()
@@ -101,51 +117,85 @@ public class AttackQueue
 	/* Returns TRUE if queue is full */
 	private bool TryMoveHead(int n)
 	{
-		return (this._mainQueue.head + n) % (_queueCapacity - 1)
+		return (this._mainQueue.head + n) & (_queueCapacity - 1)
 		== this._mainQueue.tail;
 	}
 
 	private bool MoveHead(int n)
 	{
-		this._mainQueue.head = (this._mainQueue.head + n) % (_queueCapacity - 1);
+		this._mainQueue.head = (this._mainQueue.head + n) & (_queueCapacity - 1);
 		return this._mainQueue.head != this._mainQueue.tail;
 	}
 
 	private bool TryMoveHeadWaiting(int n)
 	{
-		return (this._waitingQueue.head + n) % (_queueCapacity - 1)
+		return (this._waitingQueue.head + n) & (_queueCapacity - 1)
 			== this._waitingQueue.tail;
 	}
 
 	private bool MoveHeadWaiting(int n)
 	{
-		this._waitingQueue.head = (this._waitingQueue.head + n) % (_queueCapacity - 1);
+		this._waitingQueue.head = (this._waitingQueue.head + n) & (_queueCapacity - 1);
 		return this._waitingQueue.head != this._waitingQueue.tail;
 	}
 
 	/* Returns FALSE if queue is empty */
 	private bool TryMoveTail(int n)
 	{
-		return (this._mainQueue.tail + 1) % (_queueCapacity - 1)
+		return (this._mainQueue.tail + 1) & (_queueCapacity - 1)
 			== this._mainQueue.head;
 	}
 
 	private bool MoveTail(int n)
 	{
-		this._mainQueue.tail = (this._mainQueue.head + 1) % (_queueCapacity - 1);
+		this._mainQueue.tail = (this._mainQueue.head + 1) & (_queueCapacity - 1);
 		return this._mainQueue.head != this._mainQueue.tail;
 	}
 
 	private bool TryMoveTailWaiting(int n)
 	{
-		return (this._waitingQueue.tail + 1) % (_queueCapacity - 1)
+		return (this._waitingQueue.tail + 1) & (_queueCapacity - 1)
 		== this._waitingQueue.head;
 	}
 
 	private bool MoveTailWaiting(int n)
 	{
-		this._waitingQueue.tail = (this._waitingQueue.head + 1) % (_queueCapacity - 1);
+		this._waitingQueue.tail = (this._waitingQueue.head + 1) & (_queueCapacity - 1);
 		return this._waitingQueue.head != this._waitingQueue.tail;
+	}
+
+	private bool TryAddToSize(int n)
+	{
+		if (this._mainQueue.size + n == _queueCapacity)
+			return false;
+
+		return true;
+	}
+
+	private bool AddToSize(int n)
+	{
+		bool r = true;
+		if ((r = !TryAddToSize(n)))
+			this._mainQueue.size = capacity;
+
+		this._mainQueue.size += n;
+	}
+
+	private bool TryAddToSizeWaiting(int n)
+	{
+		if (this._waitingQueue.size + n == _queueCapacity)
+			return false;
+
+		return true;
+	}
+
+	private bool AddToSizeWaiting(int n)
+	{
+		bool r = true;
+		if ((r = !TryAddToSize(n)))
+			this._waitingQueue.size = capacity;
+
+		this._waitingQueue.size += n;
 	}
 
 	/* Waiting queue does not have non-blocking enqueue */
@@ -156,7 +206,7 @@ public class AttackQueue
 
 		this._waitingQueue.queue[_waitingQueue.head] = a;
 		MoveHeadWaiting(1);
-		++this._waitingQueue.size;
+		AddToSize(1);
 
 		return true;
 	}
@@ -164,6 +214,7 @@ public class AttackQueue
 	private void RemoveWaiting()
 	{
 		MoveTailWaiting(1);
+		AddToSizeWaiting(-1);
 	}
 
 	/*
@@ -179,16 +230,13 @@ public class AttackQueue
 		this._mainQueue.queue[_mainQueue.head] = a;
 		MoveHead(1);
 
-		if (this._mainQueue.size + 1 == _queueCapacity)
-			this._mainQueue.size = _queueCapacity;
-		else
-			++this._mainQueue.size;
+		AddToSize(1);
 	}
 
 	public bool SubmitBatchNB(in Attack[] a, int count)
 	{
 		int rem = count;
-		bool nofit;
+		bool nofit = false;
 		if ((nofit = !TryMoveHead(count)))
 			rem = Remaining();
 
@@ -215,14 +263,16 @@ public class AttackQueue
 		this._mainQueue.queue[_mainQueue.head] = a;
 		MoveHead(1);
 
+		AddToSize(1);
+
 		return true;
 	}
 
 	public bool SubmitBatch(in Attack[] a, int count)
 	{
 		int rem = count;
-		bool nofit;
-		if ((nofit = !MoveHead(count)))
+		bool nofit = false;
+		if ((nofit = !TryMoveHead(count)))
 			rem = Remaining();
 
 		int i = 0;
@@ -251,6 +301,7 @@ public class AttackQueue
 	public void Remove()
 	{
 		MoveTail(1);
+		AddToSize(-1);
 	}
 
 	public int Size()
@@ -298,7 +349,7 @@ public static class AttackTable
 		/* Number of tiles. */
 		const int range = 5;
 
-		IVector2 dst = new IVectoer2(x, y);
+		IVector2 dst = new IVector2(x, y);
 		dst.RotateAcl(angle).Scale(range);
 		MapTable.UpdateMapTile(dst.x, dst.y, map, MapElement.A);
 
