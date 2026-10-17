@@ -11,22 +11,32 @@ public class IVector2
 		this.y = y;
 	}
 
-	public IVector Scale(float s)
+	public void Set(int x, int y)
 	{
-		return new IVector2((int)(s * this.x), (int)(s * this.y));
+		this.x = x;
+		this.y = y;
 	}
 
-	public IVector RotateAcl(float angle)
+	public void Scale(int s)
 	{
-		float s = MathF.sin(angle);
-		float c = MathF.cos(angle)
-
-		return new IVector2((int)(this.x * c - this.y * s),
-				    (int)(this.x * s + this.y * c));
+		this.x *= s;
+		this.y *= s;
 	}
 
-	public IVector RotateCl(float angle)
+	public void RotateAcl(float angle)
 	{
-		return RotateAcl(-angle);
+		float s = MathF.Sin(angle);
+		float c = MathF.Cos(angle)
+
+		int ogx = this.x;
+		int ogy = this.y;
+
+		this.x = (int) MathF.Round(ogx * c - ogy * s);
+		this.y = (int) MathF.Round(ogx * s + ogy * c);
+	}
+
+	public void RotateCl(float angle)
+	{
+		RotateAcl(-angle);
 	}
 }

@@ -57,7 +57,7 @@ public class MapTable
         return x >= 0 && x < map.GetLength(0) && y >= 0 && y < map.GetLength(1);
     }
 
-    public static int[,] GetMap(int index)
+    public static MapElement[,] GetMap(int index)
     {
         int rows = maps.GetLength(1);
         int cols = maps.GetLength(2);
