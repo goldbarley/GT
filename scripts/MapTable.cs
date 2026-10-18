@@ -355,7 +355,7 @@ public class MapTable
                 MapElement.W,
             },
         },
-    }; /* QWEN TODO [CS1002]: ; expected (scripts/IVector2.cs:29) */
+    };
 
     //THis function was invalid because maps in maptable are supposed to be readonly.
     public static bool IsValidMap(int index)

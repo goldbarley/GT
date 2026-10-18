@@ -119,7 +119,7 @@ public static class AttackTable
     }
 
     //Add Attacks here. Each Array for a Character.
-    static Attack[][] Attacks =
+    public static Attack[][] Attacks =
     {
         new Attack[] { },
         new Attack[] { },
