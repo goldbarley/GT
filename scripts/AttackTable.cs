@@ -44,8 +44,7 @@ public class Step
         this.cooldown = DefenseRoundCooldown.DEFENSE_UNKNOWN;
     }
 
-    public Step(StepType type, AttackRange range,
-                  DefenseRoundCooldown cooldown)
+    public Step(StepType type, AttackRange range, DefenseRoundCooldown cooldown)
     {
         this.type = type;
         this.range = range;
@@ -118,4 +117,13 @@ public static class AttackTable
         exit:
         return MapTable.GetMap(map);
     }
+
+    //Add Attacks here. Each Array for a Character.
+    static Attack[][] Attacks =
+    {
+        new Attack[] { },
+        new Attack[] { },
+        new Attack[] { },
+        new Attack[] { },
+    };
 }

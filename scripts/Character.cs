@@ -5,14 +5,12 @@
 /// <param name="characterType">The type of the character.</param>
 /// <param name="moveorder">The move order for the character.</param>
 using System;
-using System.Collections.Generic;
 
 public class Character
 {
     private int characterType;
     private int[] moveorder;
-    private LinkedList<AttackTable.Attack> Attacks;
-    private int energy = 100;
+    private AttackTable.Attack[] Attacks;
 
     public Character(int characterType, int[] moveorder)
     {
