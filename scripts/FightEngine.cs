@@ -1,10 +1,14 @@
 public class FightEngine
 {
-    int[,] map;
+    //Clock Represents Step Number
+    private int clock;
+    MapElement[,] map;
 
-    public FightEngine(int map)
+    public FightEngine(int index)
     {
-        this.map = MapTable.GetMap(map);
+        clock = -1;
+        map = MapTable.GetMap(index);
     }
-    //TODO Clock
+
+    public int GetClock() => clock + 1;
 }
