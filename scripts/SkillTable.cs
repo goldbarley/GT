@@ -1,4 +1,6 @@
 using SkillQueue = FIFOQueue<Skill>;
+using Direction = uint;
+using SkillValue = int;
 
 public enum SkillType
 {
@@ -75,133 +77,118 @@ public class SkillInfo
     AttackRange range;
 }
 
+/*
+ * This is only to conform by the BattleEngine API contract.
+ * Otherwise it can be safely removed.
+ */
+public enum Cardinal
+{
+    UN = Axis2.UNKOWN,
+    RS = Axis2.PX,
+    BS = Axis2.NY,
+    LS = Axis2.NX,
+    TS = Axis2.PY,
+    BR = Axis2.PXNY,
+    BL = Axis2.NXNY,
+    TR = Axis2.PXPY,
+    TL = Axis2.NXPY,
+};
+
 public static class SkillTable
 {
-    public delegate SkillCooldown PTF_Skill(in IVector2 rAffected,
-                                            float angle, int map);
+    public delegate void SkillPattern(IVector2 player, IVector2 length,
+                                      Direction axes,
+                                      ref SkillValue[,] skillGrid);
 
-    public static bool IsValidIndex(int x, int y, int[,] map)
+    /* Why is this public? */
+    public static bool IsValidIndex(IVector2 v, IVector2 max)
     {
-        return x >= 0 && x < map.GetLength(0) && y >= 0 && y < map.GetLength(1);
+        return v.x >= 0 && v.x < max.x && v.y >= 0 && v.y < max.y;
     }
 
-    public static void GetMageAttackSingle(in IVector2 src, float angle, out IVector2 dst)
+    private static void MageAttackSingle(IVector2 player, IVector2 length,
+                                         Direction axes,
+                                         ref SkillValue[,] skillGrid)
     {
-        dst = new IVector2(src.y, src.x);
-        dst.RotateAcl(angle).Scale(AttackRange.MAGE_ATTACK_SINGLE);
+        if (skillGrid == null)
+            return;
+
+        IVector2 v = player;
+        v.ScaleOnAxis(axes, length);
+
+        if (!IsValidIndex(v, skillGrid))
+            return;
+
+        skillGrid[v.y, v.x] = SkillDamage.MAGE_SINGLE_DAMAGE;
     }
 
-    public static MapElement[,] UpdateMageAttackSingle(in IVector2 v,
-                                                       float angle, int map)
+    private static void MageAttackAOE(IVector2 player, IVector2 length,
+                                      Direction axes,
+                                      ref SkillValue[,] skillGrid)
     {
-        if (!MapTable.IsValidMap(map) || !IsValidIndex(x, y, map))
-            goto exit;
+        if (grid == null)
+            return;
 
-        MapTable.UpdateMapTile(v.x, v.y, map, MapElement.A);
+        IVector2 src = player;
+        src.ScaleOnAxis(axes, length);
 
-        exit:
-        return MapTable.GetMap(map);
-    }
+        int ny = skillGrid.GetLength(0);
+        int nx = skillGrid.GetLength(1);
 
-    private static GetSkill(in SkillInfo info, float angle, in IVector2 src,
-                            out IVector2[] dst, out int count)
-    {
-        dst = new IVector2(src.x, src.y);
+        IVector2 maxxy = new IVector2(ny, nx);
 
-        switch (info.type)
+        if (!IsValidIndex(src, maxxy))
+            return;
+
+        IVector2[] nebur = new IVector2[] {
+            new IVector2(-1, -1),
+            new IVector2(0, -1),
+            new IVector2(1, -1),
+            new IVector2(-1, 0),
+            new IVector2(1, 0),
+            new IVector2(-1, 1),
+            new IVector2(0, 1),
+            new IVector2(1, 1),
+        };
+
+        IVector2 affReg = src;
+        for (int i = 0; i < 8; ++i)
         {
-            case SkillType.ATTACK_SINGLE:
-                count = 1;
-                int singleRange;
-                switch (info.charClass)
-                {
-                    case CharacterClass.MAGE:
-                        singleRange = AttackRange.MAGE_ATTACK_SINGLE;
-                        break;
-
-                    /* TODO: Implement. */
-                    case CharacterClass.WARRIOR:
-                        break;
-                    case CharacterClass.ARCHER:
-                        break;
-                    case CharacterClass.ORC:
-                        break;
-                }
-                dst.Scale(singleRange).RotateAcl(angle);
-
-                break;
-
-                case SkillType.ATTACK_AREA:
-                    int area = 0;
-                    switch (info.charClass)
-                    {
-                        case CharacterClass.MAGE:
-                            area = AttackRange.MAGE_ATTACK_AOE_AREA;
-                            break;
-
-                        /* TODO: Implement. */
-                        case CharacterClass.WARRIOR:
-                            break;
-                        case CharacterClass.ARCHER:
-                            break;
-                        case CharacterClass.ORC:
-                            break;
-                    }
-                    break;
-
+            affReg = src;
+            if(!IsValidIndex(affReg.Add(nebur[i]), maxxy))
+                continue;
+            skillGrid[v.y, v.x] = SkillDamage.MAGE_AOE_DAMAGE;
         }
+
     }
 
-    public static MapElement[,] UpdateMageAttackMultiple(int x, int y, float angle, int map)
-    {
-        const int natk = 3;
-
-        if (MapTable.IsValidMap(map) || !IsValidIndex(x, y, map))
-            goto exit;
-
-        const int range = 4;
-
-        IVector2 dst = new IVector2(x, y);
-
-        dst.RotateAcl(angle).Scale(range);
-        MapTable.UpdateMapTile(dst.x, dst.y, map, MapElement.A);
-
-        /* 30 degrees */
-        dst.RotateAcl(0.5235987755982988);
-        MapTable.UpdateMapTile(dst.x, dst.y, map, MapElement.A);
-
-        /* 60 degrees */
-        dst.RotateCl(1.0471975511965976);
-        MapTable.UpdateMapTile(dst.x, dst.y, map, MapElement.A);
-
-        exit:
-        return MapTable.GetMap(map);
-    }
-
-    //Add Attacks here. Each Array for a Character.
-    static PTF_Skill[][] skills =
+    static SkillPattern[][] skills =
     {
         /* 0 - Mage */
-        new Skill[] {
-            MageAttackSingle,
-            MageAttackDiagonalQuad,
-            MageAttackAOE,
-            MageAttackPillar,
-            MageDefenseInvincibility,
-            MageDefenseBarrier,
-            MageDefenseTeleport,
+        new SkillPattern[] {
+            MageAttackSingle, // Implemented.
+            MageAttackDiagonalQuad, // Not implemented.
+            MageAttackAOE, // Implemented.
+            MageAttackPillar, // Not implemented.
+            MageDefenseInvincibility, // Not implemented.
+            MageDefenseBarrier, // Not implemented.
+            MageDefenseTeleport, // Not implemented.
         },
 
-        /* 1 - Archer */
-        new Skill[] {
-            ArcherAttackSingle,
-            ArcherAttackTriple,
-            ArcherAttackAOE,
-            ArcherAttackPoison,
-            ArcherDefenseCounter,
-            ArcherDefenseSpeed,
+        /* 1 - Warrior */
+        new SkillPattern[] { },
+
+        /* 2 - Archer */
+        new SkillPattern[] {
+            ArcherAttackSingle, // Not implemented.
+            ArcherAttackTriple, // Not implemented.
+            ArcherAttackAOE, // Not implemented.
+            ArcherAttackPoison, // Not implemented.
+            ArcherDefenseCounter, // Not implemented.
+            ArcherDefenseSpeed, // Not implemented.
         },
-        new Skill[] { },
-        new Skill[] { },
+
+        /* 3 - Orc */
+        new SkillPattern[] { },
     };
 }
