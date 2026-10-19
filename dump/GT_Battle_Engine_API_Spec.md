@@ -248,8 +248,9 @@ In the actual Godot script, use signal/animation completion or an async state ma
 The original design intent is appropriate: one pattern function receives caster coordinates, direction, optional length and a mutable **temporary** signed integer grid, then marks relevant cells. A registry stores available skills **per class**. The engine knows which skill ID is being called and centrally applies cooldowns/targeting and resulting HP changes. It needn't expose separate "Get" and "Update" entrypoints for every attack.
 
 ```csharp
-public delegate void SkillPattern(int x, int y, Cardinal direction,
-                                  int length, int[,] signedEffectGrid);
+public delegate void SkillPattern(in IVector2 player, in IVector2 length,
+                                  in Direction axes,
+                                  out SkillGridElement[,] skillGrid);
 ```
 
 A `SkillDefinition` supplies the cooldown value before the pattern runs. The pattern must never edit permanent terrain or living characters directly. Enforce bounds centrally. Do not mix the signed attack pattern grid with the terrain enum or use a single global signed grid in a way that cancels unrelated offense/defense contributions.
