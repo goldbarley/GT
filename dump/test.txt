@@ -1,0 +1,28 @@
+typedef struct SkillInfo
+{
+	CharacterClass = class;
+	SkillType type;
+	SkillDamage damage;
+} SkillInfo;
+
+bool ValidateTypeNDamage(SkillType type, SkillDamage damage);
+void GetSkill(SkillInfo *info, int map, NULLABLE IVector2 *dst);
+SkillCooldown UpdateSkill(IVector2 *affected, float angle, int map);
+
+/* Usage */
+
+void Abc()
+{
+	SkillInfo info = {
+		.class = CLASS_MAGE
+		.type = SKILL_TYPE_ATTACK,
+		.damage = MAGE_ATTACK_SINGLE_DAMAGE
+	};
+
+	IVector2 v = {0};
+	GetSkill(&info, 1, &v);
+	UpdateSkill(&v, 3.14159F, 1);
+}
+
+
+

@@ -1,6 +1,6 @@
 using System;
 
-public class IVector2
+public struct IVector2
 {
     public int x;
     public int y;
