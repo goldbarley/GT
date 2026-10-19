@@ -250,7 +250,7 @@ The original design intent is appropriate: one pattern function receives caster 
 ```csharp
 public delegate void SkillPattern(in IVector2 player, in IVector2 length,
                                   in Direction axes,
-                                  out SkillGridElement[,] skillGrid);
+                                  out int[,] skillGrid);
 ```
 
 A `SkillDefinition` supplies the cooldown value before the pattern runs. The pattern must never edit permanent terrain or living characters directly. Enforce bounds centrally. Do not mix the signed attack pattern grid with the terrain enum or use a single global signed grid in a way that cancels unrelated offense/defense contributions.
