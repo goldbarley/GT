@@ -33,7 +33,7 @@ public static class MapTable
             )
             .ToArray();
 
-        mapNames = mapNames.Select(x => x.Replace(".json", "")).ToArray();
+        mapNames = mapNames.Select(System.IO.Path.GetFileNameWithoutExtension).ToArray();
 
         maps = new MapElement[mapFiles.Length][,];
 

@@ -7,7 +7,7 @@ public class BattleEngine
     public BattleEngine(int index)
     {
         clock = -1;
-        map = MapTable.GetMap(index);
+        map = MapTable.GetMap(index).map;
     }
 
     public int GetClock() => clock + 1;
