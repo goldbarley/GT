@@ -12,29 +12,28 @@ public enum MapElement : byte
     S = 4, // Stairs
 }
 
-public record MapContatiner(string name, MapElement[,] map);
+public record MapContainer(string name, MapElement[,] map);
 
 public static class MapTable
 {
     private static Variant[] mapFiles;
-    private static MapElement[][,] maps;
+    private static readonly MapElement[][,] maps;
     private static string[] mapNames;
 
     static MapTable()
     {
-        mapFiles = DirAccess
-            .GetFilesAt("res://data/")
-            .Where(path => path.EndsWith(".json", OrdinalIgnoreCase))
-            .Order()
-            .Select(path =>
-                NotNil(Json.ParseString(FileAccess.GetFileAsString($"res://data/{path}")), path)
-            )
-            .ToArray();
         mapNames = DirAccess
             .GetFilesAt("res://data/")
             .Where(path => path.EndsWith(".json", OrdinalIgnoreCase))
             .Order()
             .ToArray();
+        mapFiles = mapNames
+            .Select(path =>
+                NotNil(Json.ParseString(FileAccess.GetFileAsString($"res://data/{path}")), path)
+            )
+            .ToArray();
+
+        mapNames = mapNames.Select(x => x.Replace(".json", "")).ToArray();
 
         maps = new MapElement[mapFiles.Length][,];
 
@@ -94,10 +93,10 @@ public static class MapTable
 
     public static string[] getMaps() => mapNames;
 
-    public static MapContatiner GetMap(int index)
+    public static MapContainer GetMap(int index)
     {
         if (!IsValidMap(index))
             throw new ArgumentException($"{index} not a valid mapID");
-        return new MapContatiner(mapNames[index], maps[index]);
+        return new MapContainer(mapNames[index], ((MapElement[,])maps[index].Clone()));
     }
 }
