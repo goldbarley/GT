@@ -26,22 +26,6 @@ public enum AttackRange
     WARRIOR_ATTACK_AOE = 9, /* 3x3 */
 }
 
-public enum SkillCooldown
-{
-    SKILL_UNKNOWN = -1,
-    MAGE_ATTACK_SINGLE = 0,
-    MAGE_ATTACK_DIAGONAL_QUAD = 2,
-    MAGE_ATTACK_AOE = 3,
-    MAGE_ATTACK_PILLAR = 3,
-    MAGE_DEFENSE_INVINCIBILITY = 4,
-    MAGE_DEFENSE_BARRIER = 2,
-    MAGE_DEFENSE_TELEPORT = 3,
-
-    WARRIOR_ATTACK_SLASH = 0,
-    WARRIOR_ATTACK_AOE = 3,
-    WARRIOR_DEFENSE_SHIELD = 1,
-}
-
 public enum SkillDamage
 {
     SKILL_UNKNOWN = 0,
@@ -49,50 +33,49 @@ public enum SkillDamage
     MAGE_DIAGONAL_QUAD_DAMAGE = 10,
     MAGE_AOE_DAMAGE = 20,
     MAGE_PILLAR_DAMAGE = 20,
-    MAGE_INVINCIBILITY_DAMAGE = -SkillCooldown.MAGE_DEFENSE_INVINCIBILITY,
-    MAGE_BARRIER_DAMAGE = -SkillCooldown.MAGE_DEFENSE_BARRIER,
-    MAGE_TELEPORT_DAMAGE = -SkillCooldown.MAGE_DEFENSE_TELEPORT,
+    Barrier_DAMAGE = -20,
+    MAGE_BARRIER_DAMAGE = -20,
 
     WARRIOR_STAB_DAMAGE = 30,
     WARRIOR_AOE_DAMAGE = 15,
-    WARRIOR_SHIELD_DAMAGE = -SkillCooldown.WARRIOR_DEFENSE_SHIELD,
+    WARRIOR_SHIELD_DAMAGE = -30,
 }
 
-public class Skill
-{
-    public SkillType type;
-    public AttackRange range;
-    public SkillCooldown cooldown;
+// public class Skill
+// {
+//     public SkillType type;
+//     public AttackRange range;
+//     public int cooldown;
+//
+//     public Skill()
+//     {
+//         this.type = SkillType.UNKNOWN;
+//         this.range = AttackRange.ATTACK_UNKNOWN;
+//         this.cooldown = int.SKILL_UNKNOWN;
+//     }
+//
+//     public Skill(SkillType type, AttackRange range, int cooldown)
+//     {
+//         this.type = type;
+//         this.range = range;
+//         this.cooldown = cooldown;
+//     }
+// }
 
-    public Skill()
-    {
-        this.type = SkillType.UNKNOWN;
-        this.range = AttackRange.ATTACK_UNKNOWN;
-        this.cooldown = SkillCooldown.SKILL_UNKNOWN;
-    }
-
-    public Skill(SkillType type, AttackRange range, SkillCooldown cooldown)
-    {
-        this.type = type;
-        this.range = range;
-        this.cooldown = cooldown;
-    }
-}
-
-public class SkillInfo
-{
-    CharacterClass charClass;
-    SkillType type;
-    SkillDamage damage;
-    AttackRange range;
-}
-
+// public class SkillInfo
+// {
+//     CharacterClass charClass;
+//     SkillType type;
+//     SkillDamage damage;
+//     AttackRange range;
+// }
+//
 public static class SkillTable
 {
     public static IVector2 skillGridMax;
 
-    public delegate void SkillPattern(
-        IVector2 player,
+    public delegate int SkillPattern(
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         ref SkillValue[,] skillGrid
@@ -105,7 +88,7 @@ public static class SkillTable
     }
 
     private static void _AttackSingle(
-        IVector2 player,
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         SkillDamage dmg,
@@ -115,12 +98,12 @@ public static class SkillTable
         if (skillGrid == null)
             return;
 
-        player.ScaleOnAxis(axes, length);
-        skillGrid[player.y, player.x] = (int)dmg;
+        character.ScaleOnAxis(axes, length);
+        skillGrid[character.y, character.x] = (int)dmg;
     }
 
     private static void _AttackAOE(
-        IVector2 player,
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         SkillDamage dmg,
@@ -130,12 +113,12 @@ public static class SkillTable
         if (skillGrid == null)
             return;
 
-        player.ScaleOnAxis(axes, length);
+        character.ScaleOnAxis(axes, length);
 
-        if (!IsValidIndex(player))
+        if (!IsValidIndex(character))
             return;
 
-        skillGrid[player.y, player.x] = (int)dmg;
+        skillGrid[character.y, character.x] = (int)dmg;
 
         IVector2[] neburs = new IVector2[]
         {
@@ -149,10 +132,10 @@ public static class SkillTable
             new IVector2(1, 1),
         };
 
-        IVector2 affReg = player;
+        IVector2 affReg = character;
         for (int i = 0; i < 8; ++i)
         {
-            affReg = player;
+            affReg = character;
             affReg.Add(neburs[i]);
             if (!IsValidIndex(affReg))
                 continue;
@@ -161,7 +144,7 @@ public static class SkillTable
     }
 
     private static void _Defense(
-        IVector2 player,
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         SkillDamage dmg,
@@ -171,70 +154,76 @@ public static class SkillTable
         if (skillGrid == null)
             return;
 
-        skillGrid[player.x, player.y] = (int)dmg;
+        skillGrid[character.x, character.y] = (int)dmg;
     }
 
-    private static void MageAttackSingle(
-        IVector2 player,
+    private static int MageAttackSingle(
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         ref SkillValue[,] skillGrid
     )
     {
-        _AttackSingle(player, length, axes, SkillDamage.MAGE_SINGLE_DAMAGE, ref skillGrid);
+        _AttackSingle(character, length, axes, SkillDamage.MAGE_SINGLE_DAMAGE, ref skillGrid);
+        return 1;
     }
 
-    private static void MageAttackAOE(
-        IVector2 player,
+    private static int MageAttackAOE(
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         ref SkillValue[,] skillGrid
     )
     {
-        _AttackAOE(player, length, axes, SkillDamage.MAGE_AOE_DAMAGE, ref skillGrid);
+        _AttackAOE(character, length, axes, SkillDamage.MAGE_AOE_DAMAGE, ref skillGrid);
+        return 3;
     }
 
-    private static void MageDefenseInvincibility(
-        IVector2 player,
+    private static int MageDefenseBarrier(
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         ref SkillValue[,] skillGrid
     )
     {
-        _Defense(player, length, axes, SkillDamage.MAGE_INVINCIBILITY_DAMAGE, ref skillGrid);
+        _Defense(character, length, axes, SkillDamage.Barrier_DAMAGE, ref skillGrid);
+        return 1;
     }
 
-    private static void WarriorAttackSingle(
-        IVector2 player,
+    private static int WarriorAttackSingle(
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         ref SkillValue[,] skillGrid
     )
     {
-        _AttackSingle(player, length, axes, SkillDamage.WARRIOR_STAB_DAMAGE, ref skillGrid);
+        _AttackSingle(character, length, axes, SkillDamage.WARRIOR_STAB_DAMAGE, ref skillGrid);
+        return 0;
     }
 
-    private static void WarriorAttackAOE(
-        IVector2 player,
+    private static int WarriorAttackAOE(
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         ref SkillValue[,] skillGrid
     )
     {
-        _AttackAOE(player, length, axes, SkillDamage.WARRIOR_AOE_DAMAGE, ref skillGrid);
+        _AttackAOE(character, length, axes, SkillDamage.WARRIOR_AOE_DAMAGE, ref skillGrid);
+        return 2;
     }
 
-    private static void WarriorDefenseShield(
-        IVector2 player,
+    private static int WarriorDefenseShield(
+        IVector2 character,
         IVector2 length,
         Cardinal axes,
         ref SkillValue[,] skillGrid
     )
     {
-        _Defense(player, length, axes, SkillDamage.WARRIOR_SHIELD_DAMAGE, ref skillGrid);
+        _Defense(character, length, axes, SkillDamage.WARRIOR_SHIELD_DAMAGE, ref skillGrid);
+        return 1;
     }
 
-    static SkillPattern[][] skills =
+    public static SkillPattern[][] skills =
     {
         /* 0 - Mage */
         new SkillPattern[]
@@ -243,7 +232,7 @@ public static class SkillTable
             // MageAttackDiagonalQuad, // Not implemented.
             MageAttackAOE, // Implemented.
             // MageAttackPillar, // Not implemented.
-            MageDefenseInvincibility, // Not implemented.
+            MageDefenseBarrier, // Not implemented.
             // MageDefenseBarrier, // Not implemented.
             // MageDefenseTeleport, // Not implemented.
         },
