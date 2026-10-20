@@ -47,10 +47,12 @@ public static class MapTable
 
             for (int j = 0; j < rows; j++)
             {
-                var row = matrix[i].AsGodotArray();
+                var row = matrix[j].AsGodotArray();
                 for (int k = 0; k < cols; k++)
                     map[j, k] = MatToMapElement(row[k].AsUInt16());
             }
+
+            maps[i] = map;
         }
     }
 
