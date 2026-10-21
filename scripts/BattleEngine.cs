@@ -64,6 +64,7 @@ public static class BattleEngine
     {
         MapTable.IsValidMap(mapIndex);
         map = MapTable.getMap(mapIndex);
+        occupancyGrid = new int[map.map.GetLength(0), map.map.GetLength(1)];
     }
 
     public static MapContainer getCurrentMap() => map;
@@ -87,9 +88,7 @@ public static class BattleEngine
             clock,
             players[0].getCurrentSkillGrid(),
             players[1].getCurrentSkillGrid(),
-            // TODO(vento): Add getCharacterPositions() to Player class
             players[0].getCharacterPositions(),
-            // TODO(vento): Add getCharacterPositions() to Player class
             players[1].getCharacterPositions(),
             players[0].getCharacterHPs(),
             players[1].getCharacterHPs(),
