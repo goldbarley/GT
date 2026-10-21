@@ -39,7 +39,7 @@ public class Character
         position = charPosition;
     }
 
-    public int charHP(CharacterClass i) =>
+    private int charHP(CharacterClass i) =>
         i switch
         {
             CharacterClass.MAGE => 75,
@@ -113,9 +113,11 @@ public class Character
             cooldowns[skill] = skills[skill](position, length, direction, ref skillGrid);
     }
 
-    public int[] currentCooldown => (int[])cooldowns.Clone();
-    public IVector2 currentPosition => position;
-    public int currentHP => HP;
+    public int[] currentCooldown() => (int[])cooldowns.Clone();
+
+    public IVector2 currentPosition() => position;
+
+    public int currentHP() => HP;
 
     public void dealDamage(int x)
     {

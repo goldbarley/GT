@@ -29,4 +29,22 @@ public class Player
             );
         this.perk = perk;
     }
+
+    public int[,] getCurrentSkillGrid() => (int[,])skillGrid.Clone();
+
+    public IVector2[] getCharacterPositions()
+    {
+        IVector2[] temp = new IVector2[characters.Length];
+        for (int i = 0; i < characters.Length; i++)
+            temp[i] = characters[i].currentPosition();
+        return temp;
+    }
+
+    public int[] getCharacterHPs()
+    {
+        int[] temp = new int[characters.Length];
+        for (int i = 0; i < characters.Length; i++)
+            temp[i] = characters[i].currentHP();
+        return temp;
+    }
 }

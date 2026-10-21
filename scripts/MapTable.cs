@@ -81,9 +81,10 @@ public static class MapTable
         return x;
     }
 
-    public static bool IsValidMap(int index)
+    public static void IsValidMap(uint index)
     {
-        return index < maps.GetLength(0) && index >= 0;
+        if (!(index < maps.GetLength(0) && index >= 0))
+            throw new ArgumentException("Please select a valid map");
     }
 
     public static bool IsValidIndex(int x, int y, MapElement[,] map)
@@ -93,10 +94,9 @@ public static class MapTable
 
     public static string[] getMaps() => mapNames;
 
-    public static MapContainer GetMap(int index)
+    public static MapContainer getMap(uint index)
     {
-        if (!IsValidMap(index))
-            throw new ArgumentException($"{index} not a valid mapID");
+        IsValidMap(index);
         return new MapContainer(mapNames[index], ((MapElement[,])maps[index].Clone()));
     }
 }
