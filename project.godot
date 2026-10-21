@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="GT"
+run/main_scene="res://scenes/SkyIslandMap.tscn"
 config/features=PackedStringArray("4.7", "C#", "Mobile")
 config/icon="res://icon.svg"
 
