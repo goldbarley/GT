@@ -22,8 +22,7 @@ public class Character
     public Character(
         CharacterClass cc,
         int[] stepOrder,
-        int x,
-        int y,
+        IVector2 charPosition,
         MapElement[,] map,
         int[,] skillGrid
     )
@@ -37,7 +36,7 @@ public class Character
         this.map = map;
         this.skillGrid = skillGrid;
         HP = charHP((cc));
-        position = new IVector2(x, y);
+        position = charPosition;
     }
 
     public int charHP(CharacterClass i) =>
