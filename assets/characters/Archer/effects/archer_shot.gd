@@ -15,7 +15,6 @@ extends RefCounted
 const BeamScene := preload("res://assets/characters/Archer/effects/archer_beam.tscn")
 const ShockwaveScene := preload("res://assets/characters/Archer/effects/arrow_shockwave.tscn")
 const GroundTearScene := preload("res://assets/characters/Archer/effects/ground_tear.tscn")
-const DustScene := preload("res://assets/characters/Archer/effects/archer_dust.tscn")
 const ArrowScene := preload("res://assets/characters/Archer/effects/arrow_projectile.tscn")
 const ChargedArrowScene := preload("res://assets/characters/Archer/effects/charged_arrow_projectile.tscn")
 
@@ -116,14 +115,6 @@ static func fire_strong_skill(parent: Node, origin: Vector2, direction: Vector2,
 		tear.scale = size
 		tear.global_position = Vector2(origin.x + dir.x * 8.0 * arrow_scale, ground_y)
 
-	var dust := DustScene.instantiate() as ArcherDust
-	if dust:
-		parent.add_child(dust)
-		dust.scale = size
-		dust.global_position = Vector2(origin.x - dir.x * 16.0 * arrow_scale, ground_y)
-		dust.direction = -dir
-
-
 ## Fires the shot.
 ##
 ## `parent` is where the shot is put, `origin` is the bow, `direction` is the
@@ -167,11 +158,3 @@ static func fire(parent: Node, origin: Vector2, direction: Vector2,
 
 		tear.scale = size
 		tear.global_position = Vector2(origin.x + dir.x * 8.0 * arrow_scale, ground_y)
-
-	# The dust she kicks up goes behind her feet because she is shoved back.
-	var dust := DustScene.instantiate() as ArcherDust
-	if dust:
-		parent.add_child(dust)
-		dust.scale = size
-		dust.global_position = Vector2(origin.x - dir.x * 20.0 * arrow_scale, ground_y)
-		dust.direction = -dir

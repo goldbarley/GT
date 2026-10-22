@@ -42,6 +42,22 @@ public static class MatchChecks
         Fight(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(1).getCharacter(0).currentHP() == 75, "Barrier should absorb slash.");
 
+        Setup(CharacterClass.MAGE, CharacterClass.WARRIOR, new(6, 5), new(8, 5));
+        BattleEngine.setStep(1, 0, 0, -3, 2, new(2, 2));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 100,
+            "Mage Starfall should retain its area damage.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[2] == 5,
+            "Mage Starfall should have its increased cooldown.");
+
+        Setup(CharacterClass.WARRIOR, CharacterClass.MAGE, new(6, 5), new(8, 5));
+        BattleEngine.setStep(1, 0, 0, -2, 2, new(2, 2));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 45,
+            "Knight Lance Thrust should retain its single-target damage.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[1] == 3,
+            "Knight Lance Thrust should have its increased cooldown.");
+
         Setup(CharacterClass.MAGE, CharacterClass.WARRIOR, new(7, 5), new(8, 5));
         BattleEngine.setStep(1, 0, 0, -1, 2); BattleEngine.setStep(1, 0, 1, -1, 2); BattleEngine.setStep(1, 0, 2, -1, 2);
         Fight(); BattleEngine.advanceOneTick(); BattleEngine.advanceOneTick(); BattleEngine.advanceOneTick();
@@ -76,16 +92,31 @@ public static class MatchChecks
         Fight(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 105,
             "Archer double shot must hit at four tiles.");
-        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[1] == 3,
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[1] == 4,
             "Archer double shot must apply its cooldown.");
 
+        Setup(CharacterClass.ARCHER, CharacterClass.WARRIOR, new(6, 5), new(12, 5));
+        BattleEngine.setStep(1, 0, 0, -3, 2, new(6, 6));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 95,
+            "Archer Piercing Draw must deal 25 damage at six tiles.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[2] == 4,
+            "Archer Piercing Draw must apply its cooldown.");
+
         Setup(CharacterClass.ARCHER, CharacterClass.WARRIOR, new(7, 5), new(10, 5));
-        BattleEngine.setStep(1, 0, 0, -3, 2, new(3, 3));
+        BattleEngine.setStep(1, 0, 0, -4, 2, new(3, 3));
         Fight(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 110,
             "Archer Godray must hit along its cardinal line.");
-        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[2] == 5,
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[3] == 5,
             "Archer Godray must apply its cooldown.");
+        Require(MatchSession.SkillNames(CharacterClass.ARCHER).Length == 4
+            && MatchSession.SkillNames(CharacterClass.ARCHER)[2] == "Piercing Draw",
+            "Archer's four authored attacks must all have gameplay names.");
+        Require(MatchSession.Cooldowns(CharacterClass.MAGE)[2] == 4
+            && MatchSession.Cooldowns(CharacterClass.WARRIOR)[1] == 2
+            && MatchSession.Cooldowns(CharacterClass.ARCHER)[1] == 3,
+            "Cooldown labels must match the tuned combat cooldowns.");
 
         Setup(CharacterClass.MAGE, CharacterClass.WARRIOR, new(7, 5), new(9, 5));
         BattleEngine.setStep(1, 0, 0, 5, 4, new(10, 10));

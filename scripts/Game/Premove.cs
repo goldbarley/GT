@@ -8,6 +8,8 @@ public partial class Premove : Control
     readonly Color ink = new("3a2a1b"), muted = new("6f573c"), gold = new("8a5a2b"), cyan = new("2f4f7a"), coral = new("a33b32");
     Control shell;
     Control keyOverlay;
+    PanelContainer keyPanel;
+    MarginContainer battleCenterMargin;
     readonly int[] executing = { 0, 0 };
     string screen = "title";
     int characterIndex, tutorialPage;
@@ -123,9 +125,9 @@ public partial class Premove : Control
         body.AddChild(leftScroll); leftScroll.Visible = false;
         left = new VBoxContainer { CustomMinimumSize = new Vector2(0, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill }; leftScroll.AddChild(left);
         var center = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        var centerMargin = new MarginContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        centerMargin.AddThemeConstantOverride("margin_right", 272);
-        centerMargin.AddChild(center); body.AddChild(centerMargin);
+        battleCenterMargin = new MarginContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        battleCenterMargin.AddThemeConstantOverride("margin_right", 272);
+        battleCenterMargin.AddChild(center); body.AddChild(battleCenterMargin);
         var boardPanel = new PanelContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
         boardPanel.AddThemeStyleboxOverride("panel", Box("88674c", "38271f", 0)); center.AddChild(boardPanel);
         board = new BattleBoard { Session = match, CustomMinimumSize = new Vector2(380, 420), SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
@@ -133,15 +135,32 @@ public partial class Premove : Control
         board.TileClicked += OnTile;
         tileInfo = Label("ARENA   /   G: TILE VIEW", 12, muted); center.AddChild(tileInfo);
         board.TileHovered += text => tileInfo.Text = text == "" ? "ARENA   /   G: TILE VIEW" : text;
-        var keyPanel = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
+        keyPanel = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
         keyPanel.AddThemeStyleboxOverride("panel", Box("c6d6dfef", "355c75", 0));
         keyOverlay = keyPanel; AddChild(keyPanel); keyPanel.SetAnchorsAndOffsetsPreset(LayoutPreset.TopRight);
-        keyPanel.OffsetLeft = -292; keyPanel.OffsetRight = -24; keyPanel.OffsetTop = 104; keyPanel.OffsetBottom = 690;
-        var rightScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsVertical = SizeFlags.ExpandFill };
+        var rightScroll = new ScrollContainer {
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            VerticalScrollMode = ScrollContainer.ScrollMode.Auto,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            SizeFlagsVertical = SizeFlags.ExpandFill
+        };
         keyPanel.AddChild(rightScroll);
         right = new VBoxContainer { CustomMinimumSize = new Vector2(232, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill }; rightScroll.AddChild(right);
         footer = new VBoxContainer { CustomMinimumSize = new Vector2(0, 115) }; root.AddChild(footer);
         overlay = new Control { MouseFilter = MouseFilterEnum.Ignore }; AddChild(overlay); overlay.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        GetViewport().SizeChanged += ResizeBattleLayout;
+        ResizeBattleLayout();
+    }
+
+    void ResizeBattleLayout()
+    {
+        if (keyPanel == null) return;
+        Vector2 viewport = GetViewportRect().Size;
+        keyPanel.OffsetLeft = -292;
+        keyPanel.OffsetRight = -24;
+        keyPanel.OffsetTop = 88;
+        keyPanel.OffsetBottom = -24;
+        battleCenterMargin?.AddThemeConstantOverride("margin_right", Mathf.RoundToInt(Mathf.Min(272, Mathf.Max(208, viewport.X * 0.34f))));
     }
 
     Label Label(string text, int size = 15, Color? color = null)
@@ -803,10 +822,10 @@ public partial class Premove : Control
         {
             int skill = -number;
             bool exists = number <= names.Length;
-            string caption = exists ? $"{number}\n{names[number - 1].Replace("Energy barrier", "Barrier").Replace("Meteorite", "Meteor").Replace("Quad beam", "Beam").Replace("Knight's Edge", "Edge")}\n{(cooldown[number - 1] > 0 ? "CD " + cooldown[number - 1] : "READY")}" : number.ToString();
+            string caption = exists ? $"{number}\n{SkillButtonName(names[number - 1])}\n{(cooldown[number - 1] > 0 ? "CD " + cooldown[number - 1] : "READY")}" : number.ToString();
             var key = Button(caption, () => { if (exists) match.SelectSkill(number); Refresh(); }, !exists, match.Action == skill);
             key.AddThemeFontSizeOverride("font_size", 16);
-            key.CustomMinimumSize = new Vector2(65, 76); key.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            key.CustomMinimumSize = new Vector2(65, 84); key.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             var cap = Box(match.Action == skill ? "f4e3c2" : "e6cfa8", match.Action == skill ? "8a5a2b" : "8a6a45aa");
             cap.ContentMarginLeft = cap.ContentMarginRight = 4;
             key.AddThemeStyleboxOverride("normal", cap); key.AddThemeStyleboxOverride("disabled", cap);
@@ -821,6 +840,21 @@ public partial class Premove : Control
             actions.AddChild(Label("ARROWS aim   +/- range", 16, muted));
             actions.AddChild(Label("ENTER add · NUM 0 end", 16, gold));
         }
+
+        static string SkillButtonName(string name) => name switch
+        {
+            "Cinderbolt" => "Cinder",
+            "Ember Aegis" => "Aegis",
+            "Prism Barrage" => "Prism",
+            "Trueflight" => "Trueflight",
+            "Twinstring" => "Twinstring",
+            "Piercing Draw" => "Piercer",
+            "Lance Thrust" => "Thrust",
+            "Skybreaker" => "Skybreak",
+            "Rift Edge" => "Rift Edge",
+            "Iron Vow" => "Iron Vow",
+            _ => name
+        };
     }
 
     int[] PlanningCooldowns(Character unit)
@@ -910,7 +944,7 @@ public partial class Premove : Control
             }
         }
         int dr = row - from.x, dc = col - from.y;
-        if (dr != 0 && dc != 0) { transient = "Aim along a row or column. Quad beam and guard target automatically."; Refresh(); return; }
+        if (dr != 0 && dc != 0) { transient = "Aim along a row or column. Prism Barrage and defensive skills target automatically."; Refresh(); return; }
         if (dr == 0 && dc == 0) return;
         match.Direction = dr == 0 ? dc < 0 ? 3 : 4 : dr < 0 ? 1 : 2;
         match.Range = Math.Abs(dr + dc); Refresh();

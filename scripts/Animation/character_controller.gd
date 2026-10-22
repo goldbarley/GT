@@ -24,6 +24,7 @@ signal action_started(action_name: String)
 signal action_impact(action_name: String)
 signal action_finished(action_name: String)
 signal camera_shake_requested(amount: float)
+signal hit_received(hit_position: Vector2)
 
 ## The action played while the character is standing still.
 @export var idle_action: String = ""
@@ -46,6 +47,9 @@ var is_walking: bool = false
 var _action_name: String = ""
 var _busy: bool = false
 var _connected_player: Node = null
+const HitEffectClass := preload("res://assets/effects/hit/hit_effect.gd")
+var _hit_effect: Node2D = null
+var _hit_tween: Tween = null
 
 
 func _ready() -> void:
@@ -195,3 +199,19 @@ func _on_player_clip_finished(clip_name: String) -> void:
 
 func _on_player_camera_shake(amount: float) -> void:
 	camera_shake_requested.emit(amount)
+
+
+func play_hit(local_offset: Vector2 = Vector2(0, -12), duration: float = 0.28, tint: Color = Color.WHITE) -> void:
+	if _hit_effect == null or not is_instance_valid(_hit_effect):
+		_hit_effect = HitEffectClass.new()
+		add_child(_hit_effect)
+	_hit_effect.position = local_offset
+	_hit_effect.play(duration, tint)
+	hit_received.emit(local_offset)
+
+	if active_rig != null and is_instance_valid(active_rig):
+		if _hit_tween != null and _hit_tween.is_valid():
+			_hit_tween.kill()
+		_hit_tween = create_tween()
+		active_rig.modulate = Color(1.8, 1.8, 1.8, 1.0)
+		_hit_tween.tween_property(active_rig, "modulate", Color.WHITE, duration * 0.7)

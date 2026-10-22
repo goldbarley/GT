@@ -63,21 +63,26 @@ public sealed class MatchSession
 
     public static string ClassName(CharacterClass c) => c == CharacterClass.WARRIOR ? "Knight" : c.ToString()[0] + c.ToString().Substring(1).ToLowerInvariant();
     public static string[] SkillNames(CharacterClass c) => c == CharacterClass.MAGE
-        ? new[] { "Fireball", "Energy barrier", "Meteorite", "Quad beam" }
+        ? new[] { "Cinderbolt", "Ember Aegis", "Starfall", "Prism Barrage" }
         : c == CharacterClass.ARCHER
-            ? new[] { "Basic shot", "Double shot", "Godray" }
-            : new[] { "Slash", "Stab", "Plunge", "Knight's Edge", "Shield" };
+            ? new[] { "Trueflight", "Twinstring", "Piercing Draw", "Godray" }
+            : c == CharacterClass.ORC
+                ? new[] { "Skullsplitter", "Quakebreaker", "Stonehide" }
+                : new[] { "Crosscut", "Lance Thrust", "Skybreaker", "Rift Edge", "Iron Vow" };
     public static int[] Cooldowns(CharacterClass c) => c switch
     {
-        CharacterClass.MAGE => new[] { 1, 1, 3, 3 },
-        CharacterClass.ARCHER => new[] { 1, 2, 4 },
-        _ => new[] { 0, 1, 3, 2, 2 }
+        CharacterClass.MAGE => new[] { 1, 1, 4, 3 },
+        CharacterClass.ARCHER => new[] { 1, 3, 3, 4 },
+        CharacterClass.ORC => new[] { 1, 3, 2 },
+        _ => new[] { 0, 2, 4, 2, 2 }
     };
     public static string[] SkillDetails(CharacterClass c) => c == CharacterClass.MAGE
-        ? new[] { "15 damage · cardinal target", "Block 20 damage · self", "20 damage · 3 × 3 area", "10 damage · four diagonal rays" }
+        ? new[] { "15 damage · cardinal target · cooldown 1", "Block 20 damage · self · cooldown 1", "20 damage · 3 × 3 area · cooldown 4", "10 damage · four diagonal rays · cooldown 3" }
         : c == CharacterClass.ARCHER
-            ? new[] { "18 damage · cardinal target at 3 tiles · cooldown 1", "15 damage at 4 and 5 tiles · cooldown 2", "10 damage along the full cardinal line · cooldown 4" }
-            : new[] { "20 damage · 1 tile", "30 damage · 2 tiles", "15 damage · 3 × 3 · range 2–3", "25 damage · 2 tiles", "Block 30 damage · self" };
+            ? new[] { "18 damage · cardinal target at 3 tiles · cooldown 1", "15 damage at 4 and 5 tiles · cooldown 3", "25 damage · cardinal target at 6 tiles · cooldown 3", "10 damage along the full cardinal line · cooldown 4" }
+            : c == CharacterClass.ORC
+                ? new[] { "28 damage · cardinal target", "20 damage · 3 × 3 area", "Block 25 damage · self" }
+                : new[] { "20 damage · 1 tile · cooldown 0", "30 damage · 2 tiles · cooldown 2", "15 damage · 3 × 3 · range 2–3 · cooldown 4", "25 damage · 2 tiles · cooldown 2", "Block 30 damage · self · cooldown 2" };
     public static string[] PerkNames = { "King Crimson", "Defy Destiny", "Teleport", "Tactician" };
     public static string[] PerkDetails = {
         "See enemy plans for 90 seconds after both sides lock. Edit your own plan in that window.",
@@ -191,7 +196,11 @@ public sealed class MatchSession
         (CharacterClass.WARRIOR, 3) => new[] { 2 },
         (CharacterClass.ARCHER, 0) => new[] { 3 },
         (CharacterClass.ARCHER, 1) => new[] { 4, 5 },
-        (CharacterClass.ARCHER, 2) => new[] { 1 },
+        (CharacterClass.ARCHER, 2) => new[] { 6 },
+        (CharacterClass.ARCHER, 3) => new[] { 1 },
+        (CharacterClass.ORC, 0) => new[] { 1, 2, 3, 4, 5, 6 },
+        (CharacterClass.ORC, 1) => new[] { 1, 2, 3, 4, 5, 6 },
+        (CharacterClass.ORC, 2) => new[] { 1 },
         _ => Array.Empty<int>()
     };
 

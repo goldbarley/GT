@@ -9,7 +9,7 @@ public enum AttackRange
     MAGE_FIREBALL = -1, MAGE_SHIELD = 0, MAGE_METEORITE = -1, MAGE_QUAD_BEAM = 4,
     WARRIOR_SLASH = 1, WARRIOR_STAB = 2, WARRIOR_PLUNGE = 3,
     WARRIOR_EDGE = 2, WARRIOR_SHIELD = 0,
-    ARCHER_BASIC = 3, ARCHER_DOUBLE = 5, ARCHER_ULTIMATE = -1,
+    ARCHER_BASIC = 3, ARCHER_DOUBLE = 5, ARCHER_STRONG = 6, ARCHER_ULTIMATE = -1,
 
     MAGE_ATTACK_SINGLE = MAGE_FIREBALL, MAGE_ATTACK_DIAGONAL_QUAD = MAGE_QUAD_BEAM,
     MAGE_ATTACK_AOE = MAGE_METEORITE, MAGE_ATTACK_AOE_AREA = 9,
@@ -23,7 +23,7 @@ public enum SkillDamage
     MAGE_FIREBALL = 15, MAGE_SHIELD = -20, MAGE_METEORITE = 20, MAGE_QUAD_BEAM = 10,
     WARRIOR_SLASH = 20, WARRIOR_STAB = 30, WARRIOR_PLUNGE = 15,
     WARRIOR_EDGE = 25, WARRIOR_SHIELD = -30,
-    ARCHER_BASIC = 18, ARCHER_DOUBLE = 15, ARCHER_ULTIMATE = 10,
+    ARCHER_BASIC = 18, ARCHER_DOUBLE = 15, ARCHER_STRONG = 25, ARCHER_ULTIMATE = 10,
     ORC_SMASH_DAMAGE = 28, ORC_AOE_DAMAGE = 20, ORC_GUARD = -25,
 
     MAGE_SINGLE_DAMAGE = MAGE_FIREBALL, MAGE_DIAGONAL_QUAD_DAMAGE = MAGE_QUAD_BEAM,
@@ -104,7 +104,7 @@ public static class SkillTable
     {
         IVector2 d = Direction(a);
         Square(At(p, d, RequestedDistance(l, d)), 3, (int)SkillDamage.MAGE_METEORITE, ref g);
-        return 3;
+        return 4;
     }
     private static int MageQuadBeam(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
@@ -123,14 +123,14 @@ public static class SkillTable
     private static int KnightStab(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
         Mark(At(p, Direction(a), 2), (int)SkillDamage.WARRIOR_STAB, ref g);
-        return 1;
+        return 2;
     }
     private static int KnightPlunge(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
         IVector2 d = Direction(a);
         int distance = RequestedDistance(l, d) >= 3 ? 3 : 2;
         Square(At(p, d, distance), 3, (int)SkillDamage.WARRIOR_PLUNGE, ref g);
-        return 3;
+        return 4;
     }
     private static int KnightEdge(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
@@ -154,7 +154,12 @@ public static class SkillTable
         IVector2 d = Direction(a);
         Mark(At(p, d, 4), (int)SkillDamage.ARCHER_DOUBLE, ref g);
         Mark(At(p, d, 5), (int)SkillDamage.ARCHER_DOUBLE, ref g);
-        return 2;
+        return 3;
+    }
+    private static int ArcherStrong(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
+    {
+        Mark(At(p, Direction(a), 6), (int)SkillDamage.ARCHER_STRONG, ref g);
+        return 3;
     }
     private static int ArcherUltimate(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
@@ -186,7 +191,7 @@ public static class SkillTable
     {
         new SkillPattern[] { MageFireball, MageShield, MageMeteorite, MageQuadBeam },
         new SkillPattern[] { KnightSlash, KnightStab, KnightPlunge, KnightEdge, KnightShield },
-        new SkillPattern[] { ArcherBasic, ArcherDouble, ArcherUltimate },
+        new SkillPattern[] { ArcherBasic, ArcherDouble, ArcherStrong, ArcherUltimate },
         new SkillPattern[] { OrcSmash, OrcArea, OrcGuard }
     };
 }

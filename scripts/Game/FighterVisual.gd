@@ -1,5 +1,7 @@
 extends Node2D
 
+const HitEffectClass := preload("res://assets/effects/hit/hit_effect.gd")
+
 var kind: int = 0
 var rigs: Dictionary = {}
 var players: Dictionary = {}
@@ -20,6 +22,9 @@ var playing_action := 0
 var reaction: Tween
 var beam_started := false
 var arena_clip := Rect2()
+var teleport_progress := -1.0
+var teleport_destination := Vector2.ZERO
+var teleport_moved := false
 
 func configure(character_class: int) -> void:
 	kind = character_class
@@ -70,8 +75,8 @@ func show_direction(direction: int) -> void:
 		if not player.is_inside_tree():
 			player._cache_rig()
 		player.clip_finished.connect(_finished)
-		if kind == 2:
-			player.clip_impact.connect(_archer_impact)
+		player.clip_impact.connect(_animation_impact)
+		player.pose_applied.connect(_apply_aim_pose.bind(perspective))
 		rigs[perspective] = rig
 		players[perspective] = player
 	current = players[perspective]
@@ -123,6 +128,9 @@ func fit_display(area: Vector2) -> void:
 func idle() -> void:
 	queue_redraw()
 	action_duration = 0.0
+	teleport_progress = -1.0
+	for rig in rigs.values():
+		rig.modulate = Color.WHITE
 	if current != null:
 		current.stop()
 		current.dismiss_effect()
@@ -161,6 +169,7 @@ func get_menu_shadow_offset() -> Vector2:
 
 func perform(action: int, direction: int, destination: Vector2, target: Vector2, duration: float) -> void:
 	action_duration = 0.0
+	teleport_progress = -1.0
 	authored_impact = 0.0
 	cast_target_local = target
 	playing_action = action
@@ -173,26 +182,35 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 		current.stop()
 		current.dismiss_effect()
 	show_direction(direction if action < 0 or action == 5 else action if action > 0 else direction)
+	if action == 5:
+		teleport_progress = 0.0
+		teleport_destination = destination
+		teleport_moved = false
+		action_elapsed = 0.0
+		action_duration = maxf(duration, 0.8)
+		current.playback_speed = 1.0
+		current.play("mage_idle" if kind == 0 else "archer_idle" if kind == 2 else "knight_idle")
+		return
 	var clip: String = ""
 	if action >= 1 and action <= 4:
 		clip = "mage_walk" if kind == 0 else "archer_walk" if kind == 2 else "knight_walk"
-	elif action == 5:
-		clip = "mage_teleport_reappear" if kind == 0 else "archer_idle" if kind == 2 else "knight_walk"
 	elif action < 0:
 		var names: Array
 		if kind == 0:
 			names = ["mage_fireball", "mage_energy_barrier", "mage_meteorite", "mage_cast"]
 		elif kind == 2:
-			names = ["archer_basic_attack", "archer_skill", "archer_charged_shot"]
+			names = ["archer_basic_attack", "archer_skill", "archer_strong_skill", "archer_charged_shot"]
 		else:
 			names = ["knight_slash", "knight_stab", "knight_plunge", "knight_ultimate", "knight_guard"]
 		clip = names[-action - 1]
 	if kind == 0:
-		rigs[facing].cast_target = get_parent().get_global_transform() * target
+		rigs[facing].cast_target = get_parent().to_global(target)
 		if action == -3:
 			var explosion: ExplosionColumn = rigs[facing].get_node_or_null("ExplosionFX")
 			if explosion != null:
 				explosion.clip_rect = arena_clip if arena_clip.has_area() else Rect2(Vector2.ZERO, get_viewport_rect().size)
+	if kind == 2 and action < 0:
+		_apply_aim_pose(0.0, facing)
 	if clip != "":
 		active_clip = clip
 		current.playback_speed = 1.0
@@ -204,14 +222,22 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 		authored_impact = float(current.clip_data.get("impact", current.get_duration() * 0.5))
 	if action == 0:
 		idle()
-	elif (action >= 1 and action <= 4) or action == 5:
+	elif action >= 1 and action <= 4:
 		var travel_time := current.get_duration() if current != null else maxf(duration, 0.1)
 		motion = create_tween()
 		motion.tween_property(self, "position", destination, travel_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		motion.tween_callback(idle)
+		motion.tween_callback(_finish_move)
 
 func _finished(_clip: String) -> void:
 	call_deferred("idle")
+
+func _finish_move() -> void:
+	idle()
+
+func _animation_impact(clip: String) -> void:
+	if kind == 2:
+		_archer_impact(clip)
+		return
 
 func _archer_impact(_clip: String) -> void:
 	var rig: ModularRig = rigs[facing]
@@ -219,7 +245,7 @@ func _archer_impact(_clip: String) -> void:
 	if bow == null:
 		push_error("Archer attack rig is missing its bow.")
 		return
-	var aim: Vector2 = get_parent().get_global_transform() * cast_target_local
+	var aim: Vector2 = get_parent().to_global(cast_target_local)
 	var direction := (aim - bow.global_position).normalized()
 	if direction == Vector2.ZERO:
 		direction = Vector2.RIGHT
@@ -230,11 +256,31 @@ func _archer_impact(_clip: String) -> void:
 	if playing_action == -1:
 		ArcherShot.fire_basic_attack(host, origin, direction, 1200.0, ground_y, shot_scale)
 	elif playing_action == -2:
-		var spread := direction.orthogonal() * 4.0 * shot_scale
+		var transform: Transform2D = get_parent().get_global_transform()
+		var tile_offset := (transform.x * direction.x + transform.y * direction.y) * 52.0
+		var spread := direction.orthogonal() * 3.0 * shot_scale
 		ArcherShot.fire_skill(host, origin - spread, direction, 1200.0, ground_y, shot_scale)
-		ArcherShot.fire_skill(host, origin + spread, direction, 1200.0, ground_y, shot_scale)
+		ArcherShot.fire_skill(host, origin + tile_offset + spread, direction, 1200.0, ground_y, shot_scale)
 	elif playing_action == -3:
+		ArcherShot.fire_strong_skill(host, origin, direction, 1500.0, ground_y, shot_scale)
+	elif playing_action == -4:
 		ArcherShot.fire(host, origin, direction, 1500.0, ground_y, shot_scale)
+
+func _apply_aim_pose(_t: float, perspective: String) -> void:
+	if kind != 2 or playing_action >= 0 or cast_target_local == Vector2.INF or not rigs.has(perspective):
+		return
+	var rig: ModularRig = rigs[perspective]
+	var bow: Sprite2D = rig.get_piece("bow")
+	if bow == null:
+		return
+	var aim: Vector2 = get_parent().to_global(cast_target_local)
+	bow.global_rotation = (aim - bow.global_position).angle()
+
+func _direction_code(perspective: String) -> int:
+	return {"back": 1, "front": 2, "left": 3, "right": 4}[perspective]
+
+func _direction_vector(direction: int) -> Vector2:
+	return {1: Vector2.UP, 2: Vector2.DOWN, 3: Vector2.LEFT, 4: Vector2.RIGHT}.get(direction, Vector2.RIGHT)
 
 func _ignore_mouse(node: Node) -> void:
 	if node is Control:
@@ -301,6 +347,7 @@ func set_arena_clip(area: Rect2) -> void:
 func react_to_hit(defeated: bool) -> void:
 	if reaction != null and reaction.is_valid():
 		reaction.kill()
+	HitEffectClass.spawn_at(get_parent(), global_position, 0.55, 0.28, Color(1.0, 0.82, 0.28, 1.0))
 	modulate = Color(1.6, 0.75, 0.75, 1.0)
 	reaction = create_tween()
 	reaction.tween_property(self, "modulate", Color(1, 1, 1, 0) if defeated else Color.WHITE, 0.24)
@@ -313,6 +360,7 @@ func reset_visual() -> void:
 	if reaction != null and reaction.is_valid():
 		reaction.kill()
 	modulate = Color.WHITE
+	teleport_progress = -1.0
 	if beam != null:
 		beam.set_playing(false)
 	for rig in rigs.values():
@@ -334,10 +382,18 @@ func get_action_impact_time() -> float:
 func _process(delta: float) -> void:
 	queue_redraw()
 	if kind == 0 and rigs.has(facing) and cast_target_local != Vector2.INF:
-		rigs[facing].cast_target = get_parent().get_global_transform() * cast_target_local
+		rigs[facing].cast_target = get_parent().to_global(cast_target_local)
 	if action_duration > 0.0:
 		action_elapsed += delta
 		var progress := action_elapsed / action_duration
+		if teleport_progress >= 0.0:
+			teleport_progress = clampf(progress, 0.0, 1.0)
+			if progress >= 0.5 and not teleport_moved:
+				position = teleport_destination
+				teleport_moved = true
+			var opacity := clampf(absf(teleport_progress - 0.5) * 2.0, 0.0, 1.0)
+			for rig in rigs.values():
+				rig.modulate = Color(1.0, 1.0, 1.0, opacity)
 		if kind == 0 and playing_action == -4 and progress >= impact_fraction and not beam_started:
 			beam_started = true
 			_fire_beams()
@@ -347,6 +403,20 @@ func _process(delta: float) -> void:
 		beam.anchor_to_gem(rigs[facing])
 
 func _draw() -> void:
+	if teleport_progress >= 0.0:
+		var openness := 1.0 - teleport_progress * 2.0 if teleport_progress <= 0.5 else (teleport_progress - 0.5) * 2.0
+		var separation := 28.0 * openness
+		var radius := 3.0 + 10.0 * openness
+		var tint := Color(0.72, 0.93, 1.0, 0.85)
+		for side in [-1.0, 1.0]:
+			var center := Vector2(side * separation, 0.0)
+			for ring in range(2):
+				var ring_radius := radius + float(ring) * 3.0
+				for segment in range(20):
+					var angle_a := TAU * float(segment) / 20.0
+					var angle_b := TAU * float(segment + 1) / 20.0
+					draw_line(center + Vector2.from_angle(angle_a) * ring_radius,
+						center + Vector2.from_angle(angle_b) * ring_radius, tint, 1.5)
 	if kind != 1 or action_duration <= 0.0 or playing_action >= 0 or playing_action == -5:
 		return
 	var phase := action_elapsed / action_duration - impact_fraction

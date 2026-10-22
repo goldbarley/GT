@@ -44,7 +44,7 @@ public partial class TitleTiles : Control
             for (int col = 0; col < 32; col++)
                 pattern[row, col] = random.Next(2) * 4 + (random.Next(4) == 0 ? random.Next(1, 4) : 0);
 
-        for (int kind = 0; kind < 2; kind++)
+        for (int kind = 0; kind < 3; kind++)
         {
             int characterKind = kind;
             var figure = new Node2D { ProcessMode = ProcessModeEnum.Always, ZIndex = 1 };

@@ -13,6 +13,10 @@ public partial class BattleBoard : Control
     public System.Collections.Generic.IEnumerable<Node2D> Fighters => actors.Values;
     public IReadOnlyList<Snapshot> TrailFrames = Array.Empty<Snapshot>();
     readonly Node2D world = new();
+    ColorRect abilityLighting;
+    ShaderMaterial abilityLightingMaterial;
+    float abilityLightingElapsed;
+    const float AbilityLightingDuration = 0.72f;
     Vector2 cameraOffset;
     float cameraScale = 1;
     public Snapshot ReplayFrame;
@@ -51,6 +55,18 @@ public partial class BattleBoard : Control
     public override void _Ready()
     {
         AddChild(world);
+        abilityLighting = new ColorRect {
+            MouseFilter = MouseFilterEnum.Ignore,
+            Color = Colors.White,
+            ZIndex = 1000
+        };
+        abilityLighting.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        abilityLightingMaterial = new ShaderMaterial {
+            Shader = GD.Load<Shader>("res://assets/shaders/battle_ability_lighting.gdshader")
+        };
+        abilityLighting.Material = abilityLightingMaterial;
+        abilityLighting.Visible = false;
+        AddChild(abilityLighting);
         Resized += () => { LayoutMap(); if (Session.Phase != MatchPhase.Combat && Session.Phase != MatchPhase.Rewind) Sync(); };
         LayoutMap();
 
@@ -142,6 +158,7 @@ public partial class BattleBoard : Control
         visualBefore = before; visualAfter = after; tickElapsed = 0; tickImpactDelay = 0; impactShown = false;
         tickAnimationsWaiting = true;
         damage.Clear(); effects = new int[Rows, Columns]; flash = 0;
+        abilityLighting.Visible = false;
         for (int p = 0; p < 2; p++)
         {
             int[,] skill = p == 0 ? after.player1SkillGrid : after.player2SkillGrid;
@@ -168,6 +185,14 @@ public partial class BattleBoard : Control
                     IVector2 length = slot < before.lengths[p][i].Length ? before.lengths[p][i][slot] : new IVector2(1, 1);
                     IVector2 target = MatchSession.Move(to, direction, direction <= 2 ? length.x : length.y);
                     actor.Call("perform", action, direction, Center(to.x, to.y), Center(target.x, target.y), (float)Session.TickSeconds);
+                    if (action < 0)
+                    {
+                        int skillIndex = -action - 1;
+                        int[] cooldowns = MatchSession.Cooldowns(Session.Rosters[p][i]);
+                        if (skillIndex < cooldowns.Length && cooldowns[skillIndex] >= 3
+                            && before.cooldowns[p][i][skillIndex] <= 1)
+                            TriggerAbilityLighting(actor, Session.Rosters[p][i], skillIndex);
+                    }
                     if (action == -1 && Session.Rosters[p][i] == CharacterClass.MAGE) Sound?.Play("fireball", 0.05f);
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("flame_sword", 0.05f);
                     tickImpactDelay = Math.Max(tickImpactDelay, (float)actor.Call("get_action_impact_time").AsDouble());
@@ -239,6 +264,7 @@ public partial class BattleBoard : Control
     public override void _Process(double delta)
     {
         CompleteTickAnimationsIfReady();
+        UpdateAbilityLighting((float)delta);
         if (Session?.Map == null || Concealed || Size.X <= 0 || Size.Y <= 0) return;
         if (!GetTree().Paused && !Session.Paused)
         {
@@ -270,6 +296,43 @@ public partial class BattleBoard : Control
         foreach (var actor in actors.Values) actor.Call("set_arena_clip", GetGlobalRect());
 
         QueueRedraw();
+    }
+
+    void TriggerAbilityLighting(Node2D actor, CharacterClass character, int skill)
+    {
+        if (abilityLightingMaterial == null || Size.X <= 0 || Size.Y <= 0) return;
+        Vector2 focus = (cameraOffset + actor.Position * cameraScale) / Size;
+        Color tint = character switch
+        {
+            CharacterClass.MAGE when skill == 2 => new Color("ff8b35"),
+            CharacterClass.MAGE => new Color("70d9ef"),
+            CharacterClass.ARCHER => new Color("a8f05a"),
+            CharacterClass.WARRIOR => new Color("ffc46a"),
+            _ => new Color("b9a0ff")
+        };
+        abilityLightingMaterial.SetShaderParameter("focus", focus);
+        abilityLightingMaterial.SetShaderParameter("tint", tint);
+        abilityLightingMaterial.SetShaderParameter("aspect_ratio", Size.X / Size.Y);
+        abilityLightingElapsed = 0;
+        abilityLightingMaterial.SetShaderParameter("intensity", 1.0f);
+        abilityLightingMaterial.SetShaderParameter("phase", 0.0f);
+        abilityLighting.Visible = true;
+    }
+
+    void UpdateAbilityLighting(float delta)
+    {
+        if (abilityLighting == null || !abilityLighting.Visible) return;
+        abilityLightingElapsed += delta;
+        float progress = abilityLightingElapsed / AbilityLightingDuration;
+        if (progress >= 1)
+        {
+            abilityLighting.Visible = false;
+            return;
+        }
+        float flicker = 0.72f + 0.28f * MathF.Sin(abilityLightingElapsed * 48);
+        float intensity = (1 - progress) * (1 - progress) * flicker;
+        abilityLightingMaterial.SetShaderParameter("intensity", intensity);
+        abilityLightingMaterial.SetShaderParameter("phase", abilityLightingElapsed);
     }
 
     bool TryGetBattleBounds(out Rect2 bounds)
