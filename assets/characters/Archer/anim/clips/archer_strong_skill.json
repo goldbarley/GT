@@ -1,0 +1,1023 @@
+{
+  "clip": "archer_strong_skill",
+  "description": "Power shot: the archer braces in a deep stance with bow upright (35\u00b0 anti-clockwise), draws with heavy tension, releases a charged arrow with recoil impact, and recovers.",
+  "fps": 24,
+  "loop": false,
+  "duration": 1.15,
+  "impact": 0.7,
+  "interpolation": "smooth",
+  "fx": {
+    "node": "GodrayFX",
+    "clip": false
+  },
+  "perspectives": {
+    "front": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.18,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -29.601
+            },
+            "bow": {
+              "rot": 46.351
+            },
+            "torso": {
+              "rot": -1.0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "foot_a": {
+              "rot": -2.0
+            },
+            "foot_b": {
+              "rot": 2.0
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -55.302
+            },
+            "bow": {
+              "rot": 85.552
+            },
+            "torso": {
+              "rot": -2.5,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": -3.5
+            },
+            "foot_b": {
+              "rot": 3.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.6,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -65.003
+            },
+            "bow": {
+              "rot": 100.003
+            },
+            "torso": {
+              "rot": -3.0,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": -4.0
+            },
+            "foot_b": {
+              "rot": 4.0
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.67,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -64.803
+            },
+            "bow": {
+              "rot": 99.803
+            },
+            "torso": {
+              "rot": -3.2,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": -4.2
+            },
+            "foot_b": {
+              "rot": 4.2
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.7,
+          "ease": "out_cubic",
+          "poses": {
+            "arm": {
+              "rot": -57.802
+            },
+            "bow": {
+              "rot": 87.552
+            },
+            "torso": {
+              "rot": 3.0,
+              "pos": {
+                "x": 0,
+                "y": 1
+              }
+            },
+            "foot_a": {
+              "rot": -4.5
+            },
+            "foot_b": {
+              "rot": 4.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.88,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -27.201
+            },
+            "bow": {
+              "rot": 41.201
+            },
+            "torso": {
+              "rot": 1.0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "foot_a": {
+              "rot": -1.5
+            },
+            "foot_b": {
+              "rot": 1.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 1.15,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        }
+      ]
+    },
+    "back": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.18,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 17.633
+            },
+            "bow": {
+              "rot": -34.383
+            },
+            "torso": {
+              "rot": 1.0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "foot_a": {
+              "rot": 2.0
+            },
+            "foot_b": {
+              "rot": -2.0
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 32.696
+            },
+            "bow": {
+              "rot": -62.946
+            },
+            "torso": {
+              "rot": 2.5,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": 3.5
+            },
+            "foot_b": {
+              "rot": -3.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.6,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 38.407
+            },
+            "bow": {
+              "rot": -73.407
+            },
+            "torso": {
+              "rot": 3.0,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": 4.0
+            },
+            "foot_b": {
+              "rot": -4.0
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.67,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 38.207
+            },
+            "bow": {
+              "rot": -73.207
+            },
+            "torso": {
+              "rot": 3.2,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": 4.2
+            },
+            "foot_b": {
+              "rot": -4.2
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.7,
+          "ease": "out_cubic",
+          "poses": {
+            "arm": {
+              "rot": 35.196
+            },
+            "bow": {
+              "rot": -64.946
+            },
+            "torso": {
+              "rot": -3.0,
+              "pos": {
+                "x": 0,
+                "y": 1
+              }
+            },
+            "foot_a": {
+              "rot": 4.5
+            },
+            "foot_b": {
+              "rot": -4.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.88,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 16.563
+            },
+            "bow": {
+              "rot": -30.563
+            },
+            "torso": {
+              "rot": -1.0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "foot_a": {
+              "rot": 1.5
+            },
+            "foot_b": {
+              "rot": -1.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 1.15,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        }
+      ]
+    },
+    "left": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.18,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 19.633
+            },
+            "bow": {
+              "rot": -2.883
+            },
+            "torso": {
+              "rot": -1.0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "foot_a": {
+              "rot": -2.0
+            },
+            "foot_b": {
+              "rot": 2.0
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 37.696
+            },
+            "bow": {
+              "rot": -7.446
+            },
+            "torso": {
+              "rot": -2.5,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": -3.5
+            },
+            "foot_b": {
+              "rot": 3.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.6,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 44.407
+            },
+            "bow": {
+              "rot": -9.407
+            },
+            "torso": {
+              "rot": -3.0,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": -4.0
+            },
+            "foot_b": {
+              "rot": 4.0
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.67,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 44.607
+            },
+            "bow": {
+              "rot": -9.607
+            },
+            "torso": {
+              "rot": -3.2,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": -4.2
+            },
+            "foot_b": {
+              "rot": 4.2
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.7,
+          "ease": "out_cubic",
+          "poses": {
+            "arm": {
+              "rot": 35.196
+            },
+            "bow": {
+              "rot": -5.446
+            },
+            "torso": {
+              "rot": 3.0,
+              "pos": {
+                "x": 0,
+                "y": 1
+              }
+            },
+            "foot_a": {
+              "rot": -4.5
+            },
+            "foot_b": {
+              "rot": 4.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.88,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 16.563
+            },
+            "bow": {
+              "rot": -2.563
+            },
+            "torso": {
+              "rot": 1.0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "foot_a": {
+              "rot": -1.5
+            },
+            "foot_b": {
+              "rot": 1.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 1.15,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        }
+      ]
+    },
+    "right": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.18,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -28.031
+            },
+            "bow": {
+              "rot": 11.281
+            },
+            "torso": {
+              "rot": 1.0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "foot_a": {
+              "rot": 2.0
+            },
+            "foot_b": {
+              "rot": -2.0
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -53.558
+            },
+            "bow": {
+              "rot": 23.308
+            },
+            "torso": {
+              "rot": 2.5,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": 3.5
+            },
+            "foot_b": {
+              "rot": -3.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.6,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -63.068
+            },
+            "bow": {
+              "rot": 28.068
+            },
+            "torso": {
+              "rot": 3.0,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": 4.0
+            },
+            "foot_b": {
+              "rot": -4.0
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.67,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -63.268
+            },
+            "bow": {
+              "rot": 28.268
+            },
+            "torso": {
+              "rot": 3.2,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "foot_a": {
+              "rot": 4.2
+            },
+            "foot_b": {
+              "rot": -4.2
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.7,
+          "ease": "out_cubic",
+          "poses": {
+            "arm": {
+              "rot": -51.058
+            },
+            "bow": {
+              "rot": 21.308
+            },
+            "torso": {
+              "rot": -3.0,
+              "pos": {
+                "x": 0,
+                "y": 1
+              }
+            },
+            "foot_a": {
+              "rot": 4.5
+            },
+            "foot_b": {
+              "rot": -4.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 0.88,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -24.027
+            },
+            "bow": {
+              "rot": 10.027
+            },
+            "torso": {
+              "rot": -1.0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              }
+            },
+            "foot_a": {
+              "rot": 1.5
+            },
+            "foot_b": {
+              "rot": -1.5
+            }
+          },
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        },
+        {
+          "time": 1.15,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "gather": 0.0,
+            "spiral": 0.0,
+            "focus": 0.0,
+            "energy_bow": 0.0,
+            "arrow": 0.0,
+            "charge": 0.0,
+            "flash": 0.0,
+            "basic_charge": 0.0,
+            "basic_burst": 0.0
+          }
+        }
+      ]
+    }
+  }
+}

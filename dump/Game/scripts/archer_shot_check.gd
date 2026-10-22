@@ -90,14 +90,27 @@ func _run() -> void:
 			if rect:
 				var mat := rect.material as ShaderMaterial
 				if mat:
-					print("   the beam shader: length %s  fade %s" % [
-						str(mat.get_shader_parameter("length")),
-						str(mat.get_shader_parameter("fade"))])
+					var tail_x := float(mat.get_shader_parameter("tail_x"))
+					var head: Vector2 = beam.global_position
+					var tail: Vector2 = head - beam.direction * ((1.0 - tail_x) * 1200.0)
+					var grip: Vector2 = rig.get_piece("bow").global_position
+					print("   the controller's rig is %s, the check's rig is %s" % [
+						str(controller.active_rig.name), str(rig.name)])
+					print("   the bow on the controller's rig is at %s" % [
+						str(controller.active_rig.get_piece("bow").global_position)])
+					print("   the beam: the node is at %s  the origin is %s" % [
+						str(beam.global_position), str(beam.origin_point)])
+					print("   the head is at %.1f, the tail is at %.1f, the bow was at %.1f  %s" % [
+						head.x, tail.x, beam.origin_point.x,
+						"forward" if tail.x >= beam.origin_point.x - 1.0 else "BACKWARD"])
 	var fx := _godray()
 	if fx:
-		print("   GodrayFX: visible %s  size %s  global %s  material %s" % [
-			str(fx.visible), str(fx.size), str(fx.global_position),
-			str(fx.material)])
+		var mat := fx.material as ShaderMaterial
+		var art: Variant = mat.get_shader_parameter("energy_tex") if mat else null
+		print("   GodrayFX: visible %s  size %s  material %s" % [
+			str(fx.visible), str(fx.size), str(fx.material)])
+		print("   the energy bow art on the shader: %s" % [
+			"a texture" if art is Texture2D else "NOT SET (%s)" % str(art)])
 		var bow := rig.get_piece("bow")
 		print("   the bow is at %s, the grip is its own origin" % str(bow.global_position))
 	_count_shot()

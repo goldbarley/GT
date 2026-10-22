@@ -120,9 +120,9 @@
             "spiral": 0.4,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 0.7,
-            "flash": 0.0
+            "flash": 0.0,
+            "arrow": 0.0
           }
         },
         {
@@ -154,9 +154,9 @@
             "spiral": 0.3,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 0.8,
-            "flash": 0.0
+            "flash": 0.0,
+            "arrow": 0.0
           }
         },
         {
@@ -188,9 +188,9 @@
             "spiral": 0.25,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 0.9,
-            "flash": 0.0
+            "flash": 0.0,
+            "arrow": 0.0
           }
         },
         {
@@ -215,12 +215,6 @@
             },
             "foot_b": {
               "rot": 5.0
-            },
-            "root": {
-              "pos": {
-                "x": 0.0,
-                "y": 24.0
-              }
             }
           },
           "fx": {
@@ -228,9 +222,9 @@
             "spiral": 0.0,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 1.0,
-            "flash": 1.0
+            "flash": 1.0,
+            "arrow": 0.0
           }
         },
         {
@@ -248,12 +242,6 @@
               "pos": {
                 "x": 0,
                 "y": 0
-              }
-            },
-            "root": {
-              "pos": {
-                "x": 0.0,
-                "y": 9.600000000000001
               }
             }
           },
@@ -392,9 +380,9 @@
             "spiral": 0.4,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 0.7,
-            "flash": 0.0
+            "flash": 0.0,
+            "arrow": 0.0
           }
         },
         {
@@ -426,9 +414,9 @@
             "spiral": 0.3,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 0.8,
-            "flash": 0.0
+            "flash": 0.0,
+            "arrow": 0.0
           }
         },
         {
@@ -460,9 +448,9 @@
             "spiral": 0.25,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 0.9,
-            "flash": 0.0
+            "flash": 0.0,
+            "arrow": 0.0
           }
         },
         {
@@ -487,12 +475,6 @@
             },
             "foot_b": {
               "rot": -5.0
-            },
-            "root": {
-              "pos": {
-                "x": 0.0,
-                "y": -24.0
-              }
             }
           },
           "fx": {
@@ -500,9 +482,9 @@
             "spiral": 0.0,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 1.0,
-            "flash": 1.0
+            "flash": 1.0,
+            "arrow": 0.0
           }
         },
         {
@@ -520,12 +502,6 @@
               "pos": {
                 "x": 0,
                 "y": 0
-              }
-            },
-            "root": {
-              "pos": {
-                "x": 0.0,
-                "y": -9.600000000000001
               }
             }
           },
@@ -664,7 +640,6 @@
             "spiral": 0.4,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 0.7,
             "flash": 0.0
           }
@@ -698,7 +673,6 @@
             "spiral": 0.3,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.6,
             "charge": 0.8,
             "flash": 0.0
           }
@@ -732,7 +706,6 @@
             "spiral": 0.25,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 1.0,
             "charge": 0.9,
             "flash": 0.0
           }
@@ -759,12 +732,6 @@
             },
             "foot_b": {
               "rot": 5.0
-            },
-            "root": {
-              "pos": {
-                "x": 24.0,
-                "y": 0.0
-              }
             }
           },
           "fx": {
@@ -772,7 +739,6 @@
             "spiral": 0.0,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 1.0,
             "charge": 1.0,
             "flash": 1.0
           }
@@ -792,12 +758,6 @@
               "pos": {
                 "x": 0,
                 "y": 0
-              }
-            },
-            "root": {
-              "pos": {
-                "x": 9.600000000000001,
-                "y": 0.0
               }
             }
           },
@@ -936,7 +896,6 @@
             "spiral": 0.4,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.0,
             "charge": 0.7,
             "flash": 0.0
           }
@@ -970,7 +929,6 @@
             "spiral": 0.3,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 0.6,
             "charge": 0.8,
             "flash": 0.0
           }
@@ -1004,7 +962,6 @@
             "spiral": 0.25,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 1.0,
             "charge": 0.9,
             "flash": 0.0
           }
@@ -1031,12 +988,6 @@
             },
             "foot_b": {
               "rot": -5.0
-            },
-            "root": {
-              "pos": {
-                "x": -24.0,
-                "y": 0.0
-              }
             }
           },
           "fx": {
@@ -1044,7 +995,6 @@
             "spiral": 0.0,
             "focus": 1.0,
             "energy_bow": 1.0,
-            "arrow": 1.0,
             "charge": 1.0,
             "flash": 1.0
           }
@@ -1064,12 +1014,6 @@
               "pos": {
                 "x": 0,
                 "y": 0
-              }
-            },
-            "root": {
-              "pos": {
-                "x": -9.600000000000001,
-                "y": 0.0
               }
             }
           },
