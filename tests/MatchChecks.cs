@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godot;
 
 public static class MatchChecks
@@ -81,9 +82,12 @@ public static class MatchChecks
         Require(session.Phase == MatchPhase.Planning && session.Viewer == 1, "Player one planning.");
         session.Paused = true; double seconds = session.Seconds; session.Update(5);
         Require(session.Seconds == seconds, "Pause must freeze the planning clock."); session.Paused = false;
+        session.Slot = 2; session.Edit(2); session.Slot = 0; session.Edit(2);
+        Require(BattleEngine.getPlayer(1).getCharacter(0).getStep(2) == 0, "Replacing an earlier move must clear later moves.");
         session.Slot = 3; session.Edit(2); session.LockPlan();
         Require(BattleEngine.getPlayer(1).getCharacter(0).getStep(3) == 0, "Commands after End must be removed.");
-        session.ContinueHandoff(); session.LockPlan(); session.ContinueHandoff(); session.ConfirmFighter(); session.ContinueHandoff(); session.ConfirmFighter();
+        session.ContinueHandoff(); session.Slot = 0; session.Edit(2); session.LockPlan();
+        session.ContinueHandoff(); session.Slot = 0; session.Edit(1); session.LockPlan(); session.ContinueHandoff(); session.ConfirmFighter(); session.ContinueHandoff(); session.ConfirmFighter();
         Require(session.Phase == MatchPhase.Combat, "Local match did not start.");
         session.Update(3); session.Update(3);
         Require(session.Phase == MatchPhase.Handoff, "Second exchange selection must be private.");
@@ -91,6 +95,35 @@ public static class MatchChecks
         session.ContinueHandoff(); session.ConfirmFighter(); session.Update(3); session.Update(3);
         Require(BattleEngine.getCycleIndex() == 1, "Two-fighter cycle did not finish.");
         session.ContinueHandoff(); Require(session.Phase == MatchPhase.Planning, "Next cycle planning did not open.");
+        for (int player = 1; player <= 2; player++)
+            for (int fighter = 0; fighter < 2; fighter++)
+                Require(BattleEngine.getPlayer((uint)player).getCharacter(fighter).getSteps().All(step => step == 0),
+                    "Plans must be cleared when the next planning phase starts.");
+
+        session.Start(true, 3, 0, 8, 123);
+        for (int col = 0; col < session.Map.GetLength(1) && session.Rosters[0].Count < 3; col++)
+            if (session.CanPlace(6, col))
+                session.Deploy(session.Rosters[0].Count == 1 ? CharacterClass.MAGE : CharacterClass.WARRIOR, 6, col);
+        session.ConfirmDeployment();
+        foreach (int player in new[] { 1, 2 })
+        {
+            for (int fighter = 0; fighter < 3; fighter++)
+            {
+                var character = BattleEngine.getPlayer((uint)player).getCharacter(fighter);
+                int expected = MatchSession.MoveLimit(character.characterClass(), 8);
+                Require(character.stepCount() == expected, "Move allowance must follow the character class and selected maximum.");
+                Require(character.stepCount() <= 8, "Per-class moves must respect the selected maximum.");
+            }
+        }
+
+        session.Start(true, 1, 0, 5, 321);
+        int spawnCol = Enumerable.Range(0, session.Map.GetLength(1)).First(col => session.CanPlace(6, col));
+        session.Deploy(CharacterClass.WARRIOR, 6, spawnCol);
+        session.ConfirmDeployment();
+        session.LockPlan();
+        Require(session.Phase == MatchPhase.Combat, "Single-fighter matches should auto-select both fighters.");
+        Require(BattleEngine.getDetails().selected.All(fighter => fighter == 0), "Single-fighter teams should be selected automatically.");
+
         GD.Print("CHECKS PASS: damage, defense, cooldowns, snapshots, teleport, collisions, future sight, rewind, privacy, clock, cycles");
     }
 
@@ -103,7 +136,7 @@ public static class MatchChecks
             var rigs = actor.Get("rigs").AsGodotDictionary();
             var rig = rigs[actor.Get("facing")].AsGodotObject() as Node2D;
             Vector2 canvas = rig.Get("canvas_size").AsVector2();
-            Require(Math.Abs(Math.Max(canvas.X, canvas.Y) * actor.Scale.X - tile) < 0.1f, "Standing sprite must fit its displayed tile.");
+            Require(Math.Abs(Math.Max(canvas.X, canvas.Y) * actor.Scale.X - tile * 1.2f) < 0.1f, "Standing sprite must be 20% larger than its displayed tile.");
             Rect2 bounds = actor.Get("rest_bounds").AsGodotDictionary()[actor.Get("facing")].AsRect2();
             Require((rig.Position + bounds.GetCenter()).Length() < 0.1f, "Resting silhouette must be centered on the tile.");
         }

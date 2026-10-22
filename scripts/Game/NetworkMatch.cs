@@ -60,7 +60,7 @@ public partial class NetworkMatch : Node
     {
         if (c.Arguments == null || c.Phase != (int)Session.Phase) return false;
         if (c.Viewer < 1 || c.Viewer > 2 || !Session.CanAct(c.Viewer)) return false;
-        if (c.Direction < 1 || c.Direction > 4 || c.Range < 1 || c.Range > 15 || c.Fighter < 0 || c.Fighter >= Session.TeamSize || c.Slot < 0 || c.Slot >= Session.PremoveLimit || c.Action < -5 || c.Action > 5) return false;
+        if (c.Direction < 1 || c.Direction > 4 || c.Range < 1 || c.Range > 15 || c.Fighter < 0 || c.Fighter >= Session.TeamSize || c.Slot < 0 || c.Slot >= Session.CharacterMoveLimit(c.Viewer, c.Fighter) || c.Action < -5 || c.Action > 5) return false;
         return c.Name switch {
             "Start" => c.Arguments.Length == 6,
             "RemoveFighter" => c.Arguments.Length == 2,

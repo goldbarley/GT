@@ -25,6 +25,7 @@ public sealed class MatchSession
     public readonly List<Snapshot> Replay = new();
     public readonly HashSet<int>[] Used = { new(), new() };
     public readonly Editor[] Editors = { new(), new() };
+    readonly int[][] characterMoveLimits = { Array.Empty<int>(), Array.Empty<int>() };
     public MapElement[,] Map;
     public string MapName = "";
     public int MapIndex;
@@ -34,12 +35,19 @@ public sealed class MatchSession
     System.Action afterHandoff;
     double tickClock;
     bool tickPending;
+    bool tickAnimationPending;
     bool configured;
     readonly bool[] confirmed = { false, false };
     bool futureSightUsed, futureSightDone;
     public int PerkOrder = 1;
     public int SelectedClass = 0;
     public int CursorRow = 6, CursorCol = 5;
+    public int CharacterMoveLimit(int player, int fighter) =>
+        player >= 1 && player <= 2 && fighter >= 0 && fighter < characterMoveLimits[player - 1].Length
+            ? characterMoveLimits[player - 1][fighter]
+            : PremoveLimit;
+    public static int MoveLimit(CharacterClass characterClass, int maximum) =>
+        characterClass == CharacterClass.MAGE ? Math.Max(1, maximum - 1) : maximum;
 
     public Func<string, int[], bool> Intercept;
     bool Route(string name, params int[] arguments) => Intercept?.Invoke(name, arguments) ?? false;
@@ -100,7 +108,8 @@ public sealed class MatchSession
         MapIndex = mapIndex;
         deploymentRandom = new Random(seed);
         Solo = solo; TeamSize = size; Viewer = Lan ? Local : 1;
-        configured = false; Paused = false; tickPending = false; Replay.Clear();
+        configured = false; Paused = false; tickPending = tickAnimationPending = false; Replay.Clear();
+        characterMoveLimits[0] = characterMoveLimits[1] = Array.Empty<int>();
         for (int p = 0; p < 2; p++) { Rosters[p].Clear(); Spawns[p].Clear(); Used[p].Clear(); Editors[p] = new Editor(); }
         confirmed[0] = confirmed[1] = false;
         futureSightUsed = futureSightDone = false;
@@ -253,7 +262,9 @@ public sealed class MatchSession
     {
         for (int p = 0; p < 2; p++)
         {
-            int[][] plans = Rosters[p].Select(c => new int[PremoveLimit]).ToArray();
+            var limits = Rosters[p].Select(c => MoveLimit(c, PremoveLimit)).ToArray();
+            characterMoveLimits[p] = limits;
+            int[][] plans = Rosters[p].Select((c, i) => new int[limits[i]]).ToArray();
             BattleEngine.setupPlayer((uint)p + 1, (uint)TeamSize, Rosters[p].ToArray(), plans, Spawns[p].ToArray(), Perks[p]);
         }
         configured = true;
@@ -265,6 +276,13 @@ public sealed class MatchSession
         Used[0].Clear(); Used[1].Clear();
         for (int p = 0; p < 2; p++)
         {
+            var team = BattleEngine.getPlayer((uint)p + 1);
+            for (int fighter = 0; fighter < team.count(); fighter++)
+            {
+                Character character = team.getCharacter(fighter);
+                for (int slot = 0; slot < character.stepCount(); slot++)
+                    BattleEngine.setStep((uint)p + 1, fighter, slot, 0);
+            }
             Editors[p] = new Editor { Fighter = FirstAlive(p + 1) };
             planningSeconds[p] = BattleEngine.getPlanningSeconds((uint)p + 1);
         }
@@ -304,6 +322,8 @@ public sealed class MatchSession
         var editor = Editors[viewer - 1];
         Character fighter = BattleEngine.getPlayer((uint)viewer).getCharacter(editor.Fighter);
         BattleEngine.setStep((uint)viewer, editor.Fighter, editor.Slot, action, editor.Direction, new IVector2(editor.Range, editor.Range));
+        for (int slot = editor.Slot + 1; slot < fighter.stepCount(); slot++)
+            BattleEngine.setStep((uint)viewer, editor.Fighter, slot, 0);
         if (editor.Slot < fighter.stepCount() - 1) editor.Slot++;
         editor.Action = 0;
         Message = ""; Notify();
@@ -422,20 +442,22 @@ public sealed class MatchSession
 
     void BeginSelection()
     {
-        if (Solo) { Viewer = 1; Selection(); }
-        else if (Lan)
+        if (Lan)
         {
             Viewer = Local; Phase = MatchPhase.Selection;
             for (int player = 1; player <= 2; player++)
             {
-                int fighter = Available(player).First();
-                Editors[player - 1].Fighter = fighter;
-                BattleEngine.selectCharacter((uint)player, fighter);
-                Used[player - 1].Add(fighter);
+                SelectAutomatically(player);
             }
-            if (BattleEngine.startExchange())
-            { Phase = MatchPhase.Combat; tickClock = 0.25; tickPending = false; Message = "Both parties are executing their plans."; }
+            StartExchange();
         }
+        else if (TeamSize == 1)
+        {
+            SelectAutomatically(1);
+            SelectAutomatically(2);
+            StartExchange();
+        }
+        else if (Solo) { Viewer = 1; Selection(); }
         else Handoff(1, "Choose your next fighter privately", Selection);
     }
 
@@ -444,6 +466,23 @@ public sealed class MatchSession
         Phase = MatchPhase.Selection;
         Fighter = Available(Viewer).First();
         Message = "Choose a living fighter who has not acted this cycle.";
+    }
+
+    void SelectAutomatically(int player)
+    {
+        int fighter = Available(player).First();
+        Editors[player - 1].Fighter = fighter;
+        BattleEngine.selectCharacter((uint)player, fighter);
+        Used[player - 1].Add(fighter);
+    }
+
+    void StartExchange()
+    {
+        if (!BattleEngine.startExchange()) return;
+        Phase = MatchPhase.Combat;
+        tickClock = 0.25;
+        tickPending = false;
+        Message = "Both parties are executing their plans.";
     }
 
     public IEnumerable<int> Available(int player)
@@ -507,9 +546,11 @@ public sealed class MatchSession
         if (Phase != MatchPhase.Combat) return;
         tickClock -= delta;
         if (tickClock > 0) return;
+        if (tickPending && tickAnimationPending) return;
         if (tickPending)
         {
             tickPending = false;
+            tickAnimationPending = false;
             if (BattleEngine.needsRewindDecision())
             {
                 int owner = Array.IndexOf(Perks, SuperPerk.DefyDestiny) + 1;
@@ -535,10 +576,16 @@ public sealed class MatchSession
         if (Replay.Count == 0) Replay.Add(before);
         BattleEngine.advanceOneTick();
         var after = BattleEngine.getDetails(); Replay.Add(after);
+        tickAnimationPending = TickPlayed != null;
         TickPlayed?.Invoke(before, after);
         tickClock = TickSeconds;
         tickPending = true;
         Notify();
+    }
+
+    public void CompleteTickAnimations()
+    {
+        tickAnimationPending = false;
     }
 
     public void Rewind(bool attempt) => RewindAs(Viewer, attempt);

@@ -65,7 +65,7 @@ Keep the supplied screenshot feedback as the reference: the Mage overlaps the na
 - Both LAN players choose concurrently for 60 seconds. Default valid, distinct perks remove the disabled-ready deadlock. Ready players retain their party screen; both confirmations immediately open planning.
 - A match seed is sent with Start. Deadline additions choose Knight/Mage and legal unoccupied spawn tiles using the same seed on both peers; existing selections remain intact.
 - Planning clocks run for both players under the host's replicated updates. Both locks immediately start combat; available fighters rotate automatically in party order. Planning deadlines lock only the unfinished player's plan.
-- Premoves are selected on the map screen from 5–10, default 8; +/- also adjusts them. The host sends the setting. Both playable classes receive that many steps. The engine still accepts legacy class-sized plans for existing callers.
+- Maximum moves are selected on the map screen from 5–10, default 8; +/- also adjusts them. Each fighter receives a distinct allowance descending from that maximum, randomly assigned within each team. The host sends the maximum, and both peers derive the same allowances from the match seed.
 - Party removal is now replicated. Confirmed parties cannot be edited. LAN rewind waits use the same phase on both peers; leaving LAN clears LAN mode before couch play.
 
 ### Explicit LAN behavior

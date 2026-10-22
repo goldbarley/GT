@@ -19,7 +19,7 @@ signal finished
 ## The frames, in order.
 @export var frames_dir: String = "res://assets/characters/explosion/frames"
 ## How fast the frames go past, in frames a second.
-@export var fps: float = 15.0
+@export var fps: float = 8.0
 ## How many source frames to step for every frame shown.
 @export var frame_step: int = 4
 ## The last few frames play at the full rate, so the fire can be seen dying

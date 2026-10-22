@@ -13,10 +13,10 @@ extends ColorRect
 ## `dim` for the darkness, and `slash_t` for the sweep through the flipbook.
 ##
 ## The fire is drawn in the screen's own pixels, but it is placed and sized
-## by the knight, so it is always the size of him and always where his
-## sword is, however the camera is placed.  The sweep's arc turns about the
-## shoulder the sword swings on, and its radius is the blade's reach, so the
-## fire is always the line the blade drew.
+## by the knight, so it is always the size of him and always where he is,
+## however the camera is placed.  The knight's own data says where his face
+## is and which way he looks; the fire floats in front of his face, a little
+## way off it, with its hollow open back towards him.
 ##
 ## The last of the fire is embers, and embers do not stop where they are:
 ## they drift, slowly, for as long as they are showing.
@@ -30,18 +30,18 @@ extends ColorRect
 ## How many frames the flipbook holds.
 @export var frames: float = 8.0
 
-## Where the fire sits, in the knight's own pixels, from his shoulder.
-@export var arc_centre_offset = Vector2.ZERO
-
 ## The knight's pixels per pixel of the master's canvas.
-@export var arc_scale: float = 0.05
+@export var art_scale: float = 0.05
+
+## How far in front of his face the fire floats, in his own pixels.
+@export var art_distance: float = 9.0
 
 ## -1 for the view where the knight faces the other way.
 @export var mirror: float = 1.0
 
 ## How far the embers drift, in the master's pixels a second.  They rise as
 ## they cool, and wander sideways as they do.
-@export var drift_speed = Vector2(-14.0, 52.0)
+@export var drift_speed = Vector2(-14.0, -52.0)
 
 ## How far each ember wanders on its own course, in the master's pixels.
 @export var drift_wander: float = 34.0
@@ -55,6 +55,7 @@ var _drift: Vector2 = Vector2.ZERO     # how far the embers have drifted
 var _tip: Vector2 = Vector2.ZERO       # the blade's tip, from the sword's pivot
 var _tip_found: bool = false
 var _last_index: float = 0.0            # the frame the sweep was on
+var _head_cache: Dictionary = {}
 
 
 func _ready() -> void:
@@ -88,9 +89,16 @@ func _process(delta: float) -> void:
 	var slash_t := _number("slash_t")
 	var slash := _number("slash")
 
+	var shown := _rig.is_visible_in_tree()
+	visible = shown
+	if _dark != null:
+		_dark.visible = shown
+	if not shown:
+		return
+
 	# the darkness is a quad of its own, underneath
 	if _dark_material != null:
-		_dark_material.set_shader_parameter("dim", dim)
+		_dark_material.set_shader_parameter("dim", _shared_dark(dim))
 
 	# the sweep plays through the flipbook, one frame at a time
 	var index: float = floor(clamp(slash_t * frames, 0.0, frames - 1.0))
@@ -127,16 +135,26 @@ func _process(delta: float) -> void:
 		_rig.global_transform.basis_xform(Vector2(1.0, 0.0))
 	).length()
 
-	# where the sweep turns about, and how big it is
-	var shoulder := _shoulder()
-	var at := canvas * (_rig.global_transform * shoulder)
-	# and it sits a little way in front of him
-	var front := canvas.basis_xform(
-		_rig.global_transform.basis_xform(Vector2(arc_centre_offset.x, arc_centre_offset.y))
-	)
-	var scale := arc_scale * knight_scale
+	var face := _face()
+	var looking := _looking()
+	if not _has_head():
+		_material.set_shader_parameter("slash", 0.0)
+		return
+	var centre := face + looking * art_distance
+	var at := canvas * (_rig.global_transform * centre)
+	var his_face := canvas * (_rig.global_transform * face)
+	var back := his_face - at
+	if back.length() < 0.001:
+		back = canvas.basis_xform(_rig.global_transform.basis_xform(looking))
+		if back.length() < 0.001:
+			back = Vector2.UP
+	back = back.normalized()
+	var mouth := Vector2(art_mouth().x * mirror, art_mouth().y)
+
+	var scale := art_scale * knight_scale
 	_material.set_shader_parameter("scale", scale)
-	_material.set_shader_parameter("origin", at + front - art_centre() * scale)
+	_material.set_shader_parameter("origin", at)
+	_material.set_shader_parameter("rotation", back.angle() - mouth.angle())
 
 	# the flame stays on the blade, so it has to know where the blade is
 	var sword := _rig.get_piece("sword")
@@ -148,25 +166,57 @@ func _process(delta: float) -> void:
 	_material.set_shader_parameter("blade_len", blade["len"])
 
 
-## The arc's centre on the canvas the art is painted on, measured from the
-## frames.  It is read from the material, so the art and the placement can
-## never disagree.
-func art_centre() -> Vector2:
-	var value: Variant = _material.get_shader_parameter("art_centre")
+func _head() -> Dictionary:
+	if _head_cache.is_empty():
+		var data := _rig.get_piece_data()
+		_head_cache = {
+			"face": data.get("face", {}),
+			"facing": data.get("facing", {}),
+		}
+	return _head_cache
+
+
+func _shared_dark(dim: float) -> float:
+	var count := _visible_rigs()
+	if count <= 1:
+		return dim
+	return 1.0 - pow(1.0 - dim, 1.0 / float(count))
+
+
+func _visible_rigs() -> int:
+	var parent := _rig.get_parent()
+	if parent == null:
+		return 1
+	var count := 0
+	for child in parent.get_children():
+		if child is KnightModularBase and (child as Node2D).is_visible_in_tree():
+			count += 1
+	return maxi(count, 1)
+
+
+func _has_head() -> bool:
+	var face: Dictionary = _head()["face"]
+	return face.size() == 2
+
+
+func _face() -> Vector2:
+	var face: Dictionary = _head()["face"]
+	return Vector2(float(face.get("x", 0.0)), float(face.get("y", 0.0)))
+
+
+func _looking() -> Vector2:
+	var facing: Dictionary = _head()["facing"]
+	var looking := Vector2(float(facing.get("x", 0.0)), float(facing.get("y", 1.0)))
+	if looking.length() < 0.001:
+		looking = Vector2(0.0, 1.0)
+	return looking.normalized()
+
+
+func art_mouth() -> Vector2:
+	var value: Variant = _material.get_shader_parameter("art_mouth")
 	if value is Vector2:
 		return value
-	return Vector2(484.6, 305.6)
-
-
-## Where the knight's shoulder is, in his own space.  The sweep turns about
-## it, the same way the sword swings about it.
-func _shoulder() -> Vector2:
-	var arm := _rig.get_piece("arm")
-	if arm != null:
-		return arm.position
-	# the left view has no arm of its own, so the sword turns about its grip
-	var sword := _rig.get_piece("sword")
-	return sword.position if sword != null else Vector2.ZERO
+	return Vector2(-0.464, -0.886)
 
 
 ## Where the sword's tip is on the screen, which way the blade points, and
@@ -204,7 +254,7 @@ func _find_tip(sword: Sprite2D) -> Vector2:
 	var image := sword.texture.get_image()
 	if image == null:
 		return Vector2.ZERO
-	var region := sword.region_rect
+	var region := sword.region_rect if sword.region_enabled else Rect2(Vector2.ZERO, sword.texture.get_size())
 	var pivot: Vector2 = sword.get_meta("pivot", Vector2.ZERO)
 	var best := Vector2.ZERO
 	var best_distance := -1.0

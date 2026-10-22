@@ -35,6 +35,9 @@ func show_direction(direction: int) -> void:
 		current.stop()
 	for rig in rigs.values():
 		rig.visible = false
+		var dark_layer: CanvasLayer = rig.get_node_or_null("KnightUltimateDarkLayer")
+		if dark_layer != null:
+			dark_layer.visible = false
 	for layer in edge_layers.values():
 		layer.visible = false
 	for player in players.values():
@@ -69,6 +72,9 @@ func show_direction(direction: int) -> void:
 		players[perspective] = player
 	current = players[perspective]
 	rigs[perspective].visible = true
+	var dark_layer: CanvasLayer = rigs[perspective].get_node_or_null("KnightUltimateDarkLayer")
+	if dark_layer != null:
+		dark_layer.visible = true
 	if edge_layers.has(perspective):
 		edge_layers[perspective].visible = true
 	current.set_process(true)
@@ -123,9 +129,13 @@ func idle() -> void:
 func set_menu_walk(enabled: bool) -> void:
 	if current == null:
 		return
+	for rig in rigs.values():
+		var shadow: Node = rig.get_node_or_null("ShadowFX")
+		if shadow != null:
+			shadow.visible = false
 	if enabled:
 		current.set_process(true)
-		current.playback_speed = 1.35
+		current.playback_speed = 1.0
 		current.play("mage_walk" if kind == 0 else "knight_walk")
 	else:
 		current.set_process(false)
@@ -134,8 +144,20 @@ func set_menu_direction(direction: int) -> void:
 	show_direction(direction)
 	set_menu_walk(true)
 
+func get_menu_shadow_offset() -> Vector2:
+	var rig: ModularRig = rigs[facing]
+	var shadow: Node = rig.get_node_or_null("ShadowFX")
+	var shadow_center: Vector2
+	if shadow != null:
+		shadow_center = Vector2(rig.get_feet_centre().x, float(shadow.get("ground_y")))
+	else:
+		var bounds: Rect2 = rest_bounds[facing]
+		shadow_center = Vector2(bounds.get_center().x, bounds.end.y)
+	return scale * (rig.position + shadow_center)
+
 func perform(action: int, direction: int, destination: Vector2, target: Vector2, duration: float) -> void:
 	action_duration = 0.0
+	authored_impact = 0.0
 	cast_target_local = target
 	playing_action = action
 	beam_started = false
@@ -161,27 +183,21 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 			var explosion: ExplosionColumn = rigs[facing].get_node_or_null("ExplosionFX")
 			if explosion != null:
 				explosion.clip_rect = arena_clip if arena_clip.has_area() else Rect2(Vector2.ZERO, get_viewport_rect().size)
-				explosion.fps = 100.0
 	if clip != "":
 		active_clip = clip
+		current.playback_speed = 1.0
 		current.play(clip)
 		current.restore_effect()
-		if action < 0:
-			action_elapsed = 0.0
-			action_duration = maxf(duration, 0.1)
-			impact_fraction = 0.20 if (kind == 0 and action == -2) or (kind == 1 and action == -5) else 0.58
-			authored_impact = float(current.clip_data.get("impact", current.get_duration() * 0.5))
-			current.scrub_time(0.0)
-		elif action == 5:
-			current.playback_speed = current.get_duration() / maxf(duration * 0.85, 0.1)
-	var travel_time := duration * 0.38 if action >= 1 and action <= 4 else duration * 0.35
-	if action >= 1 and action <= 4:
-		current.playback_speed = current._duration / maxf(travel_time, 0.1)
+		action_elapsed = 0.0
+		action_duration = current.get_duration()
+		impact_fraction = 0.20 if (kind == 0 and action == -2) or (kind == 1 and action == -5) else 0.58
+		authored_impact = float(current.clip_data.get("impact", current.get_duration() * 0.5))
 	if action == 0:
 		idle()
-	motion = create_tween()
-	motion.tween_property(self, "position", destination, travel_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	if action >= 1 and action <= 4:
+	elif (action >= 1 and action <= 4) or action == 5:
+		var travel_time := current.get_duration() if current != null else maxf(duration, 0.1)
+		motion = create_tween()
+		motion.tween_property(self, "position", destination, travel_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		motion.tween_callback(idle)
 
 func _finished(_clip: String) -> void:
@@ -193,23 +209,32 @@ func _ignore_mouse(node: Node) -> void:
 	for child in node.get_children():
 		_ignore_mouse(child)
 
-func _fire_beams(duration: float) -> void:
+func _fire_beams() -> void:
 	if beam == null:
 		beam = MageBeamBurst.new()
 		beam.beam_scale = 0.15
-		beam.fps = 160.0
 		add_child(beam)
 		beam.dim.dim_amount = 0.0
 	beam.position = Vector2(0, -12)
 	beam.fire()
-	get_tree().create_timer(duration * 0.9, false).timeout.connect(func():
-		if is_instance_valid(beam):
-			beam.set_playing(false)
-	)
 
 func _add_edge(rig: ModularRig, perspective: String) -> void:
+	var dark_layer := CanvasLayer.new()
+	dark_layer.name = "KnightUltimateDarkLayer"
+	dark_layer.layer = 100
+	rig.add_child(dark_layer)
+	var dark := ColorRect.new()
+	dark.name = "KnightUltimateDark"
+	dark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var dark_material := ShaderMaterial.new()
+	dark_material.shader = load("res://assets/characters/Knight/Anim/KnightUltimate/knight_ultimate_dark.gdshader")
+	dark.material = dark_material
+	dark_layer.add_child(dark)
+
 	var layer := CanvasLayer.new()
-	layer.layer = 2
+	layer.name = "KnightUltimateLayer"
+	layer.layer = 101
 	rig.add_child(layer)
 	edge_layers[perspective] = layer
 	var effect := ColorRect.new()
@@ -220,21 +245,21 @@ func _add_edge(rig: ModularRig, perspective: String) -> void:
 	material.shader = load("res://assets/characters/Knight/Anim/KnightUltimate/knight_ultimate_fire.gdshader")
 	material.set_shader_parameter("flipbook", load("res://assets/characters/Knight/Anim/KnightUltimate/sprites/fire_slash.png"))
 	material.set_shader_parameter("master_size", Vector2(1158, 740))
-	material.set_shader_parameter("art_centre", Vector2(616.43, 426.49))
-	material.set_shader_parameter("art_radius", 239.56)
+	material.set_shader_parameter("art_centre", Vector2(472.9, 294.77))
+	material.set_shader_parameter("art_radius", 264.75)
+	material.set_shader_parameter("art_mouth", Vector2(-0.939693, 0.34202))
 	effect.material = material
 	effect.set_script(load("res://assets/characters/Knight/Anim/KnightUltimate/knight_ultimate_fx.gd"))
 	effect.set("rig_path", NodePath("../.."))
-	effect.set("arc_scale", 0.067953)
+	effect.set("dark_path", NodePath("../../KnightUltimateDarkLayer/KnightUltimateDark"))
+	effect.set("art_scale", 0.037469)
+	effect.set("art_distance", 15.92)
+	effect.set("drift_speed", Vector2(-14.0, -52.0))
 	effect.set("mirror", -1.0 if perspective == "front" or perspective == "right" else 1.0)
 	layer.add_child(effect)
 
 func set_arena_clip(area: Rect2) -> void:
 	arena_clip = area
-	for layer in edge_layers.values():
-		var material: ShaderMaterial = layer.get_child(0).material
-		material.set_shader_parameter("arena_origin", area.position)
-		material.set_shader_parameter("arena_size", area.size)
 	for rig in rigs.values():
 		var explosion: Node = rig.get_node_or_null("ExplosionFX")
 		if explosion != null:
@@ -257,7 +282,21 @@ func reset_visual() -> void:
 	modulate = Color.WHITE
 	if beam != null:
 		beam.set_playing(false)
+	for rig in rigs.values():
+		var dark_layer: CanvasLayer = rig.get_node_or_null("KnightUltimateDarkLayer")
+		if dark_layer != null:
+			dark_layer.visible = false
+	for layer in edge_layers.values():
+		layer.visible = false
 	idle()
+
+func is_action_playing() -> bool:
+	return action_duration > 0.0 or (motion != null and motion.is_running()) or (reaction != null and reaction.is_running()) or (beam != null and beam.is_playing())
+
+func get_action_impact_time() -> float:
+	if action_duration <= 0.0:
+		return 0.0
+	return authored_impact if authored_impact > 0.0 else action_duration * impact_fraction
 
 func _process(delta: float) -> void:
 	queue_redraw()
@@ -266,17 +305,10 @@ func _process(delta: float) -> void:
 	if action_duration > 0.0:
 		action_elapsed += delta
 		var progress := action_elapsed / action_duration
-		var time: float
-		if progress < impact_fraction:
-			time = authored_impact * progress / impact_fraction
-		else:
-			var recovery_start := impact_fraction + (0.04 if kind == 1 else 0.0)
-			time = lerpf(authored_impact, current.get_duration(), clampf((progress - recovery_start) / (0.94 - recovery_start), 0.0, 1.0))
-		current.scrub_time(time)
 		if kind == 0 and playing_action == -4 and progress >= impact_fraction and not beam_started:
 			beam_started = true
-			_fire_beams(action_duration * 0.3)
-		if progress >= 0.94:
+			_fire_beams()
+		if progress >= 1.0:
 			idle()
 	if beam != null and beam.is_playing():
 		beam.anchor_to_gem(rigs[facing])

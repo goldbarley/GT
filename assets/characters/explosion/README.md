@@ -22,9 +22,9 @@ their red is below their blue.  The key is made on that difference.
 
 ## How long it burns
 
-The shot runs at fifteen frames a second rather than thirty, so the column
-burns for twice as long: nearly three seconds from the first spark to the
-last ember.
+The shot runs at eight updates a second, with most updates advancing four
+source frames, so the column burns for about five and a half seconds from
+the first spark to the last ember.
 
 ## The dying out
 

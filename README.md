@@ -52,6 +52,12 @@ Both players set up at the same time: each picks their own fighters and places t
 
 The window is light brown, with tan panels, dark brown text and pastel green, blue and red kept for highlights. Setup uses separate full-screen selections. The battle view has a statistics bar, a translucent numpad, and last-action messages. Executed skill and movement keys glow green. Hover skills and statistics for details; the three-page tutorial gives the essentials. The camera tracks the midpoint of the active fighters and widens its framing when they separate. The design follows the [Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/full-list/) on consistent keyboard access, concise help, and an option to disable camera tracking.
 
+## Music and audio
+
+Music loads from `assets/music/`: `title`, `battle`, `victory`, and `defeat` are bundled, and each slot can be replaced with an `.ogg`, `.wav`, or `.mp3` file of the same name. The game crossfades between title, battle, and result themes. Combat hit sounds come from `assets/sounds/`; `hurt.wav` plays once per tick when a fighter loses HP. See the asset folders' README files for details.
+
+**Audio settings** on the title screen and in the pause menu control music and effects volume and mute independently. Choices are saved to `user://audio.cfg` and restored on the next run.
+
 ## Team perks
 
 - **King Crimson:** after both teams lock, inspect enemy plans and edit your own during a 20-second window.
@@ -65,7 +71,7 @@ A perk can only belong to one team. In a LAN match one player is picked at rando
 
 **Mage** and **Knight** are playable, using the modular rigs, choreography, and effects from `dump/Game`. The incomplete Knight front sheet has been replaced with the complete supplied body, plume, shield, arm, sword, and boot pieces. Its shoulder/wrist hierarchy and perspective-specific slash, stab, plunge, guard, and front gait use anticipation, impact, and recovery poses. **Archer** is marked Coming soon because its controller only supports one combat perspective and its attack set is incomplete. **Orc** awaits character art and animations. Standing sprites are scaled proportionally to one tile. Each perspective is centered using the visible pixel bounds of its resting pose. Attacks animate around that center. The camera follows the active pair in combat; the pause menu can switch to a whole-map view. Six arenas are available: Grassland 1–3 and Volcanic Ruins 1–3. The original Sky Island map is also included as "Sky Island".; its JSON determines terrain and grid alignment.
 
-`scripts/Game/` contains the interface and match flow. `scripts/Animation/` contains the shared animation runtime. `assets/characters/` holds the integrated art. The source prototypes remain in `dump/`, excluded from C# compilation and Godot resource scanning. LAN reuses the prototype ENet transport with ordered host-relayed commands and a host clock. No music or sound recordings were supplied.
+`scripts/Game/` contains the interface and match flow. `scripts/Animation/` contains the shared animation runtime. `assets/characters/` holds the integrated art. The source prototypes remain in `dump/`, excluded from C# compilation and Godot resource scanning. LAN reuses the prototype ENet transport with ordered host-relayed commands and a host clock.
 
 ## Checks
 

@@ -23,7 +23,7 @@ public class Character
             throw new ArgumentException("Invalid character class.");
         int expected = cc switch { CharacterClass.MAGE => 10, CharacterClass.WARRIOR => 15,
             CharacterClass.ARCHER => 20, CharacterClass.ORC => 7, _ => 0 };
-        if (stepOrder == null || (stepOrder.Length != expected && (stepOrder.Length < 5 || stepOrder.Length > 10)))
+        if (stepOrder == null || (stepOrder.Length != expected && (stepOrder.Length < 1 || stepOrder.Length > 10)))
             throw new ArgumentException("Invalid Character and StepSet combination.");
         expected = stepOrder.Length;
         if (directions != null && directions.Length != expected || lengths != null && lengths.Length != expected)

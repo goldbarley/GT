@@ -1,10 +1,12 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class BattleBoard : Control
 {
     public MatchSession Session;
+    public SoundEffects Sound;
     public bool TileView;
     public bool TrackCamera = true;
     public int CursorRow = -1, CursorCol = -1;
@@ -23,9 +25,11 @@ public partial class BattleBoard : Control
     readonly Color pending = new("f0d264"), settled = new("8fd694");
     string loadedTheme = "";
     Snapshot visualBefore, visualAfter;
-    float tickElapsed;
+    float tickElapsed, tickImpactDelay;
     bool impactShown = true;
     public event Action ImpactShown;
+    public event Action TickAnimationsFinished;
+    bool tickAnimationsWaiting;
     public int DisplayHP(int player, int fighter)
     {
         var frame = ReplayFrame ?? (!impactShown ? visualBefore : visualAfter);
@@ -64,7 +68,7 @@ public partial class BattleBoard : Control
     {
         zoom = 1;
         origin = Vector2.Zero;
-        tile = 48;
+        tile = 52;
     }
 
     public Vector2 Center(int row, int col) => origin + new Vector2(col + 0.5f, row + 0.5f) * tile;
@@ -89,7 +93,7 @@ public partial class BattleBoard : Control
     public void Reset()
     {
         foreach (var actor in actors.Values) actor.QueueFree();
-        actors.Clear(); visualBefore = visualAfter = null; impactShown = true; cameraScale = 0; hover = new(-1, -1); effects = null; damage.Clear(); ReplayFrame = null; QueueRedraw();
+        actors.Clear(); visualBefore = visualAfter = null; impactShown = true; tickAnimationsWaiting = false; cameraScale = 0; hover = new(-1, -1); effects = null; damage.Clear(); ReplayFrame = null; QueueRedraw();
     }
 
     public void Sync()
@@ -111,7 +115,7 @@ public partial class BattleBoard : Control
                 var unit = Unit(p, i);
                 actor.Call("reset_visual");
                 actor.Visible = unit.hp > 0;
-                actor.Call("fit_tile", tile);
+                actor.Call("fit_tile", tile * 1.2f);
                 actor.Position = Center(unit.at.x, unit.at.y);
                 actor.ZIndex = unit.at.x * 2 + 10;
             }
@@ -134,7 +138,8 @@ public partial class BattleBoard : Control
     public void PlayTick(Snapshot before, Snapshot after)
     {
         if (actors.Count == 0) Sync();
-        visualBefore = before; visualAfter = after; tickElapsed = 0; impactShown = false;
+        visualBefore = before; visualAfter = after; tickElapsed = 0; tickImpactDelay = 0; impactShown = false;
+        tickAnimationsWaiting = true;
         damage.Clear(); effects = new int[Rows, Columns]; flash = 0;
         for (int p = 0; p < 2; p++)
         {
@@ -162,15 +167,30 @@ public partial class BattleBoard : Control
                     IVector2 length = slot < before.lengths[p][i].Length ? before.lengths[p][i][slot] : new IVector2(1, 1);
                     IVector2 target = MatchSession.Move(to, direction, direction <= 2 ? length.x : length.y);
                     actor.Call("perform", action, direction, Center(to.x, to.y), Center(target.x, target.y), (float)Session.TickSeconds);
+                    if (action == -1 && Session.Rosters[p][i] == CharacterClass.MAGE) Sound?.Play("fireball", 0.05f);
+                    if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("flame_sword", 0.05f);
+                    tickImpactDelay = Math.Max(tickImpactDelay, (float)actor.Call("get_action_impact_time").AsDouble());
                 }
             }
         }
+        CompleteTickAnimationsIfReady();
         QueueRedraw();
+    }
+
+    void CompleteTickAnimationsIfReady()
+    {
+        if (!tickAnimationsWaiting) return;
+        foreach (var actor in actors.Values)
+            if (GodotObject.IsInstanceValid(actor) && actor.Call("is_action_playing").AsBool())
+                return;
+        tickAnimationsWaiting = false;
+        TickAnimationsFinished?.Invoke();
     }
 
     void PresentImpact()
     {
         impactShown = true; flash = 1;
+        bool hurt = false;
         for (int p = 0; p < 2; p++) for (int i = 0; i < Session.Rosters[p].Count; i++)
         {
             int oldHp = p == 0 ? visualBefore.player1CharacterHPs[i] : visualBefore.player2CharacterHPs[i];
@@ -179,40 +199,63 @@ public partial class BattleBoard : Control
             var to = p == 0 ? visualAfter.player1CharacterPositions[i] : visualAfter.player2CharacterPositions[i];
             damage.Add((Center(to.x, to.y), hp <= 0 ? "KO" : hp < oldHp ? $"−{oldHp - hp}" : $"+{hp - oldHp}", hp < oldHp ? red : settled));
             actors[(p, i)].Call("react_to_hit", hp <= 0);
+            hurt |= hp < oldHp;
         }
+        if (hurt) Sound?.Play(KnightBladeSound() ?? "hurt", 0.06f);
         ImpactShown?.Invoke();
+    }
+
+    string KnightBladeSound()
+    {
+        if (visualBefore == null || visualAfter == null) return null;
+        for (int p = 0; p < 2; p++)
+        {
+            int actor = visualBefore.selected[p];
+            if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
+            if (Session.Rosters[p][actor] != CharacterClass.WARRIOR) continue;
+            int slot = visualBefore.exchangeTick;
+            int[] steps = visualBefore.steps[p][actor];
+            if (slot < 0 || slot >= steps.Length) continue;
+            int action = steps[slot];
+            if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
+            if (action != -1 && action != -3) continue;
+
+            int[,] grid = p == 0 ? visualAfter.player1SkillGrid : visualAfter.player2SkillGrid;
+            if (grid == null) continue;
+            for (int i = 0; i < Session.Rosters[1 - p].Count; i++)
+            {
+                int oldHp = (1 - p) == 0 ? visualBefore.player1CharacterHPs[i] : visualBefore.player2CharacterHPs[i];
+                int hp = (1 - p) == 0 ? visualAfter.player1CharacterHPs[i] : visualAfter.player2CharacterHPs[i];
+                IVector2 at = (1 - p) == 0 ? visualAfter.player1CharacterPositions[i] : visualAfter.player2CharacterPositions[i];
+                if (hp >= oldHp) continue;
+                if (at.x >= 0 && at.y >= 0 && at.x < grid.GetLength(0) && at.y < grid.GetLength(1) && grid[at.x, at.y] > 0)
+                    return action == -3 ? "plunge" : "sword_hit";
+            }
+        }
+        return null;
     }
 
     public override void _Process(double delta)
     {
+        CompleteTickAnimationsIfReady();
         if (Session?.Map == null || Concealed || Size.X <= 0 || Size.Y <= 0) return;
         if (!GetTree().Paused && !Session.Paused)
         {
             tickElapsed += (float)delta;
-            if (!impactShown && tickElapsed >= Session.TickSeconds * 0.58) PresentImpact();
+            if (!impactShown && tickElapsed >= tickImpactDelay) PresentImpact();
             flash = Math.Max(0, flash - (float)delta / 0.5f);
         }
         Vector2 mapSize = new(Columns * tile, Rows * tile);
         float fit = Math.Min((Size.X - 32) / mapSize.X, (Size.Y - 32) / mapSize.Y);
         float desiredScale = fit;
         Vector2 focus = mapSize / 2;
-        if (TrackCamera && Session != null && !Concealed && Session.Phase != MatchPhase.Deploy)
+        if (TrackCamera && Session.Phase != MatchPhase.Deploy && TryGetBattleBounds(out Rect2 battleBounds))
         {
-            if (Session.Phase == MatchPhase.Combat || Session.Phase == MatchPhase.Rewind)
-            {
-                var snapshot = ReplayFrame ?? BattleEngine.getDetails();
-                if (actors.TryGetValue((0, snapshot.selected[0]), out var first) && actors.TryGetValue((1, snapshot.selected[1]), out var second))
-                {
-                    focus = (first.Position + second.Position) / 2;
-                    var distance = (first.Position - second.Position).Abs() + new Vector2(240, 240);
-                    desiredScale = Math.Min(1.5f, Math.Min(Size.X / distance.X, Size.Y / distance.Y));
-                }
-            }
-            else if (Session.Current != null)
-            {
-                var at = BattleEngine.previewPosition((uint)Session.Viewer, Session.Fighter, Session.Slot - 1);
-                focus = Center(at.x, at.y); desiredScale = 1.35f;
-            }
+            focus = battleBounds.GetCenter();
+            Vector2 framedSize = battleBounds.Size + Vector2.One * tile * 4.5f;
+            framedSize.X = Math.Max(framedSize.X, tile * 4);
+            framedSize.Y = Math.Max(framedSize.Y, tile * 4);
+            desiredScale = Math.Min(1.5f, Math.Min((Size.X - 32) / framedSize.X, (Size.Y - 32) / framedSize.Y));
         }
         float blend = 1 - Mathf.Exp(-(float)delta * 5);
         if (cameraScale <= 0) { cameraScale = fit; cameraOffset = Size / 2 - focus * fit; }
@@ -226,6 +269,19 @@ public partial class BattleBoard : Control
         foreach (var actor in actors.Values) actor.Call("set_arena_clip", GetGlobalRect());
 
         QueueRedraw();
+    }
+
+    bool TryGetBattleBounds(out Rect2 bounds)
+    {
+        bool found = false;
+        bounds = new Rect2();
+        foreach (var actor in actors.Values)
+        {
+            if (!actor.Visible) continue;
+            bounds = found ? bounds.Expand(actor.Position) : new Rect2(actor.Position, Vector2.Zero);
+            found = true;
+        }
+        return found;
     }
 
     public override void _Draw()
@@ -263,6 +319,7 @@ public partial class BattleBoard : Control
                     DrawRect(rect.Grow(-2), new Color(gold, flash * 0.45f));
             }
         if (planning) DrawPlan();
+        else if (Session.Phase == MatchPhase.Selection) DrawSelectionPlans();
         if (hover.X >= 0) DrawRect(Tile(hover.Y, hover.X).Grow(-1), gold, false, 2);
         foreach (var pair in actors)
         {
@@ -271,6 +328,8 @@ public partial class BattleBoard : Control
             var unit = Unit(p, i);
             DrawCircle(pair.Value.Position + new Vector2(0, tile * 0.34f), tile * 0.3f, new Color(0, 0, 0, 0.28f));
             DrawRect(Tile(unit.at.x, unit.at.y).Grow(-3), new Color(p == 0 ? blue : red, 0.65f), false, 1);
+            if (Session.Phase == MatchPhase.Selection && p == Session.Viewer - 1 && Session.Available(Session.Viewer).Contains(i))
+                DrawRect(Tile(unit.at.x, unit.at.y).Grow(-2), i == Session.Fighter ? gold : Colors.White, false, i == Session.Fighter ? 3 : 1);
             Vector2 feet = pair.Value.Position + new Vector2(0, tile * 0.48f);
             Color color = p == 0 ? blue : red;
             Vector2 health = pair.Value.Position - new Vector2(tile * 0.4f, tile * 0.58f);
@@ -286,15 +345,7 @@ public partial class BattleBoard : Control
     {
         Character unit = Session.Current;
         if (unit == null || !unit.isAlive()) return;
-        IVector2 previous = unit.currentPosition();
-        for (int i = 0; i < unit.stepCount(); i++)
-        {
-            if (unit.getStep(i) == 0) break;
-            IVector2 next = BattleEngine.previewPosition((uint)Session.Viewer, Session.Fighter, i);
-            DrawLine(Center(previous.x, previous.y), Center(next.x, next.y), new Color(settled, 0.55f), 2, true);
-            Shade(next, settled);
-            previous = next;
-        }
+        DrawRoute(Session.Viewer, Session.Fighter, settled);
         IVector2 from = BattleEngine.previewPosition((uint)Session.Viewer, Session.Fighter, Session.Slot - 1);
         int action = Session.Action;
         if (action >= 1 && action <= 4)
@@ -316,6 +367,33 @@ public partial class BattleBoard : Control
                 foreach (var cell in SkillCells(unit, skill, Session.Direction, distance)) Dotted(cell);
             }
             foreach (var cell in SkillCells(unit, skill, Session.Direction, Session.Range)) Shade(new IVector2(cell.row, cell.col), pending);
+        }
+    }
+
+    void DrawSelectionPlans()
+    {
+        uint player = (uint)Session.Viewer;
+        for (int fighter = 0; fighter < BattleEngine.getPlayer(player).count(); fighter++)
+        {
+            Character unit = BattleEngine.getPlayer(player).getCharacter(fighter);
+            if (!unit.isAlive()) continue;
+            Color routeColor = fighter == Session.Fighter ? settled : new Color(settled, 0.48f);
+            DrawRoute(Session.Viewer, fighter, routeColor);
+        }
+    }
+
+    void DrawRoute(int player, int fighter, Color color)
+    {
+        Character unit = BattleEngine.getPlayer((uint)player).getCharacter(fighter);
+        if (!unit.isAlive()) return;
+        IVector2 previous = unit.currentPosition();
+        for (int i = 0; i < unit.stepCount(); i++)
+        {
+            if (unit.getStep(i) == 0) break;
+            IVector2 next = BattleEngine.previewPosition((uint)player, fighter, i);
+            DrawLine(Center(previous.x, previous.y), Center(next.x, next.y), new Color(color, 0.55f), 2, true);
+            Shade(next, color);
+            previous = next;
         }
     }
 

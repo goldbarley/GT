@@ -16,6 +16,8 @@ public partial class Premove : Control
     Label lastMove;
     string moveText = "";
     NetworkMatch network;
+    MusicPlayer music;
+    SoundEffects sfx;
     bool Choosing => match.Phase == MatchPhase.Menu;
     BattleBoard board;
     VBoxContainer left, right, footer;
@@ -40,10 +42,14 @@ public partial class Premove : Control
         popup = new Control { Name = "Popup", MouseFilter = MouseFilterEnum.Ignore }; menuLayer.AddChild(popup); popup.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         for (int kind = 0; kind < 2; kind++) { var figure = BuildFigure(kind); figure.Visible = false; showcaseHolder.AddChild(figure); showcaseCache[kind] = figure; }
         network = new NetworkMatch { Name = "Network", Session = match }; AddChild(network);
+        music = new MusicPlayer { Name = "Music" }; AddChild(music);
+        sfx = new SoundEffects { Name = "Sfx" }; AddChild(sfx);
+        board.Sound = sfx;
         network.StatusChanged += status => { transient = status; if (match.Phase == MatchPhase.Menu) Refresh(); };
         network.ConnectionLost += () => { ReturnToMenu(); transient = "Connection closed. Host or join again."; screen = "lan"; Refresh(); };
         match.Changed += Refresh;
         match.TickPlayed += (before, after) => { board.PlayTick(before, after); ShowLastMoves(before); };
+        board.TickAnimationsFinished += match.CompleteTickAnimations;
         board.ImpactShown += Refresh;
         Refresh();
         if (OS.GetCmdlineUserArgs().Contains("--smoke-test")) CallDeferred(MethodName.RunSmokeTest);
@@ -77,8 +83,8 @@ public partial class Premove : Control
         theme.SetStylebox("disabled", "Button", Box("cbb492", "a08a6b", 7));
         theme.SetConstant("outline_size", "Label", 0);
         theme.SetColor("font_outline_color", "Label", new Color("e8d0a6"));
-        theme.SetConstant("separation", "VBoxContainer", 10);
-        theme.SetConstant("separation", "HBoxContainer", 10);
+        theme.SetConstant("separation", "VBoxContainer", 12);
+        theme.SetConstant("separation", "HBoxContainer", 12);
         return theme;
     }
 
@@ -160,11 +166,34 @@ public partial class Premove : Control
 
     Button Button(string text, System.Action action, bool disabled = false, bool accent = false)
     {
-        var b = new Button { Text = text, Disabled = disabled, CustomMinimumSize = new Vector2(0, 42), MouseDefaultCursorShape = CursorShape.PointingHand };
+        var b = new Button { Text = text, Disabled = disabled, CustomMinimumSize = new Vector2(0, 46), MouseDefaultCursorShape = CursorShape.PointingHand };
         b.AddThemeFontSizeOverride("font_size", 24);
         if (accent) { b.AddThemeStyleboxOverride("normal", Box("c6dcb6", "3d6548", 0)); b.AddThemeColorOverride("font_color", cyan); }
         b.Pressed += () => { transient = ""; action(); };
+        b.MouseEntered += () => { if (!b.Disabled) sfx?.Play("hover", 0f, -6f); };
+        b.MouseEntered += () => AnimateButtonHover(b, true);
+        b.MouseExited += () => AnimateButtonHover(b, false);
         return b;
+    }
+
+    void AnimateButtonHover(Control button, bool hovered)
+    {
+        if (!GodotObject.IsInstanceValid(button)) return;
+        button.PivotOffset = button.Size / 2;
+        var tween = button.CreateTween();
+        tween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+        tween.TweenProperty(button, "scale", hovered ? new Vector2(1.025f, 1.025f) : Vector2.One, 0.12);
+    }
+
+    void BlinkAttention(Control control)
+    {
+        if (control == null || !control.IsInsideTree()) return;
+        var tween = control.CreateTween();
+        tween.SetLoops();
+        tween.TweenProperty(control, "modulate", new Color(1.0f, 0.82f, 0.55f, 0.72f), 0.6)
+            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        tween.TweenProperty(control, "modulate", Colors.White, 0.6)
+            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
     }
 
     static void Clear(Node node)
@@ -245,14 +274,21 @@ public partial class Premove : Control
         if (match.Phase == MatchPhase.Menu) board.Sync();
     }
 
-    VBoxContainer FullScreen(string title)
+    VBoxContainer FullScreen(string title, float contentWidth = 600)
     {
         Clear(overlay); shell.Visible = false; keyOverlay.Visible = false;
+        overlay.Modulate = new Color(1, 1, 1, 0);
+        var transition = overlay.CreateTween();
+        transition.TweenProperty(overlay, "modulate:a", 1.0, 0.24)
+            .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out);
         var background = new ColorRect { Color = new Color("b38d65") }; overlay.AddChild(background); background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         var margin = new MarginContainer(); overlay.AddChild(margin); margin.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         foreach (string side in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride("margin_" + side, 36);
         var frame = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; frame.AddThemeStyleboxOverride("panel", Box("ead6b6", "61432c")); margin.AddChild(frame);
-        var content = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; frame.AddChild(content);
+        var center = new CenterContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; frame.AddChild(center);
+        float availableWidth = Math.Max(320, GetViewportRect().Size.X - 144);
+        var content = new VBoxContainer { CustomMinimumSize = new Vector2(Math.Min(contentWidth, availableWidth), 0), SizeFlagsHorizontal = SizeFlags.ShrinkCenter, SizeFlagsVertical = SizeFlags.ShrinkCenter };
+        center.AddChild(content);
         content.AddThemeConstantOverride("separation", 14);
         if (title != "") { var heading = Label(title, 32, gold); heading.HorizontalAlignment = HorizontalAlignment.Center; content.AddChild(heading); }
         return content;
@@ -278,7 +314,7 @@ public partial class Premove : Control
 
     void Menu()
     {
-        var page = FullScreen(screen == "title" ? "" : screen == "lan" ? "PLAY OVER LAN" : "CHOOSE AN ARENA");
+        var page = FullScreen(screen == "title" ? "" : screen == "lan" ? "PLAY OVER LAN" : "CHOOSE AN ARENA", screen == "title" ? 1200 : screen == "map" ? 900 : 600);
         if (screen == "title")
         {
             var columns = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill }; page.AddChild(columns);
@@ -291,6 +327,7 @@ public partial class Premove : Control
             leftSide.AddChild(Button("Couch multiplayer", () => { solo = false; screen = "map"; Refresh(); }));
             leftSide.AddChild(Button("Practice", () => { solo = true; screen = "map"; Refresh(); }));
             leftSide.AddChild(Button("How to play", () => { tutorialPage = 0; ShowHelp(); }));
+            leftSide.AddChild(Button("Audio settings", ShowAudio));
             leftSide.AddChild(Button("Quit", () => GetTree().Quit()));
             var rightSide = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(420, 0) }; rightSide.AddThemeStyleboxOverride("panel", Box("a08660", "61432c"));
             columns.AddChild(rightSide);
@@ -312,34 +349,59 @@ public partial class Premove : Control
         else
         {
             var maps = new[] { "Grassland_1", "Grassland_2", "Grassland_3", "Volcanic_Ruins_1", "Volcanic_Ruins_2", "Volcanic_Ruins_3" };
-            
-            var container = new CenterContainer(); page.AddChild(container);
-            var mainVBox = new VBoxContainer { CustomMinimumSize = new Vector2(700, 0) }; container.AddChild(mainVBox);
-            
-            var previewHolder = new PanelContainer { CustomMinimumSize = new Vector2(600, 340) };
-            previewHolder.AddThemeStyleboxOverride("panel", Box("ead6b6", "61432c", 0));
-            var previewControl = new MapPreview { MapIndex = mapIndex, CustomMinimumSize = new Vector2(580, 320) };
+            page.SizeFlagsVertical = SizeFlags.ExpandFill;
+            page.CustomMinimumSize = new Vector2(
+                Math.Max(320, GetViewportRect().Size.X - 144),
+                Math.Max(320, GetViewportRect().Size.Y - 144));
+            page.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            page.AddThemeConstantOverride("separation", 12);
+            var layout = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
+            layout.AddThemeConstantOverride("separation", 20);
+            page.AddChild(layout);
+
+            var previewHolder = new PanelContainer {
+                CustomMinimumSize = new Vector2(400, 0),
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsVertical = SizeFlags.ExpandFill
+            };
+            previewHolder.AddThemeStyleboxOverride("panel", Box("d7c19f", "61432c", 0));
+            var previewControl = new MapPreview { MapIndex = mapIndex, SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
             previewHolder.AddChild(previewControl);
-            mainVBox.AddChild(previewHolder);
-            
-            var mapName = Label(maps[mapIndex].Replace("_", " "), 24, cyan); 
-            mapName.HorizontalAlignment = HorizontalAlignment.Center; 
-            mainVBox.AddChild(mapName);
-            
-            var nav = new HBoxContainer(); mainVBox.AddChild(nav);
-            nav.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-            nav.AddChild(Button("← Prev", () => { mapIndex = (mapIndex + 5) % 6; Refresh(); }));
-            nav.AddChild(Button("Next →", () => { mapIndex = (mapIndex + 1) % 6; Refresh(); }));
-            nav.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-            
-            var controls = new HBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; mainVBox.AddChild(controls);
-            controls.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-            controls.AddChild(Button($"Party: {teamSize}", () => { teamSize = teamSize % 3 + 1; Refresh(); }));
-            controls.AddChild(Button($"Premoves: {premoveLimit}  [+/-]", () => { premoveLimit = premoveLimit == 10 ? 5 : premoveLimit + 1; Refresh(); }));
+            layout.AddChild(previewHolder);
+
+            var controls = new VBoxContainer {
+                CustomMinimumSize = new Vector2(400, 0),
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsVertical = SizeFlags.ShrinkCenter
+            };
+            controls.AddThemeConstantOverride("separation", 18);
+            layout.AddChild(controls);
+            var mapName = Label(maps[mapIndex].Replace("_", " "), 28, cyan);
+            mapName.HorizontalAlignment = HorizontalAlignment.Center;
+            controls.AddChild(mapName);
+
+            var nav = new HBoxContainer();
+            nav.AddThemeConstantOverride("separation", 12);
+            controls.AddChild(nav);
+            var previousMap = Button("← Prev", () => { mapIndex = (mapIndex + 5) % 6; Refresh(); });
+            previousMap.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            nav.AddChild(previousMap);
+            var nextMap = Button("Next →", () => { mapIndex = (mapIndex + 1) % 6; Refresh(); });
+            nextMap.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            nav.AddChild(nextMap);
+
+            var partySize = Button($"Party size: {teamSize}", () => { teamSize = teamSize % 3 + 1; Refresh(); });
+            partySize.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            controls.AddChild(partySize);
+            var maxMoves = Button($"Max moves: {premoveLimit}  [+/-]", () => { premoveLimit = premoveLimit == 10 ? 5 : premoveLimit + 1; Refresh(); });
+            maxMoves.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            controls.AddChild(maxMoves);
             var startBtn = Button("Build your party", () => { board.Reset(); match.Start(solo, teamSize, mapIndex, premoveLimit); }, accent: true);
+            startBtn.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             controls.AddChild(startBtn);
-            controls.AddChild(Button("Back", () => { screen = network.Active ? "lan" : "title"; Refresh(); }));
-            
+            var back = Button("Back", () => { screen = network.Active ? "lan" : "title"; Refresh(); });
+            back.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            controls.AddChild(back);
             FocusFirst(startBtn);
         }
         page.AddChild(Label("↑ ↓  SELECT     ENTER  CONFIRM     ESC  BACK", 16, muted));
@@ -349,7 +411,7 @@ public partial class Premove : Control
     void CharacterScreen()
     {
         teamSize = match.TeamSize; solo = match.Solo; premoveLimit = match.PremoveLimit; mapIndex = match.MapIndex;
-        var page = FullScreen($"PLAYER {match.Viewer} · BUILD YOUR PARTY");
+        var page = FullScreen($"PLAYER {match.Viewer} · BUILD YOUR PARTY", 1120);
         var columns = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; page.AddChild(columns);
         var main = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; columns.AddChild(main);
         var stageFrame = new PanelContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
@@ -382,13 +444,19 @@ public partial class Premove : Control
         arrows.AddChild(Button("←", () => BrowseCharacter(-1)));
         var name = Label(characterNames[characterIndex].ToUpperInvariant(), 28, characterIndex == 0 ? coral : cyan); name.SizeFlagsHorizontal = SizeFlags.ExpandFill; name.HorizontalAlignment = HorizontalAlignment.Center; arrows.AddChild(name);
         arrows.AddChild(Button("→", () => BrowseCharacter(1)));
-        main.AddChild(Label(characterIndex switch { 0 => "Sword & shield", 1 => "Fire & magic", _ => "Coming soon" }, 14, muted));
+        main.AddChild(Label(characterIndex switch {
+            0 => $"Sword & shield  /  {MatchSession.MoveLimit(CharacterClass.WARRIOR, premoveLimit)} moves",
+            1 => $"Fire & magic  /  {MatchSession.MoveLimit(CharacterClass.MAGE, premoveLimit)} moves",
+            _ => "Coming soon"
+        }, 14, muted));
         if (characterIndex < 2)
         {
             int hp = characterIndex == 0 ? 120 : 75;
             main.AddChild(HealthDisplay("", hp, hp, characterIndex == 0 ? coral : cyan));
         }
-        main.AddChild(Button(characterIndex > 1 ? "Coming soon" : "Choose fighter  [Enter]", () => { BeginPlacement(); placementOpen = true; Refresh(); }, characterIndex > 1 || !match.CanAdd, true));
+        var chooseFighter = Button(characterIndex > 1 ? "Coming soon" : "Choose fighter  [Enter]", () => { BeginPlacement(); placementOpen = true; Refresh(); }, characterIndex > 1 || !match.CanAdd, true);
+        main.AddChild(chooseFighter);
+        if (!chooseFighter.Disabled) BlinkAttention(chooseFighter);
         main.AddChild(Label("← → Browse   Enter Choose   Backspace Remove", 16, muted));
         int perkIndex = (int)match.Perks[match.Viewer - 1];
         var perk = Button($"Perk: {MatchSession.PerkNames[perkIndex]}  [P]", CyclePerk, !match.PerkTurn);
@@ -418,7 +486,9 @@ public partial class Premove : Control
             int index = i; fighterBox.AddChild(Button("Remove", () => match.RemoveFighter(index), !match.MyTurn));
         }
         bool ready = match.Lan && match.DeploymentReady(match.Viewer);
-        party.AddChild(Button(ready ? "READY" : "Enter arena  [Space]", match.ConfirmDeployment, ready || match.Rosters[match.Viewer - 1].Count != teamSize, true));
+        var enterArena = Button(ready ? "READY" : "Enter arena  [Space]", match.ConfirmDeployment, ready || match.Rosters[match.Viewer - 1].Count != teamSize, true);
+        party.AddChild(enterArena);
+        if (!enterArena.Disabled) BlinkAttention(enterArena);
         if (match.Lan)
             party.AddChild(Text(match.DeploymentReady(3 - match.Viewer) ? "Opponent ready." : "Both ready: start.", 14, cyan));
         if (transient.Length > 0) main.AddChild(Text(transient, 14, coral));
@@ -499,7 +569,9 @@ public partial class Premove : Control
         var panel = FullScreen($"PLAYER {match.Viewer}");
         panel.AddChild(Label(match.HandoffText, 24, cyan));
         if (!network.Active) panel.AddChild(Text("Pass the keyboard. Your choices stay private.", 24, muted));
-        panel.AddChild(Button("Ready  [Enter]", match.ContinueHandoff, accent: true));
+        var ready = Button("Ready  [Enter]", match.ContinueHandoff, accent: true);
+        panel.AddChild(ready);
+        BlinkAttention(ready);
         FocusFirst(panel);
     }
 
@@ -508,15 +580,21 @@ public partial class Premove : Control
         bool planning = match.Phase is MatchPhase.Planning or MatchPhase.Foresight;
         if (match.Phase == MatchPhase.Selection)
         {
-            var page = FullScreen($"PLAYER {match.Viewer}  /  NEXT FIGHTER");
-            var stage = new Control { CustomMinimumSize = new Vector2(600, 280) }; page.AddChild(stage);
-            var actor = new Node2D(); actor.SetScript(GD.Load<GDScript>("res://scripts/Game/FighterVisual.gd")); stage.AddChild(actor);
-            actor.Position = new Vector2(300, 150); actor.Call("configure", (int)match.Current.characterClass()); actor.Call("fit_tile", 192f);
-            page.AddChild(Label($"<  {MatchSession.ClassName(match.Current.characterClass()).ToUpperInvariant()}  >", 32, cyan));
-            page.AddChild(Label($"{match.Current.currentHP()} HP   ·   READY", 24, gold));
-            page.AddChild(Button("Choose fighter  [Enter]", match.ConfirmFighter, accent: true));
-            page.AddChild(Label("← →  CHOOSE     ENTER  CONFIRM", 16, muted));
-            FocusFirst(page); return;
+            right.AddChild(Label($"PLAYER {match.Viewer} / CHOOSE FIGHTER", 20, gold));
+            right.AddChild(Text("Click one of your available fighters on the map, or choose below.", 16, muted));
+            foreach (int fighterIndex in match.Available(match.Viewer))
+            {
+                int index = fighterIndex;
+                Character fighter = BattleEngine.getPlayer((uint)match.Viewer).getCharacter(index);
+                var position = fighter.currentPosition();
+                var choice = Button(
+                    $"{MatchSession.ClassName(fighter.characterClass())} · {fighter.currentHP()} HP · tile {position.y + 1},{position.x + 1}",
+                    () => { match.Fighter = index; match.ConfirmFighter(); },
+                    accent: match.Fighter == index);
+                right.AddChild(choice);
+                BlinkAttention(choice);
+            }
+            return;
         }
         if (match.Phase == MatchPhase.Finished)
         {
@@ -529,7 +607,9 @@ public partial class Premove : Control
         {
             var next = Button($"{MatchSession.ClassName(match.Current.characterClass())}  [Tab]", () => { match.Fighter = (match.Fighter + 1) % match.TeamSize; match.Slot = 0; Refresh(); }); right.AddChild(next);
             next.TooltipText = "Plan moves for each fighter before locking.";
-            right.AddChild(Button("Ready to fight  [Space]", match.LockPlan, accent: true));
+            var ready = Button(match.Phase == MatchPhase.Foresight ? "Continue to fighter selection  [Space]" : "Ready to fight  [Space]", match.LockPlan, accent: true);
+            right.AddChild(ready);
+            BlinkAttention(ready);
             var intel = BattleEngine.getVisibleOpponentSteps((uint)match.Viewer);
             if (intel.Length > 0)
             {
@@ -548,8 +628,12 @@ public partial class Premove : Control
         }
         else if (match.Phase == MatchPhase.Rewind)
         {
-            right.AddChild(Button("Attempt rewind", () => match.Rewind(true), accent: true));
-            right.AddChild(Button("Keep this tick", () => match.Rewind(false)));
+            var rewind = Button("Attempt rewind", () => match.Rewind(true), accent: true);
+            right.AddChild(rewind);
+            BlinkAttention(rewind);
+            var keep = Button("Keep this tick", () => match.Rewind(false));
+            right.AddChild(keep);
+            BlinkAttention(keep);
         }
         else if (match.Phase == MatchPhase.Combat) CombatKeys();
     }
@@ -574,7 +658,7 @@ public partial class Premove : Control
                 panel.CustomMinimumSize = new Vector2(76, 52); pad.AddChild(panel);
                 var label = Label(number <= names.Length ? $"{number}  {(unit.currentCooldown()[number - 1] > 1 ? "CD" : "")}" : "·", 24, active ? Colors.White : muted); label.HorizontalAlignment = HorizontalAlignment.Center; panel.AddChild(label);
                 if (number <= names.Length) panel.TooltipText = names[number - 1] + $" · cooldown {Math.Max(0, unit.currentCooldown()[number - 1] - 1)}";
-                if (active) { panel.Modulate = new Color(1.4f, 1.4f, 1.4f); panel.CreateTween().TweenProperty(panel, "modulate", Colors.White, 0.8); }
+                if (active) BlinkAttention(panel);
             }
             MovementKeys(right, executing[p]);
         }
@@ -589,7 +673,7 @@ public partial class Premove : Control
             var style = Box(active == action ? "f4e3c2" : "e6cfa8dd", active == action ? "8a5a2b" : "8a6a45aa");
             style.ContentMarginLeft = style.ContentMarginRight = style.ContentMarginTop = style.ContentMarginBottom = 4; cap.AddThemeStyleboxOverride("panel", style);
             var label = Label(key, 24, active == action ? Colors.White : muted); label.HorizontalAlignment = HorizontalAlignment.Center; cap.AddChild(label);
-            if (active == action) { cap.Modulate = new Color(1.4f, 1.4f, 1.4f); cap.CreateTween().TweenProperty(cap, "modulate", Colors.White, 0.8); }
+            if (active == action) BlinkAttention(cap);
         }
     }
 
@@ -645,7 +729,7 @@ public partial class Premove : Control
     {
         Character unit = match.Current;
         var heading = new HBoxContainer(); footer.AddChild(heading);
-        heading.AddChild(Label($"{MatchSession.ClassName(unit.characterClass()).ToUpperInvariant()} / ACTION SEQUENCE", 12, cyan));
+        heading.AddChild(Label($"{MatchSession.ClassName(unit.characterClass()).ToUpperInvariant()} / {unit.stepCount()} MOVES (MAX {match.PremoveLimit})", 12, cyan));
         heading.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
         heading.AddChild(Label("WASD move · NUM skill · ←→ aim · ENTER add · SPACE lock", 12, muted));
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Auto, VerticalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsVertical = SizeFlags.ExpandFill };
@@ -662,7 +746,9 @@ public partial class Premove : Control
             if (ended) b.Modulate = new Color(0.6f, 0.65f, 0.7f);
             slots.AddChild(b); if (action == 0) ended = true;
         }
-        footer.AddChild(Label(transient.Length > 0 ? transient : match.Message.Length > 0 ? match.Message : "Click a slot to edit. Skills on cooldown are skipped.", 12, muted));
+        footer.AddChild(Label("Click a slot to edit; replacing it clears every later move. Skills on cooldown are skipped.", 12, muted));
+        if (transient.Length > 0 || match.Message.Length > 0)
+            footer.AddChild(Label(transient.Length > 0 ? transient : match.Message, 12, muted));
     }
 
     void ShowLastMoves(Snapshot before)
@@ -689,6 +775,19 @@ public partial class Premove : Control
 
     void OnTile(int row, int col)
     {
+        if (match.Phase == MatchPhase.Selection)
+        {
+            foreach (int fighter in match.Available(match.Viewer))
+            {
+                Character unit = BattleEngine.getPlayer((uint)match.Viewer).getCharacter(fighter);
+                IVector2 position = unit.currentPosition();
+                if (position.x != row || position.y != col) continue;
+                match.Fighter = fighter;
+                match.ConfirmFighter();
+                return;
+            }
+            return;
+        }
         if (match.Phase != MatchPhase.Planning && match.Phase != MatchPhase.Foresight && match.Phase != MatchPhase.Rewind) return;
         var from = match.Phase == MatchPhase.Rewind ? match.Current.currentPosition() : BattleEngine.previewPosition((uint)match.Viewer, match.Fighter, match.Slot - 1);
         if (match.Action == 0)
@@ -737,6 +836,7 @@ public partial class Premove : Control
         panel.AddChild(Button("How to play", () => { tutorialPage = 0; ShowHelp(); }));
         panel.AddChild(Button(board.TrackCamera ? "Camera: follow fighters" : "Camera: whole map", () => { board.TrackCamera = !board.TrackCamera; ShowPause(); }));
         panel.AddChild(Button("Fullscreen / windowed", ToggleFullscreen));
+        panel.AddChild(Button("Audio settings", ShowAudio));
         panel.AddChild(Button("Return to menu", ReturnToMenu));
         FocusFirst(panel);
     }
@@ -746,8 +846,61 @@ public partial class Premove : Control
         network?.Close(); match.Lan = false; match.Local = match.Viewer = 1; modalOpen = false; screen = "title"; match.Paused = false; match.Phase = MatchPhase.Menu; board.Reset(); Refresh();
     }
     void ToggleFullscreen() => DisplayServer.WindowSetMode(DisplayServer.WindowGetMode() == DisplayServer.WindowMode.Fullscreen ? DisplayServer.WindowMode.Windowed : DisplayServer.WindowMode.Fullscreen);
+
+    void SyncMusic()
+    {
+        if (music == null) return;
+        if (match.Phase == MatchPhase.Menu) { music.Play("title"); return; }
+        if (match.Phase == MatchPhase.Finished)
+        {
+            int outcome = BattleEngine.getOutcome();
+            bool won = match.Solo ? outcome == 1 : outcome == match.Local;
+            music.Play(won ? "victory" : "defeat");
+            return;
+        }
+        music.Play("battle");
+    }
+
+    void ShowAudio()
+    {
+        modalOpen = true;
+        match.Paused = match.Phase != MatchPhase.Menu && !network.Active;
+        var panel = Modal();
+        panel.AddChild(Label("AUDIO", 30, gold));
+        var musicSlider = VolumeRow(panel, "Music", music.Volume, music.SetVolume);
+        VolumeRow(panel, "Effects", sfx.Volume, sfx.SetVolume);
+        panel.AddChild(Button(music.Muted ? "Music: muted" : "Music: on", () => { music.SetMuted(!music.Muted); ShowAudio(); }));
+        panel.AddChild(Button(sfx.Muted ? "Effects: muted" : "Effects: on", () => { sfx.SetMuted(!sfx.Muted); ShowAudio(); }));
+        panel.AddChild(Text("Tracks live in assets/music; hit sounds in assets/sounds (.ogg, .wav or .mp3).", 13, muted));
+        panel.AddChild(Button("Back", () =>
+        {
+            if (match.Phase == MatchPhase.Menu) { modalOpen = false; Refresh(); }
+            else ShowPause();
+        }));
+        CallDeferred(MethodName.FocusLater, musicSlider);
+    }
+
+    HSlider VolumeRow(VBoxContainer panel, string caption, float value, System.Action<float> apply)
+    {
+        var row = new HBoxContainer();
+        row.AddChild(Label(caption, 24, cyan));
+        var readout = Label($"{Mathf.RoundToInt(value * 100)}%", 24, ink);
+        var slider = new HSlider { MinValue = 0, MaxValue = 100, Step = 1, Value = Mathf.Round(value * 100), SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkCenter, CustomMinimumSize = new Vector2(240, 28) };
+        var track = new StyleBoxFlat { BgColor = new Color("b08a5e"), BorderColor = new Color("8a6a45"), BorderWidthLeft = 2, BorderWidthTop = 2, BorderWidthRight = 2, BorderWidthBottom = 2, ContentMarginTop = 4, ContentMarginBottom = 4 };
+        var fill = new StyleBoxFlat { BgColor = cyan, ContentMarginTop = 4, ContentMarginBottom = 4 };
+        slider.AddThemeStyleboxOverride("slider", track);
+        slider.AddThemeStyleboxOverride("grabber_area", fill);
+        slider.AddThemeStyleboxOverride("grabber_area_highlight", fill);
+        slider.ValueChanged += changed => { apply((float)changed / 100f); readout.Text = $"{changed:0}%"; };
+        row.AddChild(slider);
+        row.AddChild(readout);
+        panel.AddChild(row);
+        return slider;
+    }
+
     public override void _Process(double delta)
     {
+        SyncMusic();
         GetTree().Paused = match.Paused;
         if (network.Active && !match.Lan)
         {
@@ -762,7 +915,7 @@ public partial class Premove : Control
         }
         if (GodotObject.IsInstanceValid(selectionClock))
             selectionClock.Text = match.Phase == MatchPhase.Deploy
-                ? match.Lan ? $"{Math.Ceiling(match.Seconds):00}s TO CHOOSE" : $"{match.PremoveLimit} PREMOVES"
+                ? match.Lan ? $"{Math.Ceiling(match.Seconds):00}s TO CHOOSE" : $"MAX {match.PremoveLimit} MOVES"
                 : match.Phase == MatchPhase.Planning ? $"{Math.Ceiling(match.PlanningRemaining(3 - match.Local)):00}s LEFT FOR OPPONENT" : "Their decision stays private.";
         if (GodotObject.IsInstanceValid(clock))
             clock.Text = match.Phase == MatchPhase.Planning || match.Phase == MatchPhase.Foresight ? $"{Math.Ceiling(match.Seconds):000}s  /  PLAN" : match.Phase == MatchPhase.Combat ? $"TICK {BattleEngine.getClock():00}" : match.MapName;
@@ -891,7 +1044,7 @@ public partial class Premove : Control
         for (int frame = 0; frame < 40; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         await Capture("/tmp/premove-combat.png");
         match.Paused = true;
-        var gallery = FullScreen("KNIGHT / PERSPECTIVE POSES");
+        var gallery = FullScreen("KNIGHT / PERSPECTIVE POSES", 1200);
         var poses = new Control { CustomMinimumSize = new Vector2(1100, 500) }; gallery.AddChild(poses);
         for (int d = 1; d <= 4; d++) for (int a = 0; a < 3; a++)
         {
@@ -901,7 +1054,7 @@ public partial class Premove : Control
             player.Call("apply_pose", player.Call("sample", a == 0 ? 0.0 : a == 1 ? 0.27 : 0.48));
         }
         await Capture("/tmp/premove-knight-poses.png");
-        var effectsPage = FullScreen("ATTACK PLAYBACK");
+        var effectsPage = FullScreen("ATTACK PLAYBACK", 1200);
         var effectStage = new Control { CustomMinimumSize = new Vector2(1050, 480) }; effectsPage.AddChild(effectStage);
         foreach (var (kind, action, spot) in new[] { (0, -1, new Vector2(150, 120)), (0, -3, new Vector2(150, 340)), (1, -1, new Vector2(650, 120)), (1, -4, new Vector2(650, 340)) })
         {
@@ -921,7 +1074,7 @@ public partial class Premove : Control
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             match.Start(true, 1); match.Deploy(CharacterClass.MAGE, 6, 6); match.ConfirmDeployment();
             MatchChecks.CheckSpriteScale(board);
-            for (int i = 0; i < 10; i++) { match.Slot = i; match.Range = 5; match.Direction = 2; match.Edit(-1); }
+            for (int i = 0; i < BattleEngine.getPlayer(1).getCharacter(0).stepCount(); i++) { match.Slot = i; match.Range = 5; match.Direction = 2; match.Edit(-1); }
             match.LockPlan(); match.ConfirmFighter();
             for (int i = 0; i < 20; i++)
             {
@@ -930,6 +1083,7 @@ public partial class Premove : Control
                 if (match.Phase != MatchPhase.Combat) break;
             }
             GD.Print("SMOKE: practice phase=" + match.Phase + " tick=" + BattleEngine.getClock());
+            board.Reset();
             match.Start(false, 2);
             match.Deploy(CharacterClass.WARRIOR, 6, 5); match.Deploy(CharacterClass.MAGE, 6, 6); match.ConfirmDeployment();
             match.ContinueHandoff(); match.Deploy(CharacterClass.WARRIOR, 9, 5); match.Deploy(CharacterClass.MAGE, 9, 6); match.ConfirmDeployment();
