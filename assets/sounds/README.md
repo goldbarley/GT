@@ -5,12 +5,14 @@ One-shot effects load from this folder by fixed names. The first matching format
 | File | Plays when |
 | --- | --- |
 | `hurt` | A fighter loses HP during a combat tick (once per tick, with slight pitch variation) |
-| `sword_hit` | A Knight's Slash or Plunge connects, replacing `hurt` for that tick |
+| `sword_hit` | A Knight's Slash connects, replacing `hurt` for that tick |
+| `plunge` | A Knight's Plunge connects, replacing `hurt` for that tick |
 | `fireball` | A Mage casts Fireball (trimmed and faded to fit one combat tick) |
 | `flame_sword` | A Knight casts Knight's Edge (the flame sword ultimate) |
 
 - `hurt.wav` is [`Punch_02.wav`](https://freesound.org/people/thefsoundman/sounds/118513/) by thefsoundman, released under [CC0](https://creativecommons.org/publicdomain/zero/1.0/). Attribution is not required but is kept here for provenance.
 - `sword_hit.wav` is [Sword Stab Body Hit](https://freesound.org/s/718259/) by -GeorgeDiamond-, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is used unmodified; credit is required when distributing the game.
+- `plunge.wav` is an edited excerpt of [Door Smash 1](https://freesound.org/s/218890/) by qubodup, released under [CC0](https://creativecommons.org/publicdomain/zero/1.0/). Attribution is not required but is kept here for provenance.
 - `fireball.wav` is an edited excerpt of [Fire Spell 01](https://freesound.org/s/275608/) by DiscoverSound (first 1.2 s, with a short fade-out), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Credit is required when distributing the game.
 - `flame_sword.wav` is [Sword_Fire01.wav](https://freesound.org/s/649361/) by SonoFxAudio, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is used unmodified; credit is required when distributing the game.
 - Add more effects by dropping a file in with a matching name and calling `SoundEffects.Play("name")` from gameplay code.

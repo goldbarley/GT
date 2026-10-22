@@ -185,13 +185,13 @@ public partial class BattleBoard : Control
             actors[(p, i)].Call("react_to_hit", hp <= 0);
             hurt |= hp < oldHp;
         }
-        if (hurt) Sound?.Play(KnightBladeHit() ? "sword_hit" : "hurt", 0.06f);
+        if (hurt) Sound?.Play(KnightBladeSound() ?? "hurt", 0.06f);
         ImpactShown?.Invoke();
     }
 
-    bool KnightBladeHit()
+    string KnightBladeSound()
     {
-        if (visualBefore == null || visualAfter == null) return false;
+        if (visualBefore == null || visualAfter == null) return null;
         for (int p = 0; p < 2; p++)
         {
             int actor = visualBefore.selected[p];
@@ -213,10 +213,10 @@ public partial class BattleBoard : Control
                 int hp = (1 - p) == 0 ? visualAfter.player1CharacterHPs[i] : visualAfter.player2CharacterHPs[i];
                 IVector2 at = (1 - p) == 0 ? visualAfter.player1CharacterPositions[i] : visualAfter.player2CharacterPositions[i];
                 if (hp >= oldHp) continue;
-                if (at.x >= 0 && at.y >= 0 && at.x < grid.GetLength(0) && at.y < grid.GetLength(1) && grid[at.x, at.y] > 0) return true;
+                if (at.x >= 0 && at.y >= 0 && at.x < grid.GetLength(0) && at.y < grid.GetLength(1) && grid[at.x, at.y] > 0) return action == -3 ? "plunge" : "sword_hit";
             }
         }
-        return false;
+        return null;
     }
 
     public override void _Process(double delta)
