@@ -69,6 +69,8 @@ public static class MapTable
                 return MapElement.W;
             case 4:
                 return MapElement.G;
+            case 5:
+                    return MapElement.D;
             default:
                 throw new ArgumentException($"{i} is not a valid tile element.");
         }
