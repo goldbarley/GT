@@ -196,6 +196,7 @@ func _fire_beams(duration: float) -> void:
 func _add_edge(rig: ModularRig, perspective: String) -> void:
 	# Dark layer (underneath) - blacks out the screen
 	var dark_layer := CanvasLayer.new()
+	dark_layer.name = "KnightUltimateDarkLayer"
 	dark_layer.layer = 100
 	rig.add_child(dark_layer)
 	var dark := ColorRect.new()
@@ -209,6 +210,7 @@ func _add_edge(rig: ModularRig, perspective: String) -> void:
 
 	# Fire layer (on top) - the fire sweep
 	var fire_layer := CanvasLayer.new()
+	fire_layer.name = "KnightUltimateLayer"
 	fire_layer.layer = 101
 	rig.add_child(fire_layer)
 	edge_layers[perspective] = fire_layer
