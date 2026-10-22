@@ -466,8 +466,6 @@ public static class BattleEngine
         {
             exchangeIndex = 0; cycleIndex++;
             Array.Fill(planningLocked, false); futureSightPending = false;
-            for (int p = 0; p < 2; p++)
-                foreach (Character c in players[p].getCharacters()) c.resetCooldown();
             ChooseTacticianReveal();
         }
     }

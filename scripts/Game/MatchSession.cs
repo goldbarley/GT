@@ -649,7 +649,7 @@ public sealed class MatchSession
             Character c = team.getCharacter(i);
             if (!c.isAlive()) continue;
             IVector2 at = c.currentPosition();
-            int[] cooldown = new int[SkillNames(c.characterClass()).Length];
+            int[] cooldown = c.currentCooldown();
             for (int slot = 0; slot < c.stepCount(); slot++)
             {
                 for (int k = 0; k < cooldown.Length; k++) cooldown[k]--;

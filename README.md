@@ -19,7 +19,7 @@ The executable may be called `godot` on your system. Open `project.godot` in the
 - Browse characters with Left/Right, then press Enter or use **Place on the map** to open a small map. Only safe, free tiles in your own half are offered: move the marker with WASD and press Enter, or click a tile. Each fighter in the party has a Remove button. Choose a perk with P and enter the arena with Space. Archer and Orc remain Coming soon.
 - Program each fighter's sequence. Choose a skill, click a tile along a row or column to aim, and confirm. The highlighted tiles show its exact effect.
 - Lock all plans, then choose a fighter. Both sides execute their selected sequences simultaneously. In skirmishes, unused living fighters act first; a survivor fills a fallen teammate's remaining exchange before the next planning cycle.
-- Health and position persist. Skill cooldowns reset at the start of a new cycle. Defeat the enemy party to win. The result screen offers a rematch.
+- Health, position, and skill cooldowns persist across planning cycles. Defeat the enemy party to win. The result screen offers a rematch.
 
 Local matches use private handoff screens. During planning, enemy markers show their original deployment tiles, rather than live positions. Practice uses a computer opponent that navigates safe terrain and chooses skills by range and cooldown.
 

@@ -47,6 +47,22 @@ public static class MatchChecks
         Fight(); BattleEngine.advanceOneTick(); BattleEngine.advanceOneTick(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 90, "Fireball cooldown must skip the second tick.");
 
+        Setup(CharacterClass.MAGE, CharacterClass.WARRIOR, new(7, 5), new(8, 5));
+        BattleEngine.setStep(1, 0, 0, -1, 2, new(1, 1));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[0] == 2,
+            "Cooldown must remain active after a planning cycle ends.");
+        BattleEngine.setStep(1, 0, 0, -1, 2, new(1, 1));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 105,
+            "A cooldowned skill must not fire in the next planning cycle.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[0] == 1,
+            "Cooldown must continue counting down across planning cycles.");
+        BattleEngine.setStep(1, 0, 0, -1, 2, new(1, 1));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 90,
+            "A skill must become available again when its cooldown expires.");
+
         Setup(CharacterClass.MAGE, CharacterClass.WARRIOR, new(7, 5), new(9, 5));
         BattleEngine.setStep(1, 0, 0, 5, 4, new(10, 10));
         Fight(); BattleEngine.advanceOneTick();
