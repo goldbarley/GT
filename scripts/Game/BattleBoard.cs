@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public partial class BattleBoard : Control
 {
     public MatchSession Session;
+    public SoundEffects Sound;
     public bool TileView;
     public bool TrackCamera = true;
     public int CursorRow = -1, CursorCol = -1;
@@ -171,6 +172,7 @@ public partial class BattleBoard : Control
     void PresentImpact()
     {
         impactShown = true; flash = 1;
+        bool hurt = false;
         for (int p = 0; p < 2; p++) for (int i = 0; i < Session.Rosters[p].Count; i++)
         {
             int oldHp = p == 0 ? visualBefore.player1CharacterHPs[i] : visualBefore.player2CharacterHPs[i];
@@ -179,7 +181,9 @@ public partial class BattleBoard : Control
             var to = p == 0 ? visualAfter.player1CharacterPositions[i] : visualAfter.player2CharacterPositions[i];
             damage.Add((Center(to.x, to.y), hp <= 0 ? "KO" : hp < oldHp ? $"−{oldHp - hp}" : $"+{hp - oldHp}", hp < oldHp ? red : settled));
             actors[(p, i)].Call("react_to_hit", hp <= 0);
+            hurt |= hp < oldHp;
         }
+        if (hurt) Sound?.Play("hurt", 0.06f);
         ImpactShown?.Invoke();
     }
 

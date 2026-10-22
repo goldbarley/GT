@@ -17,6 +17,7 @@ public partial class Premove : Control
     string moveText = "";
     NetworkMatch network;
     MusicPlayer music;
+    SoundEffects sfx;
     bool Choosing => match.Phase == MatchPhase.Menu;
     BattleBoard board;
     VBoxContainer left, right, footer;
@@ -42,6 +43,8 @@ public partial class Premove : Control
         for (int kind = 0; kind < 2; kind++) { var figure = BuildFigure(kind); figure.Visible = false; showcaseHolder.AddChild(figure); showcaseCache[kind] = figure; }
         network = new NetworkMatch { Name = "Network", Session = match }; AddChild(network);
         music = new MusicPlayer { Name = "Music" }; AddChild(music);
+        sfx = new SoundEffects { Name = "Sfx" }; AddChild(sfx);
+        board.Sound = sfx;
         network.StatusChanged += status => { transient = status; if (match.Phase == MatchPhase.Menu) Refresh(); };
         network.ConnectionLost += () => { ReturnToMenu(); transient = "Connection closed. Host or join again."; screen = "lan"; Refresh(); };
         match.Changed += Refresh;
@@ -718,28 +721,35 @@ public partial class Premove : Control
         match.Paused = match.Phase != MatchPhase.Menu && !network.Active;
         var panel = Modal();
         panel.AddChild(Label("AUDIO", 30, gold));
+        var musicSlider = VolumeRow(panel, "Music", music.Volume, music.SetVolume);
+        VolumeRow(panel, "Effects", sfx.Volume, sfx.SetVolume);
 
-        var volumeRow = new HBoxContainer();
-        volumeRow.AddChild(Label("Music", 24, cyan));
-        var readout = Label($"{Mathf.RoundToInt(music.Volume * 100)}%", 24, ink);
-        var slider = new HSlider { MinValue = 0, MaxValue = 100, Step = 1, Value = Mathf.Round(music.Volume * 100), SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkCenter, CustomMinimumSize = new Vector2(240, 28) };
+        panel.AddChild(Button(music.Muted ? "Music: muted" : "Music: on", () => { music.SetMuted(!music.Muted); ShowAudio(); }));
+        panel.AddChild(Button(sfx.Muted ? "Effects: muted" : "Effects: on", () => { sfx.SetMuted(!sfx.Muted); ShowAudio(); }));
+        panel.AddChild(Text("Tracks live in assets/music; hit sounds in assets/sounds (.ogg, .wav or .mp3).", 13, muted));
+        panel.AddChild(Button("Back", () => {
+            if (match.Phase == MatchPhase.Menu) { modalOpen = false; Refresh(); }
+            else ShowPause();
+        }));
+        CallDeferred(MethodName.FocusLater, musicSlider);
+    }
+
+    HSlider VolumeRow(VBoxContainer panel, string caption, float value, System.Action<float> apply)
+    {
+        var row = new HBoxContainer();
+        row.AddChild(Label(caption, 24, cyan));
+        var readout = Label($"{Mathf.RoundToInt(value * 100)}%", 24, ink);
+        var slider = new HSlider { MinValue = 0, MaxValue = 100, Step = 1, Value = Mathf.Round(value * 100), SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ShrinkCenter, CustomMinimumSize = new Vector2(240, 28) };
         var track = new StyleBoxFlat { BgColor = new Color("b08a5e"), BorderColor = new Color("8a6a45"), BorderWidthLeft = 2, BorderWidthTop = 2, BorderWidthRight = 2, BorderWidthBottom = 2, ContentMarginTop = 4, ContentMarginBottom = 4 };
         var fill = new StyleBoxFlat { BgColor = cyan, ContentMarginTop = 4, ContentMarginBottom = 4 };
         slider.AddThemeStyleboxOverride("slider", track);
         slider.AddThemeStyleboxOverride("grabber_area", fill);
         slider.AddThemeStyleboxOverride("grabber_area_highlight", fill);
-        slider.ValueChanged += value => { music.SetVolume((float)value / 100f); readout.Text = $"{value:0}%"; };
-        volumeRow.AddChild(slider);
-        volumeRow.AddChild(readout);
-        panel.AddChild(volumeRow);
-
-        panel.AddChild(Button(music.Muted ? "Music: muted" : "Music: on", () => { music.SetMuted(!music.Muted); ShowAudio(); }));
-        panel.AddChild(Text("Drop looping tracks into assets/music as title, battle, victory and defeat (.ogg, .wav or .mp3).", 13, muted));
-        panel.AddChild(Button("Back", () => {
-            if (match.Phase == MatchPhase.Menu) { modalOpen = false; Refresh(); }
-            else ShowPause();
-        }));
-        CallDeferred(MethodName.FocusLater, slider);
+        slider.ValueChanged += changed => { apply((float)changed / 100f); readout.Text = $"{changed:0}%"; };
+        row.AddChild(slider);
+        row.AddChild(readout);
+        panel.AddChild(row);
+        return slider;
     }
 
     public override void _Process(double delta)

@@ -9,7 +9,6 @@ public partial class MusicPlayer : Node
 {
     public const string BusName = "Music";
     public const string Folder = "res://assets/music/";
-    const string SettingsPath = "user://audio.cfg";
     const float FadeSeconds = 0.9f;
 
     static readonly string[] Extensions = { "ogg", "wav", "mp3" };
@@ -79,14 +78,14 @@ public partial class MusicPlayer : Node
     {
         Volume = Mathf.Clamp(value, 0f, 1f);
         ApplyVolume();
-        SaveSettings();
+        AudioSettings.Save("music_volume", Volume);
     }
 
     public void SetMuted(bool muted)
     {
         Muted = muted;
         ApplyVolume();
-        SaveSettings();
+        AudioSettings.Save("music_muted", Muted);
     }
 
     AudioStream Load(string track)
@@ -134,17 +133,7 @@ public partial class MusicPlayer : Node
 
     void LoadSettings()
     {
-        var config = new ConfigFile();
-        if (config.Load(SettingsPath) != Error.Ok) return;
-        Volume = Mathf.Clamp((float)config.GetValue("audio", "music_volume", Volume), 0f, 1f);
-        Muted = (bool)config.GetValue("audio", "music_muted", Muted);
-    }
-
-    void SaveSettings()
-    {
-        var config = new ConfigFile();
-        config.SetValue("audio", "music_volume", Volume);
-        config.SetValue("audio", "music_muted", Muted);
-        config.Save(SettingsPath);
+        Volume = AudioSettings.Float("music_volume", Volume);
+        Muted = AudioSettings.Bool("music_muted", Muted);
     }
 }
