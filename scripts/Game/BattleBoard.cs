@@ -11,6 +11,7 @@ public partial class BattleBoard : Control
     public bool TrackCamera = true;
     public int CursorRow = -1, CursorCol = -1;
     public System.Collections.Generic.IEnumerable<Node2D> Fighters => actors.Values;
+    public IReadOnlyList<Snapshot> TrailFrames = Array.Empty<Snapshot>();
     readonly Node2D world = new();
     Vector2 cameraOffset;
     float cameraScale = 1;
@@ -320,6 +321,7 @@ public partial class BattleBoard : Control
             }
         if (planning) DrawPlan();
         else if (Session.Phase == MatchPhase.Selection) DrawSelectionPlans();
+        if (Session.Phase == MatchPhase.Rewind) DrawExchangeTrail();
         if (hover.X >= 0) DrawRect(Tile(hover.Y, hover.X).Grow(-1), gold, false, 2);
         foreach (var pair in actors)
         {
@@ -339,6 +341,28 @@ public partial class BattleBoard : Control
         if (flash > 0)
             foreach (var hit in damage)
                 DrawString(GetThemeDefaultFont(), hit.position - new Vector2(10, tile + (1 - flash) * 28), hit.text, HorizontalAlignment.Left, -1, 23, new Color(hit.color, flash));
+    }
+
+    void DrawExchangeTrail()
+    {
+        if (TrailFrames.Count < 2) return;
+        for (int p = 0; p < 2; p++)
+        {
+            int fighter = TrailFrames[0].selected[p];
+            if (fighter < 0 || fighter >= Session.Rosters[p].Count) continue;
+            Color color = p == 0 ? blue : red;
+            for (int i = 1; i < TrailFrames.Count; i++)
+            {
+                Snapshot previous = TrailFrames[i - 1], current = TrailFrames[i];
+                var oldPositions = p == 0 ? previous.player1CharacterPositions : previous.player2CharacterPositions;
+                var positions = p == 0 ? current.player1CharacterPositions : current.player2CharacterPositions;
+                if (fighter >= oldPositions.Length || fighter >= positions.Length) continue;
+                Vector2 from = Center(oldPositions[fighter].x, oldPositions[fighter].y);
+                Vector2 to = Center(positions[fighter].x, positions[fighter].y);
+                DrawLine(from, to, new Color(color, 0.9f), 5, true);
+                DrawCircle(to, 7, color);
+            }
+        }
     }
 
     void DrawPlan()

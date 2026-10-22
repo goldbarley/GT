@@ -24,6 +24,7 @@ public partial class Premove : Control
     HBoxContainer header;
     Control overlay, popup, showcaseStage;
     bool placementOpen;
+    bool rewindPopup;
     readonly System.Collections.Generic.Dictionary<int, Node2D> showcaseCache = new();
     Node2D showcaseHolder;
     Label clock, tileInfo, selectionClock;
@@ -47,7 +48,15 @@ public partial class Premove : Control
         board.Sound = sfx;
         network.StatusChanged += status => { transient = status; if (match.Phase == MatchPhase.Menu) Refresh(); };
         network.ConnectionLost += () => { ReturnToMenu(); transient = "Connection closed. Host or join again."; screen = "lan"; Refresh(); };
-        match.Changed += Refresh;
+        match.Changed += () =>
+        {
+            if (rewindPopup && match.Phase != MatchPhase.Rewind)
+            {
+                rewindPopup = false;
+                modalOpen = false;
+            }
+            Refresh();
+        };
         match.TickPlayed += (before, after) => { board.PlayTick(before, after); ShowLastMoves(before); };
         board.TickAnimationsFinished += match.CompleteTickAnimations;
         board.ImpactShown += Refresh;
@@ -220,6 +229,9 @@ public partial class Premove : Control
     void Refresh()
     {
         if (modalOpen) return;
+        board.TrailFrames = match.Phase == MatchPhase.Rewind
+            ? match.Replay.Skip(match.ReplayExchangeStart).ToArray()
+            : Array.Empty<Snapshot>();
         foreach (var figure in showcaseCache.Values) { if (figure.GetParent() != showcaseHolder) figure.Reparent(showcaseHolder, false); figure.Visible = false; }
         Clear(left); Clear(right); Clear(header); Clear(footer); Clear(overlay); Clear(popup);
         shell.Visible = !Choosing;
@@ -598,7 +610,7 @@ public partial class Premove : Control
             page.AddChild(Button("Rematch", () => { board.Reset(); match.Start(solo, teamSize, mapIndex, premoveLimit); }, network.Active && !network.CanStart, true));
             page.AddChild(Button("Main menu", ReturnToMenu)); FocusFirst(page); return;
         }
-        if (planning || match.Phase == MatchPhase.Rewind) ActionPanel();
+        if (planning) ActionPanel();
         if (planning)
         {
             var next = Button($"{MatchSession.ClassName(match.Current.characterClass())}  [Tab]", () => { match.Fighter = (match.Fighter + 1) % match.TeamSize; match.Slot = 0; Refresh(); }); right.AddChild(next);
@@ -624,14 +636,119 @@ public partial class Premove : Control
         }
         else if (match.Phase == MatchPhase.Rewind)
         {
-            var rewind = Button("Attempt rewind", () => match.Rewind(true), accent: true);
-            right.AddChild(rewind);
-            BlinkAttention(rewind);
-            var keep = Button("Keep this tick", () => match.Rewind(false));
-            right.AddChild(keep);
-            BlinkAttention(keep);
+            ShowRewindPopup();
         }
         else if (match.Phase == MatchPhase.Combat) CombatKeys();
+    }
+
+    void ShowRewindPopup()
+    {
+        if (rewindPopup) return;
+        rewindPopup = modalOpen = true;
+        BuildRewindPopup();
+    }
+
+    void BuildRewindPopup()
+    {
+        Clear(popup);
+        var shade = new ColorRect { Color = new Color(0.02f, 0.05f, 0.08f, 0.72f) };
+        popup.AddChild(shade); shade.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        var center = new CenterContainer { MouseFilter = MouseFilterEnum.Ignore };
+        popup.AddChild(center); center.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        float width = Math.Max(320, Math.Min(780, GetViewportRect().Size.X - 64));
+        var panel = new PanelContainer { CustomMinimumSize = new Vector2(width, 0) };
+        center.AddChild(panel); panel.AddThemeStyleboxOverride("panel", Box("ead6b6", "61432c", 0));
+        var content = new VBoxContainer { CustomMinimumSize = new Vector2(width - 36, 0) };
+        panel.AddChild(content); content.AddThemeConstantOverride("separation", 8);
+        content.AddChild(Label("DEFY DESTINY  /  EXCHANGE REVIEW", 25, gold));
+        content.AddChild(Text("The exchange has ended. Review both players’ simultaneous moves and the trail on the map. Replace your final action once, or keep the outcome.", 14, muted));
+
+        var history = new ScrollContainer
+        {
+            CustomMinimumSize = new Vector2(width - 52, Math.Min(220, GetViewportRect().Size.Y * 0.28f)),
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+            VerticalScrollMode = ScrollContainer.ScrollMode.Auto
+        };
+        content.AddChild(history);
+        var rows = new VBoxContainer(); history.AddChild(rows);
+        int first = Math.Clamp(match.ReplayExchangeStart, 0, Math.Max(0, match.Replay.Count - 1));
+        for (int i = first + 1; i < match.Replay.Count; i++)
+        {
+            Snapshot before = match.Replay[i - 1], after = match.Replay[i];
+            rows.AddChild(Text($"TICK {i - first:00}  ·  {ReplayMove(before, after, 0)}   /   {ReplayMove(before, after, 1)}", 13, cyan));
+        }
+        if (rows.GetChildCount() == 0)
+            rows.AddChild(Text("No moves were recorded in this exchange.", 13, muted));
+
+        Character unit = match.Current;
+        bool canDecide = match.MyTurn;
+        content.AddChild(Label($"REPLACE ONE FINAL ACTION  ·  {MatchSession.ClassName(unit.characterClass())}", 17, gold));
+        if (canDecide)
+        {
+            var actions = new GridContainer { Columns = 4 }; content.AddChild(actions);
+            foreach (var (caption, action) in new[] { ("End", 0), ("↑", 1), ("↓", 2), ("←", 3), ("→", 4) })
+                actions.AddChild(Button(caption, () => SetRewindAction(action), accent: match.Action == action));
+            if (match.Perks[match.Viewer - 1] == SuperPerk.Teleport)
+                actions.AddChild(Button("Blink", () => SetRewindAction(5), accent: match.Action == 5));
+            string[] skills = MatchSession.SkillNames(unit.characterClass());
+            for (int i = 0; i < skills.Length; i++)
+            {
+                int action = -i - 1;
+                actions.AddChild(Button(skills[i], () => SetRewindAction(action), accent: match.Action == action));
+            }
+
+            var aim = new HBoxContainer(); content.AddChild(aim);
+            aim.AddChild(Label($"Aim: {new[] { "", "↑", "↓", "←", "→" }[match.Direction]}   Range: {match.Range}", 15, cyan));
+            foreach (var (caption, direction) in new[] { ("↑", 1), ("↓", 2), ("←", 3), ("→", 4) })
+                aim.AddChild(Button(caption, () => { match.Direction = direction; BuildRewindPopup(); }));
+            aim.AddChild(Button("−", () => { match.StepRange(-1); BuildRewindPopup(); }));
+            aim.AddChild(Button("+", () => { match.StepRange(1); BuildRewindPopup(); }));
+
+            var choices = new HBoxContainer(); content.AddChild(choices);
+            choices.AddChild(Button("Risk 70% replacement", () =>
+            {
+                rewindPopup = modalOpen = false;
+                match.Rewind(true);
+            }, accent: true));
+            choices.AddChild(Button("Keep the outcome", () =>
+            {
+                rewindPopup = modalOpen = false;
+                match.Rewind(false);
+            }));
+            FocusFirst(content);
+        }
+        else
+        {
+            content.AddChild(Text($"Waiting for Player {match.Viewer} to make their Defy Destiny choice.", 16, cyan));
+        }
+    }
+
+    void SetRewindAction(int action)
+    {
+        match.Action = action;
+        if (action < 0)
+        {
+            int[] ranges = MatchSession.SkillRanges(match.Current.characterClass(), -action - 1);
+            if (ranges.Length > 0 && !ranges.Contains(match.Range)) match.Range = ranges[0];
+        }
+        BuildRewindPopup();
+    }
+
+    string ReplayMove(Snapshot before, Snapshot after, int player)
+    {
+        int fighter = before.selected[player];
+        if (fighter < 0 || fighter >= match.Rosters[player].Count) return $"P{player + 1}: —";
+        int slot = before.exchangeTick;
+        int action = slot < before.steps[player][fighter].Length ? before.steps[player][fighter][slot] : 0;
+        string name = MatchSession.ActionName(action, match.Rosters[player][fighter]);
+        var positions = player == 0 ? before.player1CharacterPositions : before.player2CharacterPositions;
+        var next = player == 0 ? after.player1CharacterPositions : after.player2CharacterPositions;
+        IVector2 from = positions[fighter], to = next[fighter];
+        bool skipped = action < 0 && before.cooldowns[player][fighter][-action - 1] > 1
+            || action == 5 && before.teleportCooldowns[player][fighter] > 1;
+        string result = $"P{player + 1} {MatchSession.ClassName(match.Rosters[player][fighter])} {name}";
+        if (skipped) result += " (cooldown)";
+        return $"{result}  [{from.x + 1},{from.y + 1} → {to.x + 1},{to.y + 1}]";
     }
 
     void CombatKeys()
@@ -677,7 +794,6 @@ public partial class Premove : Control
     {
         Character unit = match.Current;
         if (unit == null) return;
-        bool rewind = match.Phase == MatchPhase.Rewind;
         var actions = new VBoxContainer(); right.AddChild(actions);
         string[] names = MatchSession.SkillNames(unit.characterClass());
         string[] details = MatchSession.SkillDetails(unit.characterClass());
@@ -698,18 +814,17 @@ public partial class Premove : Control
             pad.AddChild(key);
         }
         MovementKeys(actions, match.Action);
-        if (match.Action < 0 || match.Action == 5 || rewind)
+        if (match.Action < 0 || match.Action == 5)
         {
             actions.TooltipText = match.Action < 0 ? details[-match.Action - 1] : "Choose a safe teleport destination.";
             actions.AddChild(Label($"Aim {new[] { "", "↑", "↓", "←", "→" }[match.Direction]}   Range {match.Range}", 24, cyan));
             actions.AddChild(Label("ARROWS aim   +/- range", 16, muted));
-            if (!rewind) actions.AddChild(Label("ENTER add · NUM 0 end", 16, gold));
+            actions.AddChild(Label("ENTER add · NUM 0 end", 16, gold));
         }
     }
 
     int[] PlanningCooldowns(Character unit)
     {
-        if (match.Phase == MatchPhase.Rewind) return unit.currentCooldown().Select(c => Math.Max(0, c - 1)).ToArray();
         var cooldown = unit.currentCooldown();
         for (int i = 0; i <= match.Slot; i++)
         {
@@ -912,9 +1027,11 @@ public partial class Premove : Control
         if (GodotObject.IsInstanceValid(selectionClock))
             selectionClock.Text = match.Phase == MatchPhase.Deploy
                 ? match.Lan ? $"{Math.Ceiling(match.Seconds):00}s TO CHOOSE" : $"MAX {match.PremoveLimit} MOVES"
-                : match.Phase == MatchPhase.Planning ? $"{Math.Ceiling(match.PlanningRemaining(3 - match.Local)):00}s LEFT FOR OPPONENT" : "Their decision stays private.";
+                : match.Phase == MatchPhase.Planning ? "NO TIME LIMIT / OPPONENT PLANNING" : "Their decision stays private.";
         if (GodotObject.IsInstanceValid(clock))
-            clock.Text = match.Phase == MatchPhase.Planning || match.Phase == MatchPhase.Foresight ? $"{Math.Ceiling(match.Seconds):000}s  /  PLAN" : match.Phase == MatchPhase.Combat ? $"TICK {BattleEngine.getClock():00}" : match.MapName;
+            clock.Text = match.Phase == MatchPhase.Planning ? "NO TIME LIMIT  /  PLAN"
+                : match.Phase == MatchPhase.Foresight ? $"{Math.Ceiling(match.Seconds):000}s  /  FORESIGHT"
+                : match.Phase == MatchPhase.Combat ? $"TICK {BattleEngine.getClock():00}" : match.MapName;
     }
 
     public override void _Input(InputEvent input)
@@ -981,6 +1098,7 @@ public partial class Premove : Control
     public override void _UnhandledKeyInput(InputEvent input)
     {
         if (input is not InputEventKey key || !key.Pressed || key.Echo) return;
+        if (key.Keycode == Key.Escape && rewindPopup) return;
         if (key.Keycode == Key.Escape && modalOpen) { modalOpen = false; match.Paused = false; Refresh(); return; }
         if (match.Phase == MatchPhase.Menu && key.Keycode == Key.Escape) { screen = "title"; match.Paused = false; Refresh(); return; }
         if (network.Active && !match.MyTurn && match.Phase != MatchPhase.Combat && match.Phase != MatchPhase.Finished) return;

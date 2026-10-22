@@ -107,8 +107,7 @@ public static class BattleEngine
     public static int getFirstPerkPicker() => firstPerkPicker + 1;
     public static bool isExchangeActive() => exchangeActive;
     public static bool needsRewindDecision() => rewindPending;
-    public static int getPlanningSeconds(uint player) => GetPlayer(player).getPerk() == SuperPerk.Tactician ? 120 : 60;
-    public static int getFutureSightSeconds() => 20;
+    public static int getFutureSightSeconds() => 90;
 
     public static int getOutcome()
     {
@@ -200,8 +199,9 @@ public static class BattleEngine
         if (!exchangeActive || rewindPending) return false;
         ResolveTick(-1, 0, 1, new IVector2(1, 1));
 
-        rewindPending = !defyUsed && (players[0].getPerk() == SuperPerk.DefyDestiny ||
-            players[1].getPerk() == SuperPerk.DefyDestiny);
+        rewindPending = ExchangeComplete() && !defyUsed &&
+            (players[0].getPerk() == SuperPerk.DefyDestiny ||
+             players[1].getPerk() == SuperPerk.DefyDestiny);
         if (!rewindPending) FinalizeTick();
         UpdateCurrent();
         return true;
@@ -449,14 +449,7 @@ public static class BattleEngine
     private static void FinalizeTick()
     {
         if (getOutcome() != 0) { exchangeActive = false; return; }
-        bool done = true;
-        for (int p = 0; p < 2; p++)
-        {
-            Character c = players[p].getSelectedCharacter();
-            if (c != null && c.isAlive() && exchangeTick < c.stepCount() && c.getStep(exchangeTick) != 0)
-                done = false;
-        }
-        if (!done) return;
+        if (!ExchangeComplete()) return;
         exchangeActive = false;
         exchangeTick = 0;
         exchangeIndex++;
@@ -468,6 +461,18 @@ public static class BattleEngine
             Array.Fill(planningLocked, false); futureSightPending = false;
             ChooseTacticianReveal();
         }
+    }
+
+    private static bool ExchangeComplete()
+    {
+        if (getOutcome() != 0) return true;
+        for (int p = 0; p < 2; p++)
+        {
+            Character c = players[p].getSelectedCharacter();
+            if (c != null && c.isAlive() && exchangeTick < c.stepCount() && c.getStep(exchangeTick) != 0)
+                return false;
+        }
+        return true;
     }
 
     private static Snapshot Capture()

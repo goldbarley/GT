@@ -107,11 +107,31 @@ public static class MatchChecks
         Require(BattleEngine.getVisibleOpponentSteps(1).Length == 0, "Future sight did not close.");
 
         Setup(CharacterClass.MAGE, CharacterClass.WARRIOR, new(7, 5), new(9, 5), SuperPerk.DefyDestiny);
-        BattleEngine.setStep(1, 0, 0, 2);
+        BattleEngine.setStep(1, 0, 0, 1); BattleEngine.setStep(1, 0, 1, 2);
         Fight(); BattleEngine.advanceOneTick();
+        Require(!BattleEngine.needsRewindDecision(), "Defy Destiny must wait until the exchange ends.");
+        BattleEngine.advanceOneTick();
         Require(BattleEngine.needsRewindDecision(), "Rewind decision was not offered.");
         BattleEngine.tryDefyDestiny(1, -2);
-        Require(!BattleEngine.needsRewindDecision() && BattleEngine.getClock() == 1, "Rewind must resolve exactly one tick.");
+        Require(!BattleEngine.needsRewindDecision() && BattleEngine.getClock() == 2, "Rewind must replay only the final exchange tick.");
+
+        BattleEngine.setupEngine(0, 123);
+        BattleEngine.setupPlayer(1, 2, new[] { CharacterClass.WARRIOR, CharacterClass.WARRIOR },
+            new[] { new int[2], new int[2] }, new[] { new IVector2(5, 4), new IVector2(5, 7) }, SuperPerk.Teleport);
+        BattleEngine.setupPlayer(2, 2, new[] { CharacterClass.WARRIOR, CharacterClass.WARRIOR },
+            new[] { new int[2], new int[2] }, new[] { new IVector2(9, 4), new IVector2(9, 7) }, SuperPerk.Tactician);
+        BattleEngine.setStep(1, 0, 0, 2); BattleEngine.setStep(1, 1, 0, 1);
+        BattleEngine.setStep(2, 0, 0, 1); BattleEngine.setStep(2, 1, 0, 2);
+        BattleEngine.finishPlanning(1); BattleEngine.finishPlanning(2);
+        Require(BattleEngine.selectCharacter(1, 0) && BattleEngine.selectCharacter(2, 0)
+            && BattleEngine.startExchange(), "Selected fighters should start together.");
+        BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentPosition().x == 6
+            && BattleEngine.getPlayer(2).getCharacter(0).currentPosition().x == 8,
+            "Both selected fighters should move in the same tick.");
+        Require(BattleEngine.getPlayer(1).getCharacter(1).currentPosition().x == 5
+            && BattleEngine.getPlayer(2).getCharacter(1).currentPosition().x == 9,
+            "Unselected fighters must not execute their plans.");
 
         var session = new MatchSession();
         session.Start(false, 2);
@@ -122,6 +142,8 @@ public static class MatchChecks
         Require(session.Phase == MatchPhase.Planning && session.Viewer == 1, "Player one planning.");
         session.Paused = true; double seconds = session.Seconds; session.Update(5);
         Require(session.Seconds == seconds, "Pause must freeze the planning clock."); session.Paused = false;
+        session.Update(600);
+        Require(session.Phase == MatchPhase.Planning, "Normal planning must have no timeout.");
         session.Slot = 2; session.Edit(2); session.Slot = 0; session.Edit(2);
         Require(BattleEngine.getPlayer(1).getCharacter(0).getStep(2) == 0, "Replacing an earlier move must clear later moves.");
         session.Slot = 3; session.Edit(2); session.LockPlan();
@@ -167,6 +189,34 @@ public static class MatchChecks
             "Archer must be deployable in a playable match.");
         Require(BattleEngine.getPlayer(1).getCharacter(0).stepCount() == MatchSession.MoveLimit(CharacterClass.ARCHER, 5),
             "Archer must receive its class-based move allowance.");
+
+        var foresightSession = new MatchSession();
+        foresightSession.Start(true, 1, 0, 5, 456);
+        foresightSession.SetPerk((int)SuperPerk.KingCrimson);
+        int foresightSpawn = Enumerable.Range(0, foresightSession.Map.GetLength(1)).First(col => foresightSession.CanPlace(6, col));
+        foresightSession.Deploy(CharacterClass.MAGE, 6, foresightSpawn);
+        foresightSession.ConfirmDeployment();
+        foresightSession.LockPlan();
+        foresightSession.ContinueHandoff();
+        Require(foresightSession.Phase == MatchPhase.Foresight && foresightSession.Seconds == 90,
+            "King Crimson planning must provide a 90-second future-sight window.");
+        foresightSession.Update(30);
+        Require(foresightSession.Seconds == 60, "Future-sight timer must count down.");
+
+        var defySession = new MatchSession();
+        defySession.Start(true, 1, 0, 5, 789);
+        defySession.SetPerk((int)SuperPerk.DefyDestiny);
+        int defySpawn = Enumerable.Range(0, defySession.Map.GetLength(1)).First(col => defySession.CanPlace(6, col));
+        defySession.Deploy(CharacterClass.WARRIOR, 6, defySpawn);
+        defySession.ConfirmDeployment();
+        defySession.TickSeconds = 0.01;
+        defySession.Edit(2); defySession.LockPlan();
+        for (int tick = 0; tick < 32 && defySession.Phase == MatchPhase.Combat; tick++)
+            defySession.Update(1);
+        Require(defySession.Phase == MatchPhase.Rewind,
+            "Defy Destiny should open its review only after the full exchange.");
+        Require(defySession.Replay.Count >= 2 && defySession.ReplayExchangeStart < defySession.Replay.Count - 1,
+            "Defy Destiny review should retain the full exchange history.");
 
         GD.Print("CHECKS PASS: damage, defense, cooldowns, snapshots, teleport, collisions, future sight, rewind, privacy, clock, cycles");
     }

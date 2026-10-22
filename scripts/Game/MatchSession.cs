@@ -13,7 +13,6 @@ public sealed class MatchSession
 {
     public MatchPhase Phase = MatchPhase.Menu;
     public int Viewer = 1, Local = 1, TeamSize = 1, PremoveLimit = 8;
-    readonly double[] planningSeconds = new double[2];
     Random deploymentRandom = new();
     public bool DeploymentReady(int player) => confirmed[player - 1];
     public bool Solo = true, Paused, Lan;
@@ -23,13 +22,13 @@ public sealed class MatchSession
     public readonly List<IVector2>[] Spawns = { new(), new() };
     public readonly SuperPerk[] Perks = { SuperPerk.Teleport, SuperPerk.Tactician };
     public readonly List<Snapshot> Replay = new();
+    public int ReplayExchangeStart { get; private set; }
     public readonly HashSet<int>[] Used = { new(), new() };
     public readonly Editor[] Editors = { new(), new() };
     readonly int[][] characterMoveLimits = { Array.Empty<int>(), Array.Empty<int>() };
     public MapElement[,] Map;
     public string MapName = "";
     public int MapIndex;
-    public double PlanningRemaining(int player) => planningSeconds[player - 1];
     public event System.Action Changed;
     public event System.Action<Snapshot, Snapshot> TickPlayed;
     System.Action afterHandoff;
@@ -38,7 +37,7 @@ public sealed class MatchSession
     bool tickAnimationPending;
     bool configured;
     readonly bool[] confirmed = { false, false };
-    bool futureSightUsed, futureSightDone;
+    bool futureSightUsed;
     public int PerkOrder = 1;
     public int SelectedClass = 0;
     public int CursorRow = 6, CursorCol = 5;
@@ -81,10 +80,10 @@ public sealed class MatchSession
             : new[] { "20 damage · 1 tile", "30 damage · 2 tiles", "15 damage · 3 × 3 · range 2–3", "25 damage · 2 tiles", "Block 30 damage · self" };
     public static string[] PerkNames = { "King Crimson", "Defy Destiny", "Teleport", "Tactician" };
     public static string[] PerkDetails = {
-        "See enemy plans for 20 seconds after both sides lock. Edit your own plan in that window.",
+        "See enemy plans for 90 seconds after both sides lock. Edit your own plan in that window.",
         "Once per exchange, attempt to replace the last action. Success chance: 70%.",
         "Program a cardinal teleport. Landing on a wall or chasm is fatal.",
-        "120 seconds to plan and one enemy fighter's sequence revealed before selection."
+        "One enemy fighter's sequence is revealed before selection."
     };
     public static string ActionName(int action, CharacterClass c) => action switch
     {
@@ -117,11 +116,11 @@ public sealed class MatchSession
         MapIndex = mapIndex;
         deploymentRandom = new Random(seed);
         Solo = solo; TeamSize = size; Viewer = Lan ? Local : 1;
-        configured = false; Paused = false; tickPending = tickAnimationPending = false; Replay.Clear();
+        configured = false; Paused = false; tickPending = tickAnimationPending = false; Replay.Clear(); ReplayExchangeStart = 0;
         characterMoveLimits[0] = characterMoveLimits[1] = Array.Empty<int>();
         for (int p = 0; p < 2; p++) { Rosters[p].Clear(); Spawns[p].Clear(); Used[p].Clear(); Editors[p] = new Editor(); }
         confirmed[0] = confirmed[1] = false;
-        futureSightUsed = futureSightDone = false;
+        futureSightUsed = false;
         Perks[0] = SuperPerk.Teleport;
         Perks[1] = SuperPerk.Tactician;
         BattleEngine.setupEngine((uint)mapIndex, (uint)seed);
@@ -296,9 +295,8 @@ public sealed class MatchSession
                     BattleEngine.setStep((uint)p + 1, fighter, slot, 0);
             }
             Editors[p] = new Editor { Fighter = FirstAlive(p + 1) };
-            planningSeconds[p] = BattleEngine.getPlanningSeconds((uint)p + 1);
         }
-        futureSightUsed = futureSightDone = false;
+        futureSightUsed = false;
         if (Solo) { Viewer = 1; Planning(); }
         else if (Lan) { Viewer = Local; Planning(); }
         else Handoff(1, "Your private planning window", Planning);
@@ -307,7 +305,7 @@ public sealed class MatchSession
     void Planning()
     {
         Phase = MatchPhase.Planning; Fighter = FirstAlive(Viewer); Slot = 0; Action = 0;
-        Seconds = BattleEngine.getPlanningSeconds((uint)Viewer);
+        Seconds = 0;
         Message = "Program each fighter. Both sides act at the same time. Zero ends a sequence.";
     }
 
@@ -392,12 +390,13 @@ public sealed class MatchSession
             int crimson = Array.IndexOf(Perks, SuperPerk.KingCrimson) + 1;
             if (crimson > 0)
             {
+                futureSightUsed = true;
                 if (Solo && crimson == 2) BattleEngine.finishFutureSight(2);
                 else
                 {
                     Handoff(crimson, "King Crimson · inspect enemy plans", () => {
                         Phase = MatchPhase.Foresight; Fighter = FirstAlive(Viewer); Slot = 0;
-                        Seconds = 20; Message = "Enemy plans are revealed. Adjust your sequence, then continue.";
+                        Seconds = BattleEngine.getFutureSightSeconds(); Message = "Enemy plans are revealed. Adjust your sequence, then continue.";
                     });
                     Notify(); return;
                 }
@@ -414,7 +413,6 @@ public sealed class MatchSession
         if (Route(nameof(FinishFutureSight), viewer)) return;
         if (!futureSightUsed) return;
         BattleEngine.finishFutureSight((uint)viewer);
-        futureSightDone = true;
         BeginSelection();
         Notify();
     }
@@ -427,11 +425,10 @@ public sealed class MatchSession
         if (crimson > 0 && !futureSightUsed)
         {
             futureSightUsed = true;
-            if (crimson == Local)
-            {
-                Phase = MatchPhase.Foresight; Fighter = FirstAlive(Local); Slot = 0;
-                Seconds = 20; Message = "Enemy plans are revealed. Adjust your sequence, then continue.";
-            }
+            Viewer = crimson;
+            Phase = MatchPhase.Foresight; Fighter = FirstAlive(crimson); Slot = 0;
+            Seconds = BattleEngine.getFutureSightSeconds();
+            Message = "Enemy plans are revealed. Adjust your sequence, then continue.";
             return;
         }
         BeginSelection();
@@ -491,6 +488,7 @@ public sealed class MatchSession
     void StartExchange()
     {
         if (!BattleEngine.startExchange()) return;
+        ReplayExchangeStart = Math.Max(0, Replay.Count - 1);
         Phase = MatchPhase.Combat;
         tickClock = 0.25;
         tickPending = false;
@@ -518,7 +516,7 @@ public sealed class MatchSession
         {
             var details = BattleEngine.getDetails();
             if (details != null && details.selected[0] >= 0 && details.selected[1] >= 0 && BattleEngine.startExchange())
-            { Phase = MatchPhase.Combat; tickClock = 0.25; tickPending = false; Message = "Both parties are executing their plans."; }
+            { ReplayExchangeStart = Math.Max(0, Replay.Count - 1); Phase = MatchPhase.Combat; tickClock = 0.25; tickPending = false; Message = "Both parties are executing their plans."; }
             Notify(); return;
         }
         if (viewer == 1)
@@ -528,7 +526,7 @@ public sealed class MatchSession
             BattleEngine.selectCharacter(2, enemy); Used[1].Add(enemy);
         }
         if (BattleEngine.startExchange())
-        { Phase = MatchPhase.Combat; tickClock = 0.25; tickPending = false; Message = "Both parties are executing their plans."; }
+        { ReplayExchangeStart = Math.Max(0, Replay.Count - 1); Phase = MatchPhase.Combat; tickClock = 0.25; tickPending = false; Message = "Both parties are executing their plans."; }
         Notify();
     }
 
@@ -541,19 +539,10 @@ public sealed class MatchSession
             if (Seconds == 0) CompleteDeployment();
             return;
         }
-        if (Lan && Phase == MatchPhase.Planning)
-        {
-            for (int player = 1; player <= 2 && Phase == MatchPhase.Planning; player++)
-            {
-                planningSeconds[player - 1] = Math.Max(0, planningSeconds[player - 1] - delta);
-                if (planningSeconds[player - 1] == 0 && CanAct(player)) LockPlanAs(player);
-            }
-            Seconds = planningSeconds[Local - 1];
-        }
-        else if (Phase == MatchPhase.Planning || Phase == MatchPhase.Foresight)
+        if (Phase == MatchPhase.Foresight)
         {
             Seconds = Math.Max(0, Seconds - delta);
-            if (Seconds == 0) LockPlan();
+            if (Seconds == 0) FinishFutureSight();
         }
         if (Phase != MatchPhase.Combat) return;
         tickClock -= delta;
@@ -570,15 +559,17 @@ public sealed class MatchSession
                 else if (Lan)
                 {
                     Phase = MatchPhase.Rewind;
+                    Viewer = owner;
                     Editors[owner - 1].Fighter = BattleEngine.getPlayer((uint)owner).getSelectedIndex();
-                    Editors[owner - 1].Action = 0;
-                    Message = "Keep this tick, or risk a 70% rewind with a replacement action.";
+                    PrepareRewindEditor(owner);
+                    Message = "Review the exchange, replace its final action, or keep the outcome.";
                 }
                 else
                 {
                     Viewer = owner; Phase = MatchPhase.Rewind;
-                    Fighter = BattleEngine.getPlayer((uint)Viewer).getSelectedIndex(); Action = 0;
-                    Message = "Keep this tick, or risk a 70% rewind with a replacement action.";
+                    Fighter = BattleEngine.getPlayer((uint)Viewer).getSelectedIndex();
+                    PrepareRewindEditor(owner);
+                    Message = "Review the exchange, replace its final action, or keep the outcome.";
                 }
             }
             if (Phase == MatchPhase.Combat) AfterTick();
@@ -633,6 +624,20 @@ public sealed class MatchSession
         tickClock = TickSeconds; tickPending = true; Notify();
     }
 
+    void PrepareRewindEditor(int viewer)
+    {
+        var editor = Editors[viewer - 1];
+        int fighter = BattleEngine.getPlayer((uint)viewer).getSelectedIndex();
+        Snapshot state = BattleEngine.getDetails();
+        int slot = Math.Max(0, state.exchangeTick - 1);
+        editor.Fighter = fighter;
+        editor.Slot = slot;
+        editor.Action = state.steps[viewer - 1][fighter][slot];
+        editor.Direction = state.directions[viewer - 1][fighter][slot];
+        editor.Range = state.lengths[viewer - 1][fighter][slot].x;
+        if (editor.Action == 0) editor.Action = 1;
+    }
+
     void AfterTick()
     {
         if (BattleEngine.getOutcome() != 0)
@@ -643,7 +648,7 @@ public sealed class MatchSession
         }
         else if (!BattleEngine.isExchangeActive())
         {
-            futureSightUsed = false; futureSightDone = false;
+            futureSightUsed = false;
             if (!BattleEngine.getDetails().planningLocked[0]) BeginPlanning();
             else BeginSelection();
         }

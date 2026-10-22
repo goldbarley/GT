@@ -42,10 +42,12 @@ public partial class LanBot : Node
         Session.TickSeconds = 0.25;
         MatchPhase last = MatchPhase.Deploy;
         bool connected = true;
+        bool sawRewind = false;
         while (Session.Phase != MatchPhase.Finished && connected)
         {
             await Frame();
             if (Session.Phase == MatchPhase.Menu && last != MatchPhase.Menu) { connected = false; break; }
+            sawRewind |= Session.Phase == MatchPhase.Rewind;
             if (Session.Phase != last) { last = Session.Phase; planned = selected = rewound = false; }
             if (Session.Phase == MatchPhase.Planning && Session.MyTurn && !planned)
             {
@@ -63,8 +65,9 @@ public partial class LanBot : Node
         }
 
         for (int i = 0; i < 180 && connected; i++) await Frame();
-        GD.Print($"LAN {role.ToUpperInvariant()}: {(connected ? "finished" : "lost connection")} outcome={BattleEngine.getOutcome()} clock={BattleEngine.getClock()} hp={BattleEngine.getPlayer(1).getCharacter(0).currentHP()}/{BattleEngine.getPlayer(2).getCharacter(0).currentHP()}");
-        GetTree().Quit(connected ? 0 : 1);
+        bool passed = connected && sawRewind && BattleEngine.getClock() > 1;
+        GD.Print($"LAN {role.ToUpperInvariant()}: {(passed ? "finished" : "failed")} rewind={sawRewind} outcome={BattleEngine.getOutcome()} clock={BattleEngine.getClock()} hp={BattleEngine.getPlayer(1).getCharacter(0).currentHP()}/{BattleEngine.getPlayer(2).getCharacter(0).currentHP()}");
+        GetTree().Quit(passed ? 0 : 1);
     }
 
     async Task Frame() => await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);

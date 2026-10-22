@@ -60,12 +60,12 @@ Music loads from `assets/music/`: `title`, `battle`, `victory`, and `defeat` are
 
 ## Team perks
 
-- **King Crimson:** after both teams lock, inspect enemy plans and edit your own during a 20-second window.
-- **Defy Destiny:** once per exchange, attempt a replacement for the previous action with a 70% success chance.
+- **King Crimson:** after both teams lock, inspect enemy plans and edit your own during a 90-second window.
+- **Defy Destiny:** at the end of an exchange, review the move history and trail, then attempt to replace one final action with a 70% success chance.
 - **Teleport:** program cardinal teleports with a chosen distance.
-- **Tactician:** 120 seconds to plan and one enemy fighter's sequence revealed before selection.
+- **Tactician:** one enemy fighter's sequence is revealed before selection.
 
-A perk can only belong to one team. In a LAN match one player is picked at random to choose their perk first; the other waits for that choice before picking. Other planning windows last 60 seconds; the timer locks plans when it expires.
+A perk can only belong to one team. In a LAN match one player is picked at random to choose their perk first; the other waits for that choice before picking. Regular planning has no time limit; only King Crimson's future-sight window is timed.
 
 ## Characters and assets
 
