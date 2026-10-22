@@ -1,0 +1,196 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/DungeonMap.gd" id="1_dungeon"]
+[ext_resource type="Texture2D" path="res://sprites/dungeon/dungeon_room_base.png" id="2_bg"]
+[ext_resource type="SpriteFrames" path="res://sprites/dungeon/torch_frames.tres" id="3_torch"]
+[ext_resource type="SpriteFrames" path="res://sprites/dungeon/torch_l_frames.tres" id="4_torch_l"]
+[ext_resource type="SpriteFrames" path="res://sprites/dungeon/torch_r_frames.tres" id="5_torch_r"]
+[ext_resource type="Texture2D" path="res://sprites/dungeon/Structure.png" id="6_pillar"]
+[ext_resource type="Texture2D" path="res://sprites/dungeon/pot.png" id="7_pot"]
+[ext_resource type="Texture2D" path="res://sprites/dungeon/button/frame_0.png" id="8_btn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_north_side"]
+size = Vector2(96, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_north_arch"]
+size = Vector2(32, 34)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_side_wall"]
+size = Vector2(32, 256)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_south_wall"]
+size = Vector2(96, 32)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pillar"]
+radius = 6.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pot"]
+radius = 5.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_plate"]
+size = Vector2(14, 14)
+
+[node name="DungeonMap" type="Node2D"]
+script = ExtResource("1_dungeon")
+
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -10
+texture = ExtResource("2_bg")
+centered = false
+
+[node name="WallsCollision" type="StaticBody2D" parent="."]
+
+[node name="NorthWallLeft" type="CollisionShape2D" parent="WallsCollision"]
+position = Vector2(64, 24)
+shape = SubResource("RectangleShape2D_north_side")
+
+[node name="NorthWallRight" type="CollisionShape2D" parent="WallsCollision"]
+position = Vector2(192, 24)
+shape = SubResource("RectangleShape2D_north_side")
+
+[node name="NorthWallArch" type="CollisionShape2D" parent="WallsCollision"]
+position = Vector2(128, 17)
+shape = SubResource("RectangleShape2D_north_arch")
+
+[node name="WestWall" type="CollisionShape2D" parent="WallsCollision"]
+position = Vector2(16, 128)
+shape = SubResource("RectangleShape2D_side_wall")
+
+[node name="EastWall" type="CollisionShape2D" parent="WallsCollision"]
+position = Vector2(240, 128)
+shape = SubResource("RectangleShape2D_side_wall")
+
+[node name="SouthWallLeft" type="CollisionShape2D" parent="WallsCollision"]
+position = Vector2(64, 240)
+shape = SubResource("RectangleShape2D_south_wall")
+
+[node name="SouthWallRight" type="CollisionShape2D" parent="WallsCollision"]
+position = Vector2(192, 240)
+shape = SubResource("RectangleShape2D_south_wall")
+
+[node name="Torches" type="Node2D" parent="."]
+
+[node name="TorchNorth1" type="AnimatedSprite2D" parent="Torches"]
+position = Vector2(88, 24)
+sprite_frames = ExtResource("3_torch")
+autoplay = "default"
+
+[node name="TorchNorth2" type="AnimatedSprite2D" parent="Torches"]
+position = Vector2(168, 24)
+sprite_frames = ExtResource("3_torch")
+autoplay = "default"
+
+[node name="TorchWest" type="AnimatedSprite2D" parent="Torches"]
+position = Vector2(24, 136)
+sprite_frames = ExtResource("4_torch_l")
+autoplay = "default"
+
+[node name="TorchEast" type="AnimatedSprite2D" parent="Torches"]
+position = Vector2(232, 136)
+sprite_frames = ExtResource("5_torch_r")
+autoplay = "default"
+
+[node name="Pillars" type="Node2D" parent="."]
+
+[node name="Pillar1" type="StaticBody2D" parent="Pillars"]
+position = Vector2(64, 80)
+
+[node name="Sprite2D" type="Sprite2D" parent="Pillars/Pillar1"]
+texture = ExtResource("6_pillar")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pillars/Pillar1"]
+position = Vector2(8, 24)
+shape = SubResource("CircleShape2D_pillar")
+
+[node name="Pillar2" type="StaticBody2D" parent="Pillars"]
+position = Vector2(176, 80)
+
+[node name="Sprite2D" type="Sprite2D" parent="Pillars/Pillar2"]
+texture = ExtResource("6_pillar")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pillars/Pillar2"]
+position = Vector2(8, 24)
+shape = SubResource("CircleShape2D_pillar")
+
+[node name="Pillar3" type="StaticBody2D" parent="Pillars"]
+position = Vector2(64, 160)
+
+[node name="Sprite2D" type="Sprite2D" parent="Pillars/Pillar3"]
+texture = ExtResource("6_pillar")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pillars/Pillar3"]
+position = Vector2(8, 24)
+shape = SubResource("CircleShape2D_pillar")
+
+[node name="Pillar4" type="StaticBody2D" parent="Pillars"]
+position = Vector2(176, 160)
+
+[node name="Sprite2D" type="Sprite2D" parent="Pillars/Pillar4"]
+texture = ExtResource("6_pillar")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pillars/Pillar4"]
+position = Vector2(8, 24)
+shape = SubResource("CircleShape2D_pillar")
+
+[node name="Pots" type="Node2D" parent="."]
+
+[node name="Pot1" type="StaticBody2D" parent="Pots"]
+position = Vector2(48, 64)
+
+[node name="Sprite2D" type="Sprite2D" parent="Pots/Pot1"]
+texture = ExtResource("7_pot")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pots/Pot1"]
+position = Vector2(8, 10)
+shape = SubResource("CircleShape2D_pot")
+
+[node name="Pot2" type="StaticBody2D" parent="Pots"]
+position = Vector2(192, 64)
+
+[node name="Sprite2D" type="Sprite2D" parent="Pots/Pot2"]
+texture = ExtResource("7_pot")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pots/Pot2"]
+position = Vector2(8, 10)
+shape = SubResource("CircleShape2D_pot")
+
+[node name="Pot3" type="StaticBody2D" parent="Pots"]
+position = Vector2(48, 192)
+
+[node name="Sprite2D" type="Sprite2D" parent="Pots/Pot3"]
+texture = ExtResource("7_pot")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pots/Pot3"]
+position = Vector2(8, 10)
+shape = SubResource("CircleShape2D_pot")
+
+[node name="Pot4" type="StaticBody2D" parent="Pots"]
+position = Vector2(192, 192)
+
+[node name="Sprite2D" type="Sprite2D" parent="Pots/Pot4"]
+texture = ExtResource("7_pot")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pots/Pot4"]
+position = Vector2(8, 10)
+shape = SubResource("CircleShape2D_pot")
+
+[node name="Interactive" type="Node2D" parent="."]
+
+[node name="PressurePlate" type="Area2D" parent="Interactive"]
+position = Vector2(112, 192)
+
+[node name="Sprite2D" type="Sprite2D" parent="Interactive/PressurePlate"]
+texture = ExtResource("8_btn")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactive/PressurePlate"]
+position = Vector2(8, 8)
+shape = SubResource("RectangleShape2D_plate")

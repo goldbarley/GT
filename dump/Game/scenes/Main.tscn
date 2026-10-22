@@ -1,0 +1,85 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/SkyIslandMain.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/SkyIslandMap.tscn" id="2_map"]
+[ext_resource type="PackedScene" path="res://scenes/KnightIsland.tscn" id="3_knight"]
+[ext_resource type="Script" path="res://scripts/IslandCameraController.gd" id="4_camera"]
+
+[node name="SkyIslandMain" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="BackgroundSky" type="ColorRect" parent="."]
+z_index = -20
+offset_left = -2000.0
+offset_top = -2000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+color = Color(0.08, 0.09, 0.12, 1)
+
+[node name="SkyIslandMap" parent="." instance=ExtResource("2_map")]
+
+[node name="KnightIsland" parent="." instance=ExtResource("3_knight")]
+position = Vector2(209, 197)
+
+[node name="IslandCamera" type="Camera2D" parent="."]
+position = Vector2(209, 197)
+script = ExtResource("4_camera")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TopPanel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 1264.0
+offset_bottom = 126.0
+
+[node name="VBoxTop" type="VBoxContainer" parent="CanvasLayer/TopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/TopPanel/VBoxTop"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "🏰 SKY ISLAND: 90° CAMERA SHIFT & KNIGHT PERSPECTIVE ADAPTATION"
+
+[node name="HBoxButtons" type="HBoxContainer" parent="CanvasLayer/TopPanel/VBoxTop"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnRotateLeft" type="Button" parent="CanvasLayer/TopPanel/VBoxTop/HBoxButtons"]
+custom_minimum_size = Vector2(170, 34)
+layout_mode = 2
+text = "⟲ Rotate Left -90° (Q)"
+
+[node name="BtnRotateRight" type="Button" parent="CanvasLayer/TopPanel/VBoxTop/HBoxButtons"]
+custom_minimum_size = Vector2(170, 34)
+layout_mode = 2
+text = "⟳ Rotate Right +90° (E)"
+
+[node name="BtnReset" type="Button" parent="CanvasLayer/TopPanel/VBoxTop/HBoxButtons"]
+custom_minimum_size = Vector2(140, 34)
+layout_mode = 2
+text = "Front View 0° (R)"
+
+[node name="BtnAttack" type="Button" parent="CanvasLayer/TopPanel/VBoxTop/HBoxButtons"]
+custom_minimum_size = Vector2(140, 34)
+layout_mode = 2
+text = "⚔️ Attack (Space)"
+
+[node name="VSeparator" type="VSeparator" parent="CanvasLayer/TopPanel/VBoxTop/HBoxButtons"]
+layout_mode = 2
+
+[node name="CheckGrid" type="CheckBox" parent="CanvasLayer/TopPanel/VBoxTop/HBoxButtons"]
+layout_mode = 2
+text = "Show Grid"
+
+[node name="LabelStatus" type="Label" parent="CanvasLayer/TopPanel/VBoxTop"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "CAMERA ANGLE: +0°  |  KNIGHT VIEW: ⬇️ FRONT  |  TILE: (6, 6)"
+
+[node name="LabelHint" type="Label" parent="CanvasLayer/TopPanel/VBoxTop"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 12
+text = "Controls: [WASD] Move Knight | [Q/E] Rotate Camera 90° | [Space] Attack (Side Profile)"

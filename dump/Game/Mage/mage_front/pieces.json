@@ -1,0 +1,233 @@
+{
+  "perspective": "front",
+  "canvas_size": {
+    "width": 38,
+    "height": 32
+  },
+  "spritesheet": "Mage_front_clean.png",
+  "source_sheet": "Mage_front.png",
+  "source_regions": {
+    "foot_left": {
+      "x": 3,
+      "y": 28,
+      "w": 5,
+      "h": 4
+    },
+    "foot_right": {
+      "x": 12,
+      "y": 27,
+      "w": 5,
+      "h": 4
+    },
+    "staff": {
+      "x": 25,
+      "y": 1,
+      "w": 16,
+      "h": 20
+    },
+    "body": {
+      "x": 42,
+      "y": 8,
+      "w": 25,
+      "h": 22
+    },
+    "hat": {
+      "x": 0,
+      "y": 0,
+      "w": 29,
+      "h": 15
+    },
+    "arm_right": {
+      "x": 0,
+      "y": 16,
+      "w": 10,
+      "h": 9
+    }
+  },
+  "source_pivots": {
+    "foot_left": {
+      "x": 2,
+      "y": 0
+    },
+    "foot_right": {
+      "x": 2,
+      "y": 0
+    },
+    "staff": {
+      "x": 8,
+      "y": 14
+    },
+    "body": {
+      "x": 12,
+      "y": 22
+    },
+    "hat": {
+      "x": 14,
+      "y": 14
+    },
+    "arm_right": {
+      "x": 3,
+      "y": 3
+    }
+  },
+  "source_reference_rect": {
+    "x": 89,
+    "y": 0,
+    "w": 38,
+    "h": 32
+  },
+  "reference_rect": {
+    "x": 0,
+    "y": 23,
+    "w": 38,
+    "h": 32
+  },
+  "roles": {
+    "body": "body",
+    "hat": "hat",
+    "staff": "staff",
+    "arm": "arm_right",
+    "foot_a": "foot_front_a",
+    "foot_b": "foot_front_b"
+  },
+  "groups": {
+    "torso": {
+      "pivot": {
+        "x": 23,
+        "y": 25
+      },
+      "members": [
+        "body",
+        "hat",
+        "arm"
+      ]
+    },
+    "all": {
+      "pivot": {
+        "x": 19,
+        "y": 32
+      },
+      "members": [
+        "body",
+        "hat",
+        "staff",
+        "arm",
+        "foot_a",
+        "foot_b"
+      ]
+    }
+  },
+  "piece_parents": {
+    "staff": "arm"
+  },
+  "pieces": {
+    "foot_front_a": {
+      "region": {
+        "x": 84,
+        "y": 0,
+        "w": 5,
+        "h": 4
+      },
+      "position": {
+        "x": 19,
+        "y": 28
+      },
+      "pivot": {
+        "x": 2,
+        "y": 0
+      },
+      "z_index": 0,
+      "description": "Left boot"
+    },
+    "foot_front_b": {
+      "region": {
+        "x": 90,
+        "y": 0,
+        "w": 5,
+        "h": 4
+      },
+      "position": {
+        "x": 24,
+        "y": 28
+      },
+      "pivot": {
+        "x": 2,
+        "y": 0
+      },
+      "z_index": 0,
+      "description": "Right boot"
+    },
+    "staff": {
+      "region": {
+        "x": 26,
+        "y": 0,
+        "w": 16,
+        "h": 20
+      },
+      "position": {
+        "x": 0,
+        "y": 11
+      },
+      "pivot": {
+        "x": 13,
+        "y": 14
+      },
+      "z_index": 1,
+      "description": "Magic staff with crystal orb"
+    },
+    "body": {
+      "region": {
+        "x": 0,
+        "y": 0,
+        "w": 25,
+        "h": 22
+      },
+      "position": {
+        "x": 11,
+        "y": 8
+      },
+      "pivot": {
+        "x": 12,
+        "y": 22
+      },
+      "z_index": 2,
+      "description": "Head, hair, torso, robes, cape"
+    },
+    "hat": {
+      "region": {
+        "x": 43,
+        "y": 0,
+        "w": 29,
+        "h": 15
+      },
+      "position": {
+        "x": 9,
+        "y": 0
+      },
+      "pivot": {
+        "x": 14,
+        "y": 14
+      },
+      "z_index": 3,
+      "description": "Wizard hat with gold star and red jewel"
+    },
+    "arm_right": {
+      "region": {
+        "x": 73,
+        "y": 0,
+        "w": 10,
+        "h": 9
+      },
+      "position": {
+        "x": 11,
+        "y": 19
+      },
+      "pivot": {
+        "x": 8,
+        "y": 2
+      },
+      "z_index": 4,
+      "description": "Forward right sleeve and hand"
+    }
+  }
+}

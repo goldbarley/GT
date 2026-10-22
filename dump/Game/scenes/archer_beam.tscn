@@ -1,0 +1,33 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/archer_beam.gd" id="1_beam"]
+[ext_resource type="Shader" path="res://Archer/anim/shaders/archer_beam.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_beam"]
+shader = ExtResource("2_shader")
+shader_parameter/length = 1.0
+shader_parameter/fade = 1.0
+shader_parameter/width = 0.1
+shader_parameter/seed = 0.0
+shader_parameter/core_color = Color(1, 1, 1, 1)
+shader_parameter/mid_color = Color(0.86, 1, 0.42, 1)
+shader_parameter/fringe_color = Color(0.62, 0.92, 0.18, 1)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tip"]
+radius = 7.0
+
+[node name="ArcherBeam" type="Area2D"]
+texture_filter = 1
+script = ExtResource("1_beam")
+
+[node name="Beam" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_beam")
+offset_left = -400.0
+offset_top = -28.0
+offset_right = 0.0
+offset_bottom = 28.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="Tip" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_tip")

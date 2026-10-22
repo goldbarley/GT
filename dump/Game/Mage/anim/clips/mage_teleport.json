@@ -1,0 +1,133 @@
+{
+  "clip": "mage_teleport",
+  "description": "Teleport out. A magic bar forms above the head and another at the feet. They close in and the mage is dissolved away between them, strip by strip, until the bars meet at the centre and the mage is gone. The bars then shrink to a single point which fades out.",
+  "fps": 15,
+  "loop": false,
+  "duration": 0.9,
+  "fx": {
+    "node": "TeleportFX",
+    "clip": true
+  },
+  "keys": [
+    {
+      "time": 0.0,
+      "ease": "out_cubic",
+      "poses": {},
+      "fx": {
+        "band_top": -7.0,
+        "band_bottom": 34.0,
+        "bar_half_width": 4.0,
+        "progress": 0.0,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.15,
+      "ease": "out_cubic",
+      "poses": {},
+      "fx": {
+        "band_top": -3.0,
+        "band_bottom": 32.0,
+        "bar_half_width": 7.0,
+        "progress": 0.12,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.30,
+      "ease": "in_out",
+      "poses": {},
+      "fx": {
+        "band_top": 2.0,
+        "band_bottom": 30.0,
+        "bar_half_width": 10.0,
+        "progress": 0.26,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.45,
+      "ease": "in_out",
+      "poses": {},
+      "fx": {
+        "band_top": 8.0,
+        "band_bottom": 25.0,
+        "bar_half_width": 13.0,
+        "progress": 0.42,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.57,
+      "ease": "in_cubic",
+      "poses": {},
+      "fx": {
+        "band_top": 12.0,
+        "band_bottom": 21.0,
+        "bar_half_width": 15.0,
+        "progress": 0.55,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.65,
+      "ease": "in_out",
+      "poses": {},
+      "fx": {
+        "band_top": 15.0,
+        "band_bottom": 18.0,
+        "bar_half_width": 16.0,
+        "progress": 0.65,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.70,
+      "ease": "in_out",
+      "poses": {},
+      "fx": {
+        "band_top": 16.0,
+        "band_bottom": 16.0,
+        "bar_half_width": 16.0,
+        "progress": 0.70,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.78,
+      "ease": "in_out",
+      "poses": {},
+      "fx": {
+        "band_top": 16.0,
+        "band_bottom": 16.0,
+        "bar_half_width": 8.0,
+        "progress": 0.80,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.85,
+      "ease": "in_quad",
+      "poses": {},
+      "fx": {
+        "band_top": 16.0,
+        "band_bottom": 16.0,
+        "bar_half_width": 0.5,
+        "progress": 0.92,
+        "opacity": 1.0
+      }
+    },
+    {
+      "time": 0.90,
+      "ease": "out_quad",
+      "poses": {},
+      "fx": {
+        "band_top": 16.0,
+        "band_bottom": 16.0,
+        "bar_half_width": 0.5,
+        "progress": 1.0,
+        "opacity": 0.0
+      }
+    }
+  ]
+}

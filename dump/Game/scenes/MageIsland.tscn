@@ -1,0 +1,165 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/MageIsland.gd" id="1_island"]
+[ext_resource type="PackedScene" path="res://scenes/SkyIslandMap.tscn" id="2_map"]
+[ext_resource type="Script" path="res://scripts/IslandCameraController.gd" id="3_camera"]
+[ext_resource type="Script" path="res://scripts/universal_motor.gd" id="4_motor"]
+[ext_resource type="Script" path="res://Mage/MageController.gd" id="5_mage"]
+[ext_resource type="Script" path="res://Mage/anim/Quad Beam/mage_beam_burst.gd" id="6_beam"]
+
+[node name="MageIsland" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_island")
+
+[node name="BackgroundSky" type="ColorRect" parent="."]
+z_index = -20
+offset_left = -2000.0
+offset_top = -2000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+color = Color(0.08, 0.09, 0.12, 1)
+
+[node name="SkyIslandMap" parent="." instance=ExtResource("2_map")]
+
+[node name="Motor" type="Node2D" parent="."]
+position = Vector2(209, 197)
+script = ExtResource("4_motor")
+
+[node name="Mage" type="Node2D" parent="Motor"]
+script = ExtResource("5_mage")
+explosion_clip = Rect2(0, 0, 456, 432)
+
+[node name="MageBeam" type="Node2D" parent="Motor"]
+script = ExtResource("6_beam")
+
+[node name="IslandCamera" type="Camera2D" parent="."]
+position = Vector2(209, 197)
+script = ExtResource("3_camera")
+
+[node name="AimMarker" type="Polygon2D" parent="."]
+visible = false
+z_index = 5
+color = Color(1, 0.85, 0.25, 0.9)
+polygon = PackedVector2Array(-7, 0, 0, -7, 7, 0, 0, 7)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 900.0
+offset_bottom = 200.0
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "🧙 THE MAGE ON THE SKY ISLAND"
+
+[node name="RowWalk" type="HBoxContainer" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnDown" type="Button" parent="CanvasLayer/Panel/VBox/RowWalk"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "⬇ Walk down (front)"
+
+[node name="BtnLeft" type="Button" parent="CanvasLayer/Panel/VBox/RowWalk"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "⬅ Walk left"
+
+[node name="BtnUp" type="Button" parent="CanvasLayer/Panel/VBox/RowWalk"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "⬆ Walk up (back)"
+
+[node name="BtnRight" type="Button" parent="CanvasLayer/Panel/VBox/RowWalk"]
+custom_minimum_size = Vector2(130, 34)
+layout_mode = 2
+text = "➡ Walk right"
+
+[node name="BtnStop" type="Button" parent="CanvasLayer/Panel/VBox/RowWalk"]
+custom_minimum_size = Vector2(100, 34)
+layout_mode = 2
+text = "■ Stop"
+
+[node name="RowCamera" type="HBoxContainer" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnRotateLeft" type="Button" parent="CanvasLayer/Panel/VBox/RowCamera"]
+custom_minimum_size = Vector2(150, 34)
+layout_mode = 2
+text = "⟲ Turn map -90°"
+
+[node name="BtnRotateRight" type="Button" parent="CanvasLayer/Panel/VBox/RowCamera"]
+custom_minimum_size = Vector2(150, 34)
+layout_mode = 2
+text = "⟳ Turn map +90°"
+
+[node name="BtnReset" type="Button" parent="CanvasLayer/Panel/VBox/RowCamera"]
+custom_minimum_size = Vector2(120, 34)
+layout_mode = 2
+text = "Straighten"
+
+[node name="RowActions" type="HBoxContainer" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnIdle" type="Button" parent="CanvasLayer/Panel/VBox/RowActions"]
+custom_minimum_size = Vector2(80, 34)
+layout_mode = 2
+text = "Idle"
+
+[node name="BtnCast" type="Button" parent="CanvasLayer/Panel/VBox/RowActions"]
+custom_minimum_size = Vector2(80, 34)
+layout_mode = 2
+text = "Cast"
+
+[node name="BtnTeleport" type="Button" parent="CanvasLayer/Panel/VBox/RowActions"]
+custom_minimum_size = Vector2(90, 34)
+layout_mode = 2
+text = "Teleport"
+
+[node name="BtnReappear" type="Button" parent="CanvasLayer/Panel/VBox/RowActions"]
+custom_minimum_size = Vector2(100, 34)
+layout_mode = 2
+text = "Reappear"
+
+[node name="BtnFireball" type="Button" parent="CanvasLayer/Panel/VBox/RowActions"]
+custom_minimum_size = Vector2(95, 34)
+layout_mode = 2
+text = "Fireball"
+
+[node name="BtnBarrier" type="Button" parent="CanvasLayer/Panel/VBox/RowActions"]
+custom_minimum_size = Vector2(85, 34)
+layout_mode = 2
+text = "Barrier"
+
+[node name="BtnMeteorite" type="Button" parent="CanvasLayer/Panel/VBox/RowActions"]
+custom_minimum_size = Vector2(105, 34)
+layout_mode = 2
+text = "Meteorite"
+
+[node name="RowBeam" type="HBoxContainer" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnBeam" type="Button" parent="CanvasLayer/Panel/VBox/RowBeam"]
+custom_minimum_size = Vector2(150, 34)
+layout_mode = 2
+text = "☄ Quad beam"
+
+[node name="RowReadout" type="HBoxContainer" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LabelReadout" type="Label" parent="CanvasLayer/Panel/VBox/RowReadout"]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+text = "View: -"

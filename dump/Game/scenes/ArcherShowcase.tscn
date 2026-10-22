@@ -1,0 +1,137 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/archer_showcase.gd" id="1_showcase"]
+
+[node name="ArcherShowcase" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_showcase")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.12, 0.13, 0.16, 1)
+
+[node name="GroundLine" type="ColorRect" parent="."]
+offset_top = 629.0
+offset_right = 1280.0
+offset_bottom = 631.0
+color = Color(0.32, 0.36, 0.3, 1)
+
+[node name="Labels" type="Node2D" parent="."]
+
+[node name="LabelRight" type="Label" parent="Labels"]
+offset_left = 540.0
+offset_top = 640.0
+offset_right = 730.0
+offset_bottom = 670.0
+theme_override_font_sizes/font_size = 18
+text = "RIGHT VIEW"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 30.0
+offset_top = 24.0
+offset_right = 1250.0
+offset_bottom = 186.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "🏹 MODULAR ARCHER: GODRAY CHARGE"
+
+[node name="HBoxControls" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BtnToggleCape" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+text = "Toggle Cape"
+
+[node name="BtnToggleQuiver" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(170, 36)
+layout_mode = 2
+text = "Toggle Quiver"
+
+[node name="BtnRotateBow" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+text = "Rotate Bow Pivot"
+
+[node name="BtnReset" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(140, 36)
+layout_mode = 2
+text = "Reset Pose"
+
+[node name="BtnPlayIdle" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+text = "▶ Play Idle"
+
+[node name="BtnPlayWalk" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+text = "▶▶ Play Walk"
+
+[node name="BtnPlayShot" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(200, 36)
+layout_mode = 2
+text = "✦ Charged Shot"
+
+[node name="HBoxControls2" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BtnStop" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+custom_minimum_size = Vector2(120, 36)
+layout_mode = 2
+text = "■ Stop"
+
+[node name="LabelHint" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "The bow rides on the arm and the quiver on the body, so they follow her. The charged shot fires across the screen on the clip's impact."
+
+[node name="HBoxScrub" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LabelScrub" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Clip Progress"
+
+[node name="SliderScrub" type="HSlider" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 0.1
+
+[node name="ValScrub" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "idle 0%"
+
+[node name="LabelSpeed" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "Speed"
+
+[node name="SliderSpeed" type="HSlider" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+min_value = 0.1
+max_value = 2.0
+step = 0.05
+value = 1.0
+
+[node name="ValSpeed" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "1.00x"

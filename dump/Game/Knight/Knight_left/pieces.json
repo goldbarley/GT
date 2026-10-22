@@ -1,0 +1,125 @@
+{
+  "perspective": "left",
+  "canvas_size": {
+    "width": 32,
+    "height": 32
+  },
+  "spritesheet": "Knight_left_clean.png",
+  "reference_rect": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 32
+  },
+  "roles": {
+    "body": "body",
+    "sword": "sword",
+    "foot_b": "boot_a"
+  },
+  "groups": {
+    "torso": {
+      "pivot": {
+        "x": 16,
+        "y": 25
+      },
+      "members": [
+        "body",
+        "sword"
+      ]
+    },
+    "all": {
+      "pivot": {
+        "x": 16,
+        "y": 32
+      },
+      "members": [
+        "body",
+        "sword",
+        "boot_a"
+      ]
+    }
+  },
+  "piece_parents": {},
+  "pieces": {
+    "body": {
+      "region": {
+        "x": 64,
+        "y": 0,
+        "w": 24,
+        "h": 32
+      },
+      "position": {
+        "x": 5,
+        "y": 0
+      },
+      "pivot": {
+        "x": 10,
+        "y": 31
+      },
+      "z_index": 0,
+      "description": "body"
+    },
+    "sword": {
+      "region": {
+        "x": 0,
+        "y": 0,
+        "w": 7,
+        "h": 9
+      },
+      "position": {
+        "x": 2,
+        "y": 15
+      },
+      "pivot": {
+        "x": 5,
+        "y": 0
+      },
+      "z_index": 1,
+      "description": "sword",
+      "source_regions": [
+        [
+          -1,
+          2,
+          15,
+          7,
+          9
+        ]
+      ]
+    },
+    "boot_a": {
+      "region": {
+        "x": 32,
+        "y": 0,
+        "w": 9,
+        "h": 6
+      },
+      "position": {
+        "x": 4,
+        "y": 26
+      },
+      "pivot": {
+        "x": 6,
+        "y": 0
+      },
+      "z_index": 2,
+      "description": "boot_a",
+      "source_regions": [
+        [
+          0,
+          23,
+          25,
+          9,
+          6
+        ]
+      ]
+    }
+  },
+  "facing": {
+    "x": -0.8614,
+    "y": -0.5079
+  },
+  "face": {
+    "x": 12.03,
+    "y": 10.75
+  }
+}

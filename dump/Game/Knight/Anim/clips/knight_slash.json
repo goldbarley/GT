@@ -1,0 +1,50 @@
+{
+  "clip": "knight_slash",
+  "description": "Slash. The sword arm winds up behind him, the blade comes down and across, and he follows through. The side views are mirror images of each other.",
+  "fps": 24,
+  "loop": false,
+  "duration": 0.55,
+  "interpolation": "smooth",
+  "perspectives": {
+    "right": {
+      "keys": [
+        { "time": 0.0, "ease": "out_back", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 0, "y": 0 } } } },
+        { "time": 0.154, "ease": "out_cubic", "poses": { "arm": { "rot": -70.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": -1, "y": 0 } } } },
+        { "time": 0.209, "ease": "in_out", "poses": { "arm": { "rot": -70.0 }, "sword": { "rot": 55.0 }, "torso": { "pos": { "x": -1, "y": 0 } } } },
+        { "time": 0.264, "ease": "in_out", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 30.0 }, "torso": { "pos": { "x": 1, "y": 0 } } } },
+        { "time": 0.319, "ease": "out_cubic", "poses": { "arm": { "rot": 42.0 }, "sword": { "rot": 10.0 }, "torso": { "pos": { "x": 1, "y": 0 } } } },
+        { "time": 0.55, "ease": "in_out", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 0, "y": 0 } } } }
+      ]
+    },
+    "left": {
+      "keys": [
+        { "time": 0.0, "ease": "out_back", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 0, "y": 0 } } } },
+        { "time": 0.154, "ease": "out_cubic", "poses": { "arm": { "rot": 70.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 1, "y": 0 } } } },
+        { "time": 0.209, "ease": "in_out", "poses": { "arm": { "rot": 70.0 }, "sword": { "rot": -55.0 }, "torso": { "pos": { "x": 1, "y": 0 } } } },
+        { "time": 0.264, "ease": "in_out", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": -30.0 }, "torso": { "pos": { "x": -1, "y": 0 } } } },
+        { "time": 0.319, "ease": "out_cubic", "poses": { "arm": { "rot": -42.0 }, "sword": { "rot": -10.0 }, "torso": { "pos": { "x": -1, "y": 0 } } } },
+        { "time": 0.55, "ease": "in_out", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 0, "y": 0 } } } }
+      ]
+    },
+    "front": {
+      "keys": [
+        { "time": 0.0, "ease": "out_back", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 0, "y": 0 } } } },
+        { "time": 0.154, "ease": "out_cubic", "poses": { "arm": { "rot": -70.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": -1, "y": 0 } } } },
+        { "time": 0.209, "ease": "in_out", "poses": { "arm": { "rot": -70.0 }, "sword": { "rot": 55.0 }, "torso": { "pos": { "x": -1, "y": 0 } } } },
+        { "time": 0.264, "ease": "in_out", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 30.0 }, "torso": { "pos": { "x": 1, "y": 0 } } } },
+        { "time": 0.319, "ease": "out_cubic", "poses": { "arm": { "rot": 42.0 }, "sword": { "rot": 10.0 }, "torso": { "pos": { "x": 1, "y": 0 } } } },
+        { "time": 0.55, "ease": "in_out", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 0, "y": 0 } } } }
+      ]
+    },
+    "back": {
+      "keys": [
+        { "time": 0.0, "ease": "out_back", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 0, "y": 0 } } } },
+        { "time": 0.154, "ease": "out_cubic", "poses": { "arm": { "rot": -70.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": -1, "y": 0 } } } },
+        { "time": 0.209, "ease": "in_out", "poses": { "arm": { "rot": -70.0 }, "sword": { "rot": 55.0 }, "torso": { "pos": { "x": -1, "y": 0 } } } },
+        { "time": 0.264, "ease": "in_out", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 30.0 }, "torso": { "pos": { "x": 1, "y": 0 } } } },
+        { "time": 0.319, "ease": "out_cubic", "poses": { "arm": { "rot": 42.0 }, "sword": { "rot": 10.0 }, "torso": { "pos": { "x": 1, "y": 0 } } } },
+        { "time": 0.55, "ease": "in_out", "poses": { "arm": { "rot": 0.0 }, "sword": { "rot": 0.0 }, "torso": { "pos": { "x": 0, "y": 0 } } } }
+      ]
+    }
+  }
+}

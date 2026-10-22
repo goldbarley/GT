@@ -1,0 +1,202 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/archer_placeholder.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/head.png" id="2_head"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/torso.png" id="3_torso"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/arm_upper.png" id="4_arm_u"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/arm_lower.png" id="5_arm_l"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/hand.png" id="6_hand"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/bow_red.png" id="7_bow_red"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/arrow.png" id="8_arrow"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/leg_upper.png" id="9_leg_u"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/leg_lower.png" id="10_leg_l"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/foot.png" id="11_foot"]
+[ext_resource type="Shader" path="res://shaders/charged_arrow_energy.gdshader" id="12_energy_shader"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/charged_energy_arrow.png" id="13_energy_arrow_tex"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
+radius = 6.0
+height = 28.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_charged_arrow"]
+shader = ExtResource("12_energy_shader")
+shader_parameter/low_temp_color = Color(0.86, 0.52, 0, 1)
+shader_parameter/mid_temp_color = Color(1, 0.88, 0.08, 1)
+shader_parameter/high_temp_color = Color(1, 1, 1, 1)
+shader_parameter/charge_progress = 1.0
+shader_parameter/energy_boost = 1.3
+shader_parameter/tip_radiance = 0.0
+shader_parameter/shimmer_speed = 14.0
+shader_parameter/opacity = 1.0
+
+[node name="archer_placeholder" type="CharacterBody2D"]
+texture_filter = 1
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -14)
+shape = SubResource("CapsuleShape2D_1")
+
+[node name="Visuals" type="Node2D" parent="."]
+texture_filter = 1
+
+[node name="Skeleton" type="Node2D" parent="Visuals"]
+
+[node name="Torso_Pivot" type="Node2D" parent="Visuals/Skeleton"]
+position = Vector2(0, -16)
+
+[node name="TorsoSprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("3_torso")
+
+[node name="Head_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot"]
+position = Vector2(0, -8)
+
+[node name="HeadSprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/Head_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("2_head")
+offset = Vector2(0, -5)
+
+[node name="ArmL_Upper_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot"]
+z_index = 1
+position = Vector2(-2, -5)
+
+[node name="ArmL_Upper_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("4_arm_u")
+offset = Vector2(0, 4)
+
+[node name="ArmL_Lower_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot"]
+position = Vector2(0, 7)
+
+[node name="ArmL_Lower_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot/ArmL_Lower_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("5_arm_l")
+offset = Vector2(0, 4)
+
+[node name="HandL_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot/ArmL_Lower_Pivot"]
+position = Vector2(0, 7)
+
+[node name="HandL_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot/ArmL_Lower_Pivot/HandL_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("6_hand")
+offset = Vector2(0, 2)
+
+[node name="Bow_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot/ArmL_Lower_Pivot/HandL_Pivot"]
+position = Vector2(0, 2)
+
+[node name="BowSprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot/ArmL_Lower_Pivot/HandL_Pivot/Bow_Pivot"]
+texture = ExtResource("7_bow_red")
+offset = Vector2(2, 0)
+
+[node name="Arrow_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot/ArmL_Lower_Pivot/HandL_Pivot/Bow_Pivot"]
+
+[node name="ArrowSprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/ArmL_Upper_Pivot/ArmL_Lower_Pivot/HandL_Pivot/Bow_Pivot/Arrow_Pivot"]
+visible = false
+texture = ExtResource("8_arrow")
+offset = Vector2(8, 0)
+
+[node name="ArmR_Upper_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot"]
+z_index = -1
+position = Vector2(2, -5)
+
+[node name="ArmR_Upper_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/ArmR_Upper_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("4_arm_u")
+offset = Vector2(0, 4)
+
+[node name="ArmR_Lower_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/ArmR_Upper_Pivot"]
+position = Vector2(0, 7)
+
+[node name="ArmR_Lower_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/ArmR_Upper_Pivot/ArmR_Lower_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("5_arm_l")
+offset = Vector2(0, 4)
+
+[node name="HandR_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/ArmR_Upper_Pivot/ArmR_Lower_Pivot"]
+position = Vector2(0, 7)
+
+[node name="HandR_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/ArmR_Upper_Pivot/ArmR_Lower_Pivot/HandR_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("6_hand")
+offset = Vector2(0, 2)
+
+[node name="LegL_Upper_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot"]
+position = Vector2(-2, 8)
+
+[node name="LegL_Upper_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/LegL_Upper_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("9_leg_u")
+offset = Vector2(0, 4)
+
+[node name="LegL_Lower_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/LegL_Upper_Pivot"]
+position = Vector2(0, 8)
+
+[node name="LegL_Lower_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/LegL_Upper_Pivot/LegL_Lower_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("10_leg_l")
+offset = Vector2(0, 5)
+
+[node name="FootL_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/LegL_Upper_Pivot/LegL_Lower_Pivot"]
+position = Vector2(0, 9)
+
+[node name="FootL_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/LegL_Upper_Pivot/LegL_Lower_Pivot/FootL_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("11_foot")
+offset = Vector2(1, 1)
+
+[node name="LegR_Upper_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot"]
+position = Vector2(2, 8)
+
+[node name="LegR_Upper_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/LegR_Upper_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("9_leg_u")
+offset = Vector2(0, 4)
+
+[node name="LegR_Lower_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/LegR_Upper_Pivot"]
+position = Vector2(0, 8)
+
+[node name="LegR_Lower_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/LegR_Upper_Pivot/LegR_Lower_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("10_leg_l")
+offset = Vector2(0, 5)
+
+[node name="FootR_Pivot" type="Node2D" parent="Visuals/Skeleton/Torso_Pivot/LegR_Upper_Pivot/LegR_Lower_Pivot"]
+position = Vector2(0, 9)
+
+[node name="FootR_Sprite" type="Sprite2D" parent="Visuals/Skeleton/Torso_Pivot/LegR_Upper_Pivot/LegR_Lower_Pivot/FootR_Pivot"]
+modulate = Color(0.12, 0.12, 0.14, 1)
+texture = ExtResource("11_foot")
+offset = Vector2(1, 1)
+
+[node name="Bowstring" type="Line2D" parent="Visuals"]
+z_index = 2
+points = PackedVector2Array(0, 0, 0, 0, 0, 0)
+width = 1.2
+default_color = Color(1, 1, 1, 0.95)
+
+[node name="DustPuff" type="Node2D" parent="Visuals"]
+position = Vector2(0, 0)
+visible = false
+
+[node name="Puff1" type="Line2D" parent="Visuals/DustPuff"]
+points = PackedVector2Array(-6, -1, -12, -4, -16, -1)
+width = 1.5
+default_color = Color(0.6, 0.6, 0.65, 0.8)
+
+[node name="Puff2" type="Line2D" parent="Visuals/DustPuff"]
+points = PackedVector2Array(2, -1, 6, -3, 10, -1)
+width = 1.2
+default_color = Color(0.6, 0.6, 0.65, 0.7)
+
+[node name="ShaderHook" type="Node2D" parent="Visuals"]
+
+[node name="ChargedArrow" type="Node2D" parent="Visuals/ShaderHook"]
+visible = false
+z_index = 2
+
+[node name="ArrowSprite" type="Sprite2D" parent="Visuals/ShaderHook/ChargedArrow"]
+texture_filter = 1
+material = SubResource("ShaderMaterial_charged_arrow")
+texture = ExtResource("13_energy_arrow_tex")
+offset = Vector2(21, 0)

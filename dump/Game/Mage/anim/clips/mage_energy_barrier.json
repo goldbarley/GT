@@ -1,0 +1,52 @@
+{
+  "clip": "mage_energy_barrier",
+  "description": "Energy barrier. A ring spreads out across the floor while a dome grows downwards from a point above the hat, until the two meet and the barrier closes around the mage. Both are one continuous sweep, the ring simply running out ahead of the dome. The barrier then stays up until it is dismissed.",
+  "fps": 15,
+  "loop": false,
+  "duration": 1.24,
+  "interpolation": "smooth",
+  "fx": {
+    "node": "BarrierFX"
+  },
+  "keys": [
+    {
+      "time": 0.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "rot": 0.0
+        }
+      },
+      "fx": {
+        "progress": 0.0,
+        "ground_progress": 0.0
+      }
+    },
+    {
+      "time": 0.72,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "rot": 0.0
+        }
+      },
+      "fx": {
+        "progress": 0.42,
+        "ground_progress": 1.0
+      }
+    },
+    {
+      "time": 1.24,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "rot": 0.0
+        }
+      },
+      "fx": {
+        "progress": 1.0,
+        "ground_progress": 1.0
+      }
+    }
+  ]
+}

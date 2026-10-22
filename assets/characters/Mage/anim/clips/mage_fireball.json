@@ -1,0 +1,673 @@
+{
+  "clip": "mage_fireball",
+  "description": "Fireball cast. The arm raises and the gem at the top of the staff lights up, a fireball is called out of the gem, and the staff turns down in the hand which throws it forward in an arc until it crashes into the ground and leaves a pit of fire that burns out on its own.",
+  "fps": 15,
+  "loop": false,
+  "duration": 1.9599999999999997,
+  "linger": 2.5,
+  "fx": {
+    "node": "FireballFX",
+    "clip": true
+  },
+  "perspectives": {
+    "front": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "progress": 0.0,
+            "fall": 0.0,
+            "gem_glow": 0.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 9.0,
+              "y": 10.0
+            },
+            "impact_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 0.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 32.0
+            },
+            "torso": {
+              "rot": -3.0
+            }
+          },
+          "fx": {
+            "progress": 0.2857,
+            "fall": 0.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 9.0,
+              "y": 10.0
+            },
+            "impact_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 0.59,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 32.0
+            },
+            "torso": {
+              "rot": -3.0
+            }
+          },
+          "fx": {
+            "progress": 0.4214,
+            "fall": 0.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 9.0,
+              "y": 10.0
+            },
+            "impact_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 1.26,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 32.0
+            },
+            "staff": {
+              "rot": -52.0
+            },
+            "torso": {
+              "rot": -3.0
+            }
+          },
+          "fx": {
+            "progress": 0.9,
+            "fall": 1.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 9.0,
+              "y": 10.0
+            },
+            "impact_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 1.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -8.0
+            },
+            "staff": {
+              "rot": -52.0
+            },
+            "torso": {
+              "rot": 2.0
+            }
+          },
+          "fx": {
+            "progress": 1.0,
+            "fall": 1.0,
+            "gem_glow": 0.0,
+            "pit_strength": 1.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 9.0,
+              "y": 10.0
+            },
+            "impact_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -9.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        }
+      ]
+    },
+    "back": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "progress": 0.0,
+            "fall": 0.0,
+            "gem_glow": 0.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 23.0,
+              "y": 6.0
+            },
+            "impact_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 0.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -32.0
+            },
+            "torso": {
+              "rot": 3.0
+            }
+          },
+          "fx": {
+            "progress": 0.2857,
+            "fall": 0.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 23.0,
+              "y": 6.0
+            },
+            "impact_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 0.59,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -32.0
+            },
+            "torso": {
+              "rot": 3.0
+            }
+          },
+          "fx": {
+            "progress": 0.4214,
+            "fall": 0.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 23.0,
+              "y": 6.0
+            },
+            "impact_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 1.26,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -32.0
+            },
+            "staff": {
+              "rot": 40.0
+            },
+            "torso": {
+              "rot": 3.0
+            }
+          },
+          "fx": {
+            "progress": 0.9,
+            "fall": 1.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 23.0,
+              "y": 6.0
+            },
+            "impact_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 1.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 4.0
+            },
+            "staff": {
+              "rot": 40.0
+            },
+            "torso": {
+              "rot": -2.0
+            }
+          },
+          "fx": {
+            "progress": 1.0,
+            "fall": 1.0,
+            "gem_glow": 0.0,
+            "pit_strength": 1.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 23.0,
+              "y": 6.0
+            },
+            "impact_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 41.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        }
+      ]
+    },
+    "left": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "progress": 0.0,
+            "fall": 0.0,
+            "gem_glow": 0.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 11.0,
+              "y": 13.0
+            },
+            "impact_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 0.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 0.0
+            },
+            "staff": {
+              "rot": 35.0
+            },
+            "torso": {
+              "rot": -3.0
+            }
+          },
+          "fx": {
+            "progress": 0.2857,
+            "fall": 0.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 11.0,
+              "y": 13.0
+            },
+            "impact_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 0.59,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 0.0
+            },
+            "staff": {
+              "rot": 35.0
+            },
+            "torso": {
+              "rot": -3.0
+            }
+          },
+          "fx": {
+            "progress": 0.4214,
+            "fall": 0.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 11.0,
+              "y": 13.0
+            },
+            "impact_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 1.26,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 0.0
+            },
+            "staff": {
+              "rot": -55.0
+            },
+            "torso": {
+              "rot": -3.0
+            }
+          },
+          "fx": {
+            "progress": 0.9,
+            "fall": 1.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 11.0,
+              "y": 13.0
+            },
+            "impact_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 1.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": 0.0
+            },
+            "staff": {
+              "rot": -55.0
+            },
+            "torso": {
+              "rot": 2.0
+            }
+          },
+          "fx": {
+            "progress": 1.0,
+            "fall": 1.0,
+            "gem_glow": 0.0,
+            "pit_strength": 1.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 11.0,
+              "y": 13.0
+            },
+            "impact_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": -7.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        }
+      ]
+    },
+    "right": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "in_out",
+          "poses": {},
+          "fx": {
+            "progress": 0.0,
+            "fall": 0.0,
+            "gem_glow": 0.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 27.0,
+              "y": 8.0
+            },
+            "impact_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 0.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -36.0
+            },
+            "torso": {
+              "rot": 3.0
+            }
+          },
+          "fx": {
+            "progress": 0.2857,
+            "fall": 0.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 27.0,
+              "y": 8.0
+            },
+            "impact_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 0.59,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -36.0
+            },
+            "torso": {
+              "rot": 3.0
+            }
+          },
+          "fx": {
+            "progress": 0.4214,
+            "fall": 0.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 27.0,
+              "y": 8.0
+            },
+            "impact_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 1.26,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -36.0
+            },
+            "staff": {
+              "rot": 52.0
+            },
+            "torso": {
+              "rot": 3.0
+            }
+          },
+          "fx": {
+            "progress": 0.9,
+            "fall": 1.0,
+            "gem_glow": 1.0,
+            "pit_strength": 0.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 27.0,
+              "y": 8.0
+            },
+            "impact_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        },
+        {
+          "time": 1.4,
+          "ease": "in_out",
+          "poses": {
+            "arm": {
+              "rot": -2.0
+            },
+            "staff": {
+              "rot": 52.0
+            },
+            "torso": {
+              "rot": -2.0
+            }
+          },
+          "fx": {
+            "progress": 1.0,
+            "fall": 1.0,
+            "gem_glow": 0.0,
+            "pit_strength": 1.0,
+            "opacity": 1.0,
+            "spawn_pos": {
+              "x": 27.0,
+              "y": 8.0
+            },
+            "impact_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "pit_pos": {
+              "x": 45.0,
+              "y": 30.0
+            },
+            "arc_height": 15.0
+          }
+        }
+      ]
+    }
+  },
+  "impact": 1.4
+}

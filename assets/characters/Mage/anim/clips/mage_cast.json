@@ -1,0 +1,185 @@
+{
+  "clip": "cast",
+  "description": "Staff raise. The staff pivots about the hand, so the raise angle has to be mirrored between the views where the staff leans left and the views where it leans right.",
+  "fps": 12,
+  "loop": false,
+  "duration": 1.26,
+  "keys": [
+    {
+      "time": 0.0,
+      "ease": "out_back",
+      "poses": {}
+    },
+    {
+      "time": 0.35,
+      "ease": "out_cubic",
+      "poses": {
+        "torso": {
+          "rot": 0.0,
+          "pos": {
+            "x": 0,
+            "y": -1
+          }
+        },
+        "hat": {
+          "rot": -2.0
+        },
+        "arm": {
+          "rot": 2.0
+        }
+      }
+    },
+    {
+      "time": 0.9,
+      "ease": "in_out",
+      "poses": {}
+    }
+  ],
+  "perspectives": {
+    "front": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "out_back",
+          "poses": {}
+        },
+        {
+          "time": 0.35,
+          "ease": "out_cubic",
+          "poses": {
+            "torso": {
+              "rot": 0.0,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "hat": {
+              "rot": -2.0
+            },
+            "arm": {
+              "rot": 2.0
+            },
+            "staff": {
+              "rot": 28.0
+            }
+          }
+        },
+        {
+          "time": 0.9,
+          "ease": "in_out",
+          "poses": {}
+        }
+      ]
+    },
+    "back": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "out_back",
+          "poses": {}
+        },
+        {
+          "time": 0.35,
+          "ease": "out_cubic",
+          "poses": {
+            "torso": {
+              "rot": 0.0,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "hat": {
+              "rot": -2.0
+            },
+            "arm": {
+              "rot": 2.0
+            },
+            "staff": {
+              "rot": -28.0
+            }
+          }
+        },
+        {
+          "time": 0.9,
+          "ease": "in_out",
+          "poses": {}
+        }
+      ]
+    },
+    "left": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "out_back",
+          "poses": {}
+        },
+        {
+          "time": 0.35,
+          "ease": "out_cubic",
+          "poses": {
+            "torso": {
+              "rot": 0.0,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "hat": {
+              "rot": -2.0
+            },
+            "arm": {
+              "rot": 2.0
+            },
+            "staff": {
+              "rot": 28.0
+            }
+          }
+        },
+        {
+          "time": 0.9,
+          "ease": "in_out",
+          "poses": {}
+        }
+      ]
+    },
+    "right": {
+      "keys": [
+        {
+          "time": 0.0,
+          "ease": "out_back",
+          "poses": {}
+        },
+        {
+          "time": 0.35,
+          "ease": "out_cubic",
+          "poses": {
+            "torso": {
+              "rot": 0.0,
+              "pos": {
+                "x": 0,
+                "y": -1
+              }
+            },
+            "hat": {
+              "rot": -2.0
+            },
+            "arm": {
+              "rot": 2.0
+            },
+            "staff": {
+              "rot": -28.0
+            }
+          }
+        },
+        {
+          "time": 0.9,
+          "ease": "in_out",
+          "poses": {}
+        }
+      ]
+    }
+  },
+  "impact": 0.59
+}

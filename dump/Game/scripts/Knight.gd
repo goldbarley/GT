@@ -1,0 +1,2 @@
+extends KnightRight
+class_name KnightDev

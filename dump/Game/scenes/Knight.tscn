@@ -1,0 +1,128 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/Knight.gd" id="1_knight"]
+[ext_resource type="Texture2D" path="res://sprites/body.png" id="2_body"]
+[ext_resource type="Texture2D" path="res://sprites/arm.png" id="3_arm"]
+[ext_resource type="Texture2D" path="res://sprites/sword.png" id="4_sword"]
+[ext_resource type="Texture2D" path="res://sprites/slash/slash_f6.png" id="5_slash"]
+[ext_resource type="Shader" path="res://shaders/sword_thrust.gdshader" id="6_thrust_shader"]
+[ext_resource type="Texture2D" path="res://sprites/slash/thrust_fx.png" id="7_thrust_tex"]
+[ext_resource type="Shader" path="res://shaders/sword_plunge_wake.gdshader" id="8_wake_shader"]
+[ext_resource type="Texture2D" path="res://sprites/slash/plunge_wake.png" id="9_wake_tex"]
+[ext_resource type="Shader" path="res://shaders/tile_eruption.gdshader" id="10_erupt_shader"]
+[ext_resource type="Texture2D" path="res://sprites/slash/tile_eruption.png" id="11_erupt_tex"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_thrust"]
+shader = ExtResource("6_thrust_shader")
+shader_parameter/low_temp_color = Color(0.86, 0.52, 0, 1)
+shader_parameter/mid_temp_color = Color(1, 0.9, 0.15, 1)
+shader_parameter/high_temp_color = Color(1, 1, 1, 1)
+shader_parameter/thrust_progress = 1.0
+shader_parameter/dissolve_progress = 0.0
+shader_parameter/energy_boost = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/pixel_grid_snap = true
+shader_parameter/pixel_grid_size = Vector2(48, 32)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wake"]
+shader = ExtResource("8_wake_shader")
+shader_parameter/low_temp_color = Color(0.86, 0.52, 0, 1)
+shader_parameter/mid_temp_color = Color(1, 0.9, 0.15, 1)
+shader_parameter/high_temp_color = Color(1, 1, 1, 1)
+shader_parameter/stream_progress = 1.0
+shader_parameter/dissolve_progress = 0.0
+shader_parameter/energy_boost = 1.3
+shader_parameter/opacity = 1.0
+shader_parameter/pixel_grid_snap = true
+shader_parameter/pixel_grid_size = Vector2(32, 48)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_erupt_l"]
+shader = ExtResource("10_erupt_shader")
+shader_parameter/low_temp_color = Color(0.86, 0.52, 0, 1)
+shader_parameter/mid_temp_color = Color(1, 0.9, 0.15, 1)
+shader_parameter/high_temp_color = Color(1, 1, 1, 1)
+shader_parameter/eruption_growth = 1.0
+shader_parameter/dissolve_progress = 0.0
+shader_parameter/energy_boost = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/pixel_grid_snap = true
+shader_parameter/pixel_grid_size = Vector2(32, 32)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_erupt_r"]
+shader = ExtResource("10_erupt_shader")
+shader_parameter/low_temp_color = Color(0.86, 0.52, 0, 1)
+shader_parameter/mid_temp_color = Color(1, 0.9, 0.15, 1)
+shader_parameter/high_temp_color = Color(1, 1, 1, 1)
+shader_parameter/eruption_growth = 1.0
+shader_parameter/dissolve_progress = 0.0
+shader_parameter/energy_boost = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/pixel_grid_snap = true
+shader_parameter/pixel_grid_size = Vector2(32, 32)
+
+[node name="Knight" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_knight")
+
+[node name="TileEruptionLeft" type="Sprite2D" parent="."]
+visible = false
+z_index = 2
+material = SubResource("ShaderMaterial_erupt_l")
+texture = ExtResource("11_erupt_tex")
+centered = false
+position = Vector2(-36, -30)
+
+[node name="TileEruptionRight" type="Sprite2D" parent="."]
+visible = false
+z_index = 2
+material = SubResource("ShaderMaterial_erupt_r")
+texture = ExtResource("11_erupt_tex")
+centered = false
+position = Vector2(10, -30)
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="BodySprite" type="Sprite2D" parent="Body"]
+texture = ExtResource("2_body")
+centered = false
+position = Vector2(-9, -28)
+
+[node name="Shoulder_Pivot" type="Node2D" parent="Body"]
+position = Vector2(-3, -12)
+
+[node name="Wrist_Pivot" type="Node2D" parent="Body/Shoulder_Pivot"]
+position = Vector2(3, 6)
+
+[node name="Sword" type="Sprite2D" parent="Body/Shoulder_Pivot/Wrist_Pivot"]
+texture = ExtResource("4_sword")
+centered = false
+position = Vector2(-3, -10)
+
+[node name="Arm" type="Sprite2D" parent="Body/Shoulder_Pivot"]
+z_index = 1
+texture = ExtResource("3_arm")
+centered = false
+position = Vector2(-2, -1)
+
+[node name="SlashEffect" type="Sprite2D" parent="."]
+visible = false
+z_index = 2
+texture = ExtResource("5_slash")
+centered = false
+position = Vector2(0, -28)
+
+[node name="ThrustEffect" type="Sprite2D" parent="."]
+visible = false
+z_index = 2
+material = SubResource("ShaderMaterial_thrust")
+texture = ExtResource("7_thrust_tex")
+centered = false
+position = Vector2(0, 0)
+
+[node name="PlungeWakeEffect" type="Sprite2D" parent="."]
+visible = false
+z_index = 2
+material = SubResource("ShaderMaterial_wake")
+texture = ExtResource("9_wake_tex")
+centered = false
+position = Vector2(0, 0)

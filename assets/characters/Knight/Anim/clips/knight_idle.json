@@ -1,0 +1,130 @@
+{
+  "clip": "knight_idle",
+  "description": "Idle. The knight stands and breathes, the torso dips slightly down covering the boots, then returns.",
+  "fps": 8,
+  "loop": true,
+  "duration": 2.0,
+  "interpolation": "smooth",
+  "keys": [
+    {
+      "time": 0.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "boot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "boot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    {
+      "time": 0.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "pos": {
+            "x": 0,
+            "y": 0.4
+          }
+        },
+        "boot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "boot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    {
+      "time": 1.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "pos": {
+            "x": 0,
+            "y": 0.4
+          }
+        },
+        "boot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "boot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    {
+      "time": 1.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "boot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "boot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    {
+      "time": 2.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "boot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "boot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    }
+  ]
+}

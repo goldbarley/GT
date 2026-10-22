@@ -1,0 +1,233 @@
+{
+  "perspective": "right",
+  "canvas_size": {
+    "width": 37,
+    "height": 32
+  },
+  "spritesheet": "Mage_right_clean.png",
+  "source_sheet": "Mage_right.png",
+  "source_regions": {
+    "foot_back": {
+      "x": 4,
+      "y": 15,
+      "w": 6,
+      "h": 4
+    },
+    "foot_front": {
+      "x": 2,
+      "y": 26,
+      "w": 6,
+      "h": 4
+    },
+    "body": {
+      "x": 43,
+      "y": 0,
+      "w": 26,
+      "h": 22
+    },
+    "staff": {
+      "x": 13,
+      "y": 0,
+      "w": 18,
+      "h": 20
+    },
+    "hat": {
+      "x": 17,
+      "y": 17,
+      "w": 28,
+      "h": 14
+    },
+    "arm_left": {
+      "x": 36,
+      "y": 3,
+      "w": 11,
+      "h": 9
+    }
+  },
+  "source_pivots": {
+    "foot_back": {
+      "x": 3,
+      "y": 0
+    },
+    "foot_front": {
+      "x": 3,
+      "y": 0
+    },
+    "body": {
+      "x": 13,
+      "y": 22
+    },
+    "staff": {
+      "x": 9,
+      "y": 14
+    },
+    "hat": {
+      "x": 14,
+      "y": 13
+    },
+    "arm_left": {
+      "x": 3,
+      "y": 3
+    }
+  },
+  "source_reference_rect": {
+    "x": 91,
+    "y": 0,
+    "w": 37,
+    "h": 32
+  },
+  "reference_rect": {
+    "x": 0,
+    "y": 23,
+    "w": 37,
+    "h": 32
+  },
+  "roles": {
+    "body": "body",
+    "hat": "hat",
+    "staff": "staff",
+    "arm": "arm_left",
+    "foot_a": "foot_right_a",
+    "foot_b": "foot_right_b"
+  },
+  "groups": {
+    "torso": {
+      "pivot": {
+        "x": 13,
+        "y": 25
+      },
+      "members": [
+        "body",
+        "hat",
+        "arm"
+      ]
+    },
+    "all": {
+      "pivot": {
+        "x": 18,
+        "y": 32
+      },
+      "members": [
+        "body",
+        "hat",
+        "staff",
+        "arm",
+        "foot_a",
+        "foot_b"
+      ]
+    }
+  },
+  "piece_parents": {
+    "staff": "arm"
+  },
+  "pieces": {
+    "foot_right_b": {
+      "region": {
+        "x": 87,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "position": {
+        "x": 10,
+        "y": 28
+      },
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "z_index": 0,
+      "description": "Right-view back boot"
+    },
+    "foot_right_a": {
+      "region": {
+        "x": 94,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "position": {
+        "x": 19,
+        "y": 28
+      },
+      "pivot": {
+        "x": 1,
+        "y": 0
+      },
+      "z_index": 1,
+      "description": "Right-view front boot"
+    },
+    "body": {
+      "region": {
+        "x": 0,
+        "y": 0,
+        "w": 26,
+        "h": 22
+      },
+      "position": {
+        "x": 0,
+        "y": 8
+      },
+      "pivot": {
+        "x": 13,
+        "y": 22
+      },
+      "z_index": 2,
+      "description": "Right-profile body and head"
+    },
+    "staff": {
+      "region": {
+        "x": 27,
+        "y": 0,
+        "w": 18,
+        "h": 20
+      },
+      "position": {
+        "x": 19,
+        "y": 11
+      },
+      "pivot": {
+        "x": 4,
+        "y": 13
+      },
+      "z_index": 3,
+      "description": "Staff extended forward to the right"
+    },
+    "hat": {
+      "region": {
+        "x": 46,
+        "y": 0,
+        "w": 28,
+        "h": 14
+      },
+      "position": {
+        "x": 4,
+        "y": 0
+      },
+      "pivot": {
+        "x": 14,
+        "y": 13
+      },
+      "z_index": 4,
+      "description": "Side-profile wizard hat"
+    },
+    "arm_left": {
+      "region": {
+        "x": 75,
+        "y": 0,
+        "w": 11,
+        "h": 9
+      },
+      "position": {
+        "x": 15,
+        "y": 18
+      },
+      "pivot": {
+        "x": 1,
+        "y": 2
+      },
+      "z_index": 5,
+      "description": "Right-view arm holding staff"
+    }
+  }
+}

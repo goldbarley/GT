@@ -1,0 +1,134 @@
+{
+  "clip": "idle",
+  "description": "Breathing idle shared by all four perspectives. The torso dips slightly down covering the feet, then returns.",
+  "fps": 8,
+  "loop": true,
+  "duration": 2.0,
+  "keys": [
+    {
+      "time": 0.0,
+      "ease": "in_out",
+      "poses": {
+        "foot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "foot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    {
+      "time": 0.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "rot": 0.0,
+          "pos": {
+            "x": 0,
+            "y": 0.4
+          }
+        },
+        "hat": {
+          "rot": -0.8
+        },
+        "staff": {
+          "rot": 1.0
+        },
+        "arm": {
+          "rot": 0.5
+        },
+        "foot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "foot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    {
+      "time": 1.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "rot": 0.0,
+          "pos": {
+            "x": 0,
+            "y": 0.4
+          }
+        },
+        "hat": {
+          "rot": -1.5
+        },
+        "staff": {
+          "rot": 2.0
+        },
+        "arm": {
+          "rot": 1.0
+        },
+        "foot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "foot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    {
+      "time": 1.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": {
+          "rot": 0.0,
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "hat": {
+          "rot": -0.8
+        },
+        "staff": {
+          "rot": 1.0
+        },
+        "arm": {
+          "rot": 0.5
+        },
+        "foot_a": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        "foot_b": {
+          "pos": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    {
+      "time": 2.0,
+      "ease": "in_out",
+      "poses": {}
+    }
+  ]
+}

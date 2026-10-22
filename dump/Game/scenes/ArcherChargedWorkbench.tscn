@@ -1,0 +1,168 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/ArcherChargedWorkbench.gd" id="1_wb"]
+[ext_resource type="PackedScene" path="res://scenes/archer_placeholder.tscn" id="2_archer"]
+[ext_resource type="PackedScene" path="res://scenes/arrow_shockwave.tscn" id="3_shockwave"]
+[ext_resource type="Shader" path="res://shaders/ground_tear.gdshader" id="4_tear_shader"]
+[ext_resource type="Shader" path="res://shaders/charged_arrow_energy.gdshader" id="5_arrow_shader"]
+[ext_resource type="Texture2D" path="res://sprites/archer_placeholder/charged_energy_arrow.png" id="6_arrow_tex"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tear"]
+shader = ExtResource("4_tear_shader")
+shader_parameter/fissure_hot_color = Color(1, 1, 1, 1)
+shader_parameter/fissure_mid_color = Color(1, 0.88, 0.08, 1)
+shader_parameter/fissure_cool_color = Color(0.86, 0.4, 0, 1)
+shader_parameter/lead_progress = 0.0
+shader_parameter/fade_progress = 0.0
+shader_parameter/slash_spacing = 18.0
+shader_parameter/slash_angle_slope = 0.85
+shader_parameter/opacity = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_proj"]
+shader = ExtResource("5_arrow_shader")
+shader_parameter/low_temp_color = Color(0.86, 0.52, 0, 1)
+shader_parameter/mid_temp_color = Color(1, 0.88, 0.08, 1)
+shader_parameter/high_temp_color = Color(1, 1, 1, 1)
+shader_parameter/charge_progress = 1.0
+shader_parameter/energy_boost = 1.4
+shader_parameter/tip_radiance = 0.0
+shader_parameter/shimmer_speed = 16.0
+shader_parameter/opacity = 1.0
+
+[node name="ArcherChargedWorkbench" type="Node2D"]
+script = ExtResource("1_wb")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.92, 0.93, 0.95, 1)
+
+[node name="GroundLine" type="ColorRect" parent="."]
+offset_left = 60.0
+offset_top = 420.0
+offset_right = 1220.0
+offset_bottom = 424.0
+color = Color(0.12, 0.12, 0.14, 1)
+
+[node name="GroundTearRect" type="ColorRect" parent="."]
+z_index = 1
+material = SubResource("ShaderMaterial_tear")
+offset_left = 280.0
+offset_top = 408.0
+offset_right = 1240.0
+offset_bottom = 436.0
+
+[node name="TrailLine" type="Line2D" parent="."]
+z_index = 2
+width = 6.0
+default_color = Color(1, 0.9, 0.2, 0.85)
+
+[node name="ShockwaveNode" parent="." instance=ExtResource("3_shockwave")]
+visible = false
+z_index = 3
+scale = Vector2(4, 4)
+auto_free = false
+
+[node name="ProjectileNode" type="Node2D" parent="."]
+visible = false
+z_index = 3
+scale = Vector2(4, 4)
+
+[node name="Sprite2D" type="Sprite2D" parent="ProjectileNode"]
+texture_filter = 1
+material = SubResource("ShaderMaterial_proj")
+texture = ExtResource("6_arrow_tex")
+offset = Vector2(21, 0)
+
+[node name="ArcherPlaceholder" parent="." instance=ExtResource("2_archer")]
+position = Vector2(280, 420)
+scale = Vector2(4, 4)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 1256.0
+offset_bottom = 180.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "🏹 ARCHER PLACEHOLDER: CHARGED ATTACK CHOREOGRAPHY WORKBENCH"
+
+[node name="HBoxFrames" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BtnF1" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(170, 34)
+layout_mode = 2
+text = "Frame 1: Raise Bow"
+
+[node name="BtnF2" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(180, 34)
+layout_mode = 2
+text = "Frame 2: Grip String"
+
+[node name="BtnF3" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(210, 34)
+layout_mode = 2
+text = "Frame 3: Draw & Energy Arrow"
+
+[node name="BtnF4" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(240, 34)
+layout_mode = 2
+text = "Frame 4: Max Charge (Tip Radiance)"
+
+[node name="BtnF5" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(220, 34)
+layout_mode = 2
+text = "Frame 5: Release & Ground Tear"
+
+[node name="HBoxActions" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnHoldCharge" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxActions"]
+custom_minimum_size = Vector2(220, 32)
+layout_mode = 2
+text = "⚡ HOLD TO CHARGE (Release to Fire)"
+
+[node name="BtnResetIdle" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxActions"]
+custom_minimum_size = Vector2(120, 32)
+layout_mode = 2
+text = "Reset Idle"
+
+[node name="HBoxScrub" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="LabelScrub" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Scrub Frame:"
+
+[node name="SliderScrub" type="HSlider" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 5.0
+step = 0.01
+value = 1.0
+
+[node name="LabelFrameInfo" type="Label" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "ACTIVE STATE: FRAME 1: RAISE BOW"
+
+[node name="LabelDetails" type="Label" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Left arm raises red bow upright; right free arm relaxed."

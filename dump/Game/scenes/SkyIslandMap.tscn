@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/SkyIslandGrid.gd" id="1_grid"]
+[ext_resource type="Texture2D" path="res://Floating_Sky_Island.png" id="2_bg"]
+
+[node name="SkyIslandMap" type="Node2D"]
+
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -10
+texture = ExtResource("2_bg")
+centered = false
+
+[node name="Grid" type="Node2D" parent="."]
+script = ExtResource("1_grid")
+debug_show_grid = false

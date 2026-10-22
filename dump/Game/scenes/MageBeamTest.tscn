@@ -1,0 +1,75 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/mage_beam_test.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/universal_motor.gd" id="2_motor"]
+[ext_resource type="Script" path="res://Mage/MageController.gd" id="3_controller"]
+[ext_resource type="Script" path="res://Mage/anim/Quad Beam/mage_beam_burst.gd" id="4_burst"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_beam"]
+shader = ExtResource("4_burst")
+shader_parameter/key_floor = 0.45
+
+[node name="MageBeamTest" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.09, 0.1, 0.13, 1)
+
+[node name="Ground" type="ColorRect" parent="."]
+offset_top = 470.0
+offset_right = 1280.0
+offset_bottom = 490.0
+color = Color(0.2, 0.22, 0.28, 1)
+
+[node name="Motor" type="Node2D" parent="."]
+position = Vector2(320, 470)
+script = ExtResource("2_motor")
+controller = NodePath("Controller")
+
+[node name="Controller" type="Node2D" parent="Motor"]
+script = ExtResource("3_controller")
+
+[node name="BeamBurst" type="Node2D" parent="Motor"]
+position = Vector2(0, -22)
+script = ExtResource("4_burst")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 620.0
+offset_bottom = 190.0
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "MAGE - BEAM ULTIMATE"
+
+[node name="RowButtons" type="HBoxContainer" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnFire" type="Button" parent="CanvasLayer/Panel/VBox/RowButtons"]
+custom_minimum_size = Vector2(140, 36)
+layout_mode = 2
+text = "☄ Fire the shot"
+
+[node name="RowFacings" type="HBoxContainer" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RowReadout" type="HBoxContainer" parent="CanvasLayer/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LabelDirection" type="Label" parent="CanvasLayer/Panel/VBox/RowReadout"]
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+text = "Facing -"

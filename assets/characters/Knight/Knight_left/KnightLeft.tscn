@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/Knight/Knight_left/KnightLeftRig.gd" id="1_rig"]
+[ext_resource type="Texture2D" path="res://assets/characters/Knight/Knight_left/Knight_left_clean.png" id="2_tex"]
+
+[node name="KnightLeft" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_rig")
+
+[node name="Body" type="Sprite2D" parent="."]
+z_index = 0
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(64, 0, 24, 32)
+centered = false
+offset = Vector2(-10, -31)
+position = Vector2(5, -1)
+metadata/pivot = Vector2(10, 31)
+
+[node name="Sword" type="Sprite2D" parent="."]
+z_index = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 7, 9)
+centered = false
+offset = Vector2(-5, 0)
+position = Vector2(-3, -17)
+metadata/pivot = Vector2(5, 0)
+
+[node name="Boot_a" type="Sprite2D" parent="."]
+z_index = 2
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(32, 0, 9, 6)
+centered = false
+offset = Vector2(-6, 0)
+position = Vector2(0, -6)
+metadata/pivot = Vector2(6, 0)

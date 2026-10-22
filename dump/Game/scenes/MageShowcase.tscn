@@ -1,0 +1,182 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/mage_showcase.gd" id="1_showcase"]
+
+[node name="MageShowcase" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_showcase")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.12, 0.13, 0.16, 1)
+
+[node name="Labels" type="Node2D" parent="."]
+
+[node name="LabelFront" type="Label" parent="Labels"]
+offset_left = 120.0
+offset_top = 640.0
+offset_right = 310.0
+offset_bottom = 670.0
+theme_override_font_sizes/font_size = 18
+text = "FRONT VIEW"
+
+[node name="LabelBack" type="Label" parent="Labels"]
+offset_left = 420.0
+offset_top = 640.0
+offset_right = 610.0
+offset_bottom = 670.0
+theme_override_font_sizes/font_size = 18
+text = "BACK VIEW"
+
+[node name="LabelLeft" type="Label" parent="Labels"]
+offset_left = 720.0
+offset_top = 640.0
+offset_right = 910.0
+offset_bottom = 670.0
+theme_override_font_sizes/font_size = 18
+text = "LEFT VIEW"
+
+[node name="LabelRight" type="Label" parent="Labels"]
+offset_left = 1020.0
+offset_top = 640.0
+offset_right = 1210.0
+offset_bottom = 670.0
+theme_override_font_sizes/font_size = 18
+text = "RIGHT VIEW"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 30.0
+offset_top = 24.0
+offset_right = 1250.0
+offset_bottom = 222.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "🧙 MODULAR MAGE: 4 PERSPECTIVES RIG DEMO"
+
+[node name="HBoxControls" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BtnToggleHat" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+text = "Toggle Hat"
+
+[node name="BtnToggleStaff" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+text = "Toggle Staff"
+
+[node name="BtnRotateStaff" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+text = "Rotate Staff Pivot"
+
+[node name="BtnReset" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(140, 36)
+layout_mode = 2
+text = "Reset Pose"
+
+[node name="BtnPlayIdle" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+text = "▶ Play Idle"
+
+[node name="BtnCast" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(130, 36)
+layout_mode = 2
+text = "✦ Cast"
+
+
+
+
+
+
+
+[node name="HBoxControls2" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BtnTeleport" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+text = "✧ Teleport"
+
+[node name="BtnReappear" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+custom_minimum_size = Vector2(170, 36)
+layout_mode = 2
+text = "✧ Reappear"
+
+[node name="BtnFireball" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+text = "🔥 Fireball"
+
+[node name="BtnBarrier" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+text = "✦ Barrier"
+
+[node name="BtnDismiss" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+custom_minimum_size = Vector2(150, 36)
+layout_mode = 2
+text = "✕ Dismiss"
+
+[node name="BtnStop" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+custom_minimum_size = Vector2(120, 36)
+layout_mode = 2
+text = "■ Stop"
+
+[node name="BtnMeteorite" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls2"]
+custom_minimum_size = Vector2(190, 36)
+layout_mode = 2
+text = "☄ Meteorite"
+
+
+[node name="HBoxScrub" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LabelScrub" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Clip Progress"
+
+[node name="SliderScrub" type="HSlider" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+step = 0.1
+
+[node name="ValScrub" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "idle 0%"
+
+[node name="LabelSpeed" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "Speed"
+
+[node name="SliderSpeed" type="HSlider" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+min_value = 0.1
+max_value = 2.0
+step = 0.05
+value = 1.0
+
+[node name="ValSpeed" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+text = "1.00x"

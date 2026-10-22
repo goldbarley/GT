@@ -1,0 +1,2816 @@
+{
+ "clip": "mage_meteorite",
+ "description": "Meteorite. The mage winds up, jumps, and floats high on her own magic. Her staff lights up and a burning meteorite comes down out of the sky, shaking the camera, and detonates on the ground in a mushroom cloud. Half a second after the blast she comes back down.",
+ "fps": 15,
+ "loop": false,
+ "duration": 7.413,
+ "interpolation": "smooth",
+ "fx": {
+  "node": "MeteoriteFX",
+  "clip": true,
+  "spawn": "ExplosionFX",
+  "dim": "MeteoriteDim"
+ },
+ "perspectives": {
+  "front": {
+   "keys": [
+    {
+     "time": 0.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 0.35,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.27999999999999997
+     }
+    },
+    {
+     "time": 0.5,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.58,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.72,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 3.6
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 1.0,
+      "dust_spread": 0.05,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.82,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -12.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 2.4
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.85,
+      "dust_spread": 0.18,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.95,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -13.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.8
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.55,
+      "dust_spread": 0.45,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 1.25,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -16.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 1.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 2.2,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 2.65,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 53.69999999999999
+      },
+      "staff": {
+       "rot": -71.39999999999998
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 3.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 53.69999999999999
+      },
+      "staff": {
+       "rot": -71.39999999999998
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.15,
+      "camera_shake": 0.1,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 3.3325,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 53.69999999999999
+      },
+      "staff": {
+       "rot": -71.39999999999998
+      }
+     },
+     "fx": {
+      "meteor_y": 175.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.5,
+      "camera_shake": 0.45,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 4.418333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 53.69999999999999
+      },
+      "staff": {
+       "rot": -71.39999999999998
+      }
+     },
+     "fx": {
+      "meteor_y": 70.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.0,
+      "camera_shake": 0.85,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 4.953333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 53.69999999999999
+      },
+      "staff": {
+       "rot": -71.39999999999998
+      }
+     },
+     "fx": {
+      "meteor_y": 8.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.4,
+      "camera_shake": 1.0,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 5.083333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 53.69999999999999
+      },
+      "staff": {
+       "rot": -71.39999999999998
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.4,
+      "camera_shake": 1.0,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.39733333333333365
+     }
+    },
+    {
+     "time": 5.3133333333333335,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 53.69999999999999
+      },
+      "staff": {
+       "rot": -71.39999999999998
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.15,
+      "cloud_age": 0.0,
+      "shake": 1.0,
+      "camera_shake": 0.6,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.2133333333333333
+     }
+    },
+    {
+     "time": 5.583333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 53.69999999999999
+      },
+      "staff": {
+       "rot": -71.39999999999998
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.35,
+      "cloud_age": 0.14,
+      "shake": 0.4,
+      "camera_shake": 0.2,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 6.433333333333334,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.55,
+      "cloud_age": 0.53,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 7.3133333333333335,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 1.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 7.363333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 1.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    }
+   ]
+  },
+  "back": {
+   "keys": [
+    {
+     "time": 0.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 0.35,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.27999999999999997
+     }
+    },
+    {
+     "time": 0.5,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.58,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.72,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 3.6
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 1.0,
+      "dust_spread": 0.05,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.82,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -12.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 2.4
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.85,
+      "dust_spread": 0.18,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.95,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -13.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.8
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.55,
+      "dust_spread": 0.45,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 1.25,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -16.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 1.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 2.2,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 2.65,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -43.400000000000006
+      },
+      "staff": {
+       "rot": 65.79999999999995
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 3.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -43.400000000000006
+      },
+      "staff": {
+       "rot": 65.79999999999995
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.15,
+      "camera_shake": 0.1,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 3.3325,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -43.400000000000006
+      },
+      "staff": {
+       "rot": 65.79999999999995
+      }
+     },
+     "fx": {
+      "meteor_y": 175.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.5,
+      "camera_shake": 0.45,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 4.418333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -43.400000000000006
+      },
+      "staff": {
+       "rot": 65.79999999999995
+      }
+     },
+     "fx": {
+      "meteor_y": 70.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.0,
+      "camera_shake": 0.85,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 4.953333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -43.400000000000006
+      },
+      "staff": {
+       "rot": 65.79999999999995
+      }
+     },
+     "fx": {
+      "meteor_y": 8.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.4,
+      "camera_shake": 1.0,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 5.083333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -43.400000000000006
+      },
+      "staff": {
+       "rot": 65.79999999999995
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.4,
+      "camera_shake": 1.0,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.39733333333333365
+     }
+    },
+    {
+     "time": 5.3133333333333335,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -43.400000000000006
+      },
+      "staff": {
+       "rot": 65.79999999999995
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.15,
+      "cloud_age": 0.0,
+      "shake": 1.0,
+      "camera_shake": 0.6,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.2133333333333333
+     }
+    },
+    {
+     "time": 5.583333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -43.400000000000006
+      },
+      "staff": {
+       "rot": 65.79999999999995
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.35,
+      "cloud_age": 0.14,
+      "shake": 0.4,
+      "camera_shake": 0.2,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 6.433333333333334,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.55,
+      "cloud_age": 0.53,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 7.3133333333333335,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 1.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 7.363333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 1.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    }
+   ]
+  },
+  "left": {
+   "keys": [
+    {
+     "time": 0.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 0.35,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.27999999999999997
+     }
+    },
+    {
+     "time": 0.5,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.58,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.72,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 3.6
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 1.0,
+      "dust_spread": 0.05,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.82,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -12.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 2.4
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.85,
+      "dust_spread": 0.18,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.95,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -13.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.8
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.55,
+      "dust_spread": 0.45,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 1.25,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -16.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 1.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 2.2,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 2.65,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "staff": {
+       "rot": -17.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 3.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "staff": {
+       "rot": -17.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.15,
+      "camera_shake": 0.1,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 3.3325,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "staff": {
+       "rot": -17.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 175.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.5,
+      "camera_shake": 0.45,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 4.418333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "staff": {
+       "rot": -17.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 70.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.0,
+      "camera_shake": 0.85,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 4.953333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "staff": {
+       "rot": -17.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 8.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.4,
+      "camera_shake": 1.0,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 5.083333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "staff": {
+       "rot": -17.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.4,
+      "camera_shake": 1.0,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.39733333333333365
+     }
+    },
+    {
+     "time": 5.3133333333333335,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "staff": {
+       "rot": -17.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.15,
+      "cloud_age": 0.0,
+      "shake": 1.0,
+      "camera_shake": 0.6,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.2133333333333333
+     }
+    },
+    {
+     "time": 5.583333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": -4.0
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "staff": {
+       "rot": -17.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.35,
+      "cloud_age": 0.14,
+      "shake": 0.4,
+      "camera_shake": 0.2,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 6.433333333333334,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.55,
+      "cloud_age": 0.53,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 7.3133333333333335,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 1.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 7.363333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 1.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    }
+   ]
+  },
+  "right": {
+   "keys": [
+    {
+     "time": 0.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 0.35,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.27999999999999997
+     }
+    },
+    {
+     "time": 0.5,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.58,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 4.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.72,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 3.6
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 1.0,
+      "dust_spread": 0.05,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.82,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -12.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 2.4
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.85,
+      "dust_spread": 0.18,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 0.95,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -13.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.8
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.55,
+      "dust_spread": 0.45,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 1.25,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -16.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 1.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 2.2,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 2.65,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -99.7
+      },
+      "staff": {
+       "rot": 64.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 3.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -99.7
+      },
+      "staff": {
+       "rot": 64.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 260.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.15,
+      "camera_shake": 0.1,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 3.3325,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -99.7
+      },
+      "staff": {
+       "rot": 64.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 175.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 0.5,
+      "camera_shake": 0.45,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 4.418333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -99.7
+      },
+      "staff": {
+       "rot": 64.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 70.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.0,
+      "camera_shake": 0.85,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 4.953333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -99.7
+      },
+      "staff": {
+       "rot": 64.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 8.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.4,
+      "camera_shake": 1.0,
+      "gem_glow": 1.0,
+      "spawn": 0.0,
+      "dim": 0.4
+     }
+    },
+    {
+     "time": 5.083333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -99.7
+      },
+      "staff": {
+       "rot": 64.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 0.0,
+      "shake": 1.4,
+      "camera_shake": 1.0,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.39733333333333365
+     }
+    },
+    {
+     "time": 5.3133333333333335,
+     "ease": "out_cubic",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -99.7
+      },
+      "staff": {
+       "rot": 64.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.15,
+      "cloud_age": 0.0,
+      "shake": 1.0,
+      "camera_shake": 0.6,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.2133333333333333
+     }
+    },
+    {
+     "time": 5.583333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": -48.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       },
+       "rot": 4.0
+      },
+      "arm": {
+       "rot": -99.7
+      },
+      "staff": {
+       "rot": 64.69999999999999
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.35,
+      "cloud_age": 0.14,
+      "shake": 0.4,
+      "camera_shake": 0.2,
+      "gem_glow": 1.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 6.433333333333334,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.55,
+      "cloud_age": 0.53,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 7.3133333333333335,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 1.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    },
+    {
+     "time": 7.363333333333333,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0.0
+       }
+      }
+     },
+     "fx": {
+      "meteor_y": 0.0,
+      "meteor_x": 60.0,
+      "dust": 0.0,
+      "dust_spread": 0.0,
+      "explode": 0.0,
+      "aftermath": 0.0,
+      "cloud_age": 1.0,
+      "shake": 0.0,
+      "camera_shake": 0.0,
+      "gem_glow": 0.0,
+      "spawn": 1.0,
+      "dim": 0.0
+     }
+    }
+   ]
+  }
+ }
+}

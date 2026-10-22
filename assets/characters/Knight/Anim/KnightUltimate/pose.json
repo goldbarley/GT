@@ -1,0 +1,18 @@
+{
+ "right": {
+  "role": "arm",
+  "angle": -79.0
+ },
+ "left": {
+  "role": "sword",
+  "angle": 173.0
+ },
+ "front": {
+  "role": "arm",
+  "angle": -135.0
+ },
+ "back": {
+  "role": "arm",
+  "angle": -160.0
+ }
+}

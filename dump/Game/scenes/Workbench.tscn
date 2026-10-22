@@ -1,0 +1,693 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/Knight.tscn" id="2_knight"]
+[ext_resource type="Texture2D" path="res://sprites/assembled_reference.png" id="3_ref"]
+[ext_resource type="PackedScene" path="res://knight_back/KnightBack.tscn" id="4_knight_back"]
+[ext_resource type="Texture2D" path="res://knight_back/sprites/assembled_reference.png" id="5_ref_back"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(480, 320)
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 960.0
+offset_bottom = 640.0
+color = Color(0.117647, 0.129412, 0.156863, 1)
+
+[node name="StagePedestal" type="ColorRect" parent="."]
+offset_left = 150.0
+offset_top = 376.0
+offset_right = 430.0
+offset_bottom = 392.0
+color = Color(0.176471, 0.203922, 0.25098, 1)
+
+[node name="ReferenceOverlay" type="Sprite2D" parent="."]
+visible = false
+modulate = Color(1, 1, 1, 0.45)
+position = Vector2(290, 380)
+scale = Vector2(6, 6)
+texture = ExtResource("3_ref")
+centered = false
+offset = Vector2(-14, -32)
+
+[node name="Knight" parent="." instance=ExtResource("2_knight")]
+position = Vector2(290, 380)
+scale = Vector2(6, 6)
+
+[node name="KnightBack" parent="." instance=ExtResource("4_knight_back")]
+visible = false
+position = Vector2(290, 380)
+scale = Vector2(6, 6)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TopPanel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 16.0
+offset_top = 8.0
+offset_right = 944.0
+offset_bottom = 54.0
+
+[node name="HBoxTop" type="HBoxContainer" parent="CanvasLayer/TopPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/TopPanel/HBoxTop"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "⚔️ KNIGHT RIGGING & CALIBRATION WORKBENCH"
+
+[node name="VSeparator1" type="VSeparator" parent="CanvasLayer/TopPanel/HBoxTop"]
+layout_mode = 2
+
+[node name="LabelView" type="Label" parent="CanvasLayer/TopPanel/HBoxTop"]
+layout_mode = 2
+text = "Perspective:"
+
+[node name="BtnViewRight" type="Button" parent="CanvasLayer/TopPanel/HBoxTop"]
+custom_minimum_size = Vector2(110, 28)
+layout_mode = 2
+text = "➡️ Right View"
+
+[node name="BtnViewBack" type="Button" parent="CanvasLayer/TopPanel/HBoxTop"]
+custom_minimum_size = Vector2(110, 28)
+layout_mode = 2
+text = "⬆️ Back View"
+
+[node name="VSeparator2" type="VSeparator" parent="CanvasLayer/TopPanel/HBoxTop"]
+layout_mode = 2
+
+[node name="CheckOverlay" type="CheckBox" parent="CanvasLayer/TopPanel/HBoxTop"]
+layout_mode = 2
+text = "Ghost Ref (R)"
+
+[node name="VSeparator3" type="VSeparator" parent="CanvasLayer/TopPanel/HBoxTop"]
+layout_mode = 2
+
+[node name="CheckPivots" type="CheckBox" parent="CanvasLayer/TopPanel/HBoxTop"]
+layout_mode = 2
+button_pressed = true
+text = "Show Pivots (P)"
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer"]
+offset_left = 16.0
+offset_top = 405.0
+offset_right = 585.0
+offset_bottom = 628.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="HBoxControls" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnAttack" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(130, 28)
+layout_mode = 2
+text = "⚔ SLASH (LMB)"
+
+[node name="BtnStab" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(130, 28)
+layout_mode = 2
+text = "🗡 STAB (RMB)"
+
+[node name="BtnPlunge" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxControls"]
+custom_minimum_size = Vector2(150, 28)
+layout_mode = 2
+text = "💥 PLUNGE (MMB)"
+
+[node name="HBoxSpeeds" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LabelSpeed" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxSpeeds"]
+layout_mode = 2
+text = "Speed: "
+
+[node name="Btn100" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxSpeeds"]
+custom_minimum_size = Vector2(65, 24)
+layout_mode = 2
+text = "1.0x (1)"
+
+[node name="Btn50" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxSpeeds"]
+custom_minimum_size = Vector2(65, 24)
+layout_mode = 2
+text = "0.5x (2)"
+
+[node name="Btn25" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxSpeeds"]
+custom_minimum_size = Vector2(65, 24)
+layout_mode = 2
+text = "0.25x (3)"
+
+[node name="Btn10" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxSpeeds"]
+custom_minimum_size = Vector2(65, 24)
+layout_mode = 2
+text = "0.10x (4)"
+
+[node name="HBoxFrames" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LabelFrames" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+layout_mode = 2
+text = "Frame: "
+
+[node name="BtnF1" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F1"
+
+[node name="BtnF2" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F2"
+
+[node name="BtnF3" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F3"
+
+[node name="BtnF4" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F4"
+
+[node name="BtnF5" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F5"
+
+[node name="BtnF6" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F6"
+
+[node name="BtnF7" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F7"
+
+[node name="BtnF8" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F8"
+
+[node name="BtnF9" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F9"
+
+[node name="BtnF10" type="Button" parent="CanvasLayer/Panel/VBoxContainer/HBoxFrames"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "F10"
+
+[node name="HBoxScrub" type="HBoxContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+
+[node name="LabelScrub" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+custom_minimum_size = Vector2(85, 0)
+layout_mode = 2
+text = "Scrub:"
+
+[node name="SliderScrub" type="HSlider" parent="CanvasLayer/Panel/VBoxContainer/HBoxScrub"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 100.0
+step = 0.5
+
+[node name="GridTelemetry" type="GridContainer" parent="CanvasLayer/Panel/VBoxContainer"]
+layout_mode = 2
+columns = 4
+
+[node name="LblFrame" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+text = "Frame:"
+
+[node name="ValFrame" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "Frame 1 / 7"
+
+[node name="LblPhase" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+text = "Phase:"
+
+[node name="ValPhase" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "Stationary Rest"
+
+[node name="LblWristStatus" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+text = "Wrist Joint:"
+
+[node name="ValWristStatus" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.9, 0.5, 1)
+text = "LOCKED"
+
+[node name="LblSlash" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+text = "Slash Effect:"
+
+[node name="ValSlash" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+text = "Off"
+
+[node name="LblShoulder" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+text = "Shoulder Angle:"
+
+[node name="ValShoulder" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+text = "0.0°"
+
+[node name="LblWrist" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+text = "Wrist Angle:"
+
+[node name="ValWrist" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+text = "0.0°"
+
+[node name="LblScale" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+text = "Sword Scale:"
+
+[node name="ValScale" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+text = "1.00x"
+
+[node name="LblYOffset" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+text = "Height Offset:"
+
+[node name="ValYOffset" type="Label" parent="CanvasLayer/Panel/VBoxContainer/GridTelemetry"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+text = "0.0 px"
+
+[node name="TuningScroll" type="ScrollContainer" parent="CanvasLayer"]
+offset_left = 600.0
+offset_top = 64.0
+offset_right = 948.0
+offset_bottom = 628.0
+horizontal_scroll_mode = 0
+
+[node name="TuningPanel" type="PanelContainer" parent="CanvasLayer/TuningScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxTuning" type="VBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LabelTitle" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = "🛠 LIVE JOINT CALIBRATOR"
+horizontal_alignment = 1
+
+[node name="LabelSub" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_font_sizes/font_size = 11
+text = "Tweak sliders below to calibrate pose live:"
+horizontal_alignment = 1
+
+[node name="Sep1" type="HSeparator" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="SecShoulder" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+text = "Arm / Shoulder Joint:"
+
+[node name="HBoxShoulderX" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderX"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Shoulder X:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderX"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -30.0
+max_value = 30.0
+step = 0.5
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderX"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="HBoxShoulderY" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderY"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Shoulder Y:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderY"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -40.0
+max_value = 20.0
+step = 0.5
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderY"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="HBoxShoulderRot" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderRot"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Arm Angle:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderRot"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -180.0
+max_value = 180.0
+step = 1.0
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxShoulderRot"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0°"
+horizontal_alignment = 2
+
+[node name="Sep2" type="HSeparator" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="SecWrist" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 0.5, 1)
+text = "Wrist / Sword Pivot:"
+
+[node name="HBoxWristX" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristX"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Wrist X:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristX"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -30.0
+max_value = 30.0
+step = 0.5
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristX"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="HBoxWristY" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristY"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Wrist Y:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristY"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -30.0
+max_value = 30.0
+step = 0.5
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristY"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="HBoxWristRot" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristRot"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Wrist Angle:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristRot"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -180.0
+max_value = 180.0
+step = 1.0
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxWristRot"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0°"
+horizontal_alignment = 2
+
+[node name="HBoxSwordX" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordX"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Sword X:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordX"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -30.0
+max_value = 30.0
+step = 0.5
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordX"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="HBoxSwordY" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordY"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Sword Y:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordY"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -30.0
+max_value = 30.0
+step = 0.5
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordY"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="Sep3" type="HSeparator" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="SecScale" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.2, 1)
+text = "Scale & Body Position:"
+
+[node name="HBoxSwordScale" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordScale"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Sword Scale:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordScale"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.5
+max_value = 2.5
+step = 0.05
+value = 1.0
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxSwordScale"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "1.00x"
+horizontal_alignment = 2
+
+[node name="HBoxArmScale" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxArmScale"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Arm Scale:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxArmScale"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.5
+max_value = 2.0
+step = 0.05
+value = 1.0
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxArmScale"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "1.00x"
+horizontal_alignment = 2
+
+[node name="HBoxBodyX" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxBodyX"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Body X:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxBodyX"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -30.0
+max_value = 30.0
+step = 0.5
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxBodyX"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="HBoxBodyY" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="Lbl" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxBodyY"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Body Y:"
+
+[node name="Slider" type="HSlider" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxBodyY"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -50.0
+max_value = 20.0
+step = 0.5
+
+[node name="Val" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxBodyY"]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="Sep4" type="HSeparator" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="SecZ" type="Label" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.4, 0.9, 1)
+text = "Layering (Z-Index):"
+
+[node name="HBoxChecks" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="CheckArmZ" type="CheckBox" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxChecks"]
+layout_mode = 2
+button_pressed = true
+text = "Arm Front"
+
+[node name="CheckSwordZ" type="CheckBox" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxChecks"]
+layout_mode = 2
+text = "Sword Front"
+
+[node name="Sep5" type="HSeparator" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+
+[node name="HBoxButtons" type="HBoxContainer" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnSyncPose" type="Button" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🔄 Sync"
+
+[node name="BtnResetRest" type="Button" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning/HBoxButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "↺ Reset"
+
+[node name="BtnCopyPose" type="Button" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+text = "📋 COPY POSE CODE"
+
+[node name="TextPoseOutput" type="TextEdit" parent="CanvasLayer/TuningScroll/TuningPanel/VBoxTuning"]
+custom_minimum_size = Vector2(0, 90)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+editable = false
+wrap_mode = 1

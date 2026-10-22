@@ -1,0 +1,49 @@
+{
+  "clip": "idle",
+  "description": "Breathing idle shared by all four perspectives. The torso group lifts the chest a single pixel, the hat tilts on its neck pivot, the staff drifts on the grip and the arm sways with the chest.",
+  "fps": 8,
+  "loop": true,
+  "duration": 2.0,
+  "keys": [
+    {
+      "time": 0.0,
+      "ease": "in_out",
+      "poses": {}
+    },
+    {
+      "time": 0.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": 0.0, "pos": { "x": 0, "y": -1 } },
+        "hat": { "rot": -0.8 },
+        "staff": { "rot": 1.0 },
+        "arm": { "rot": 0.5 }
+      }
+    },
+    {
+      "time": 1.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": 0.0, "pos": { "x": 0, "y": -1 } },
+        "hat": { "rot": -1.5 },
+        "staff": { "rot": 2.0 },
+        "arm": { "rot": 1.0 }
+      }
+    },
+    {
+      "time": 1.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": 0.0, "pos": { "x": 0, "y": -1 } },
+        "hat": { "rot": -0.8 },
+        "staff": { "rot": 1.0 },
+        "arm": { "rot": 0.5 }
+      }
+    },
+    {
+      "time": 2.0,
+      "ease": "in_out",
+      "poses": {}
+    }
+  ]
+}

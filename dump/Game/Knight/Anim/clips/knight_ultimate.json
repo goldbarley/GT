@@ -1,0 +1,848 @@
+{
+ "clip": "knight_ultimate",
+ "description": "Knight's Edge, the Knight's ultimate attack. He raises the sword and the blade catches fire, the world goes to pitch black, and the fire sweeps across the dark. The frames and the shaders live in Knight/Anim/KnightUltimate.",
+ "fps": 24,
+ "loop": false,
+ "duration": 3.0,
+ "interpolation": "smooth",
+ "fx": {
+  "node": "KnightUltimateFX"
+ },
+ "perspectives": {
+  "front": {
+   "keys": [
+    {
+     "time": 0.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 0.44000000000000006,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -74.25
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.45,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 0.8,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -135.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 1.0,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 1.3,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -135.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 1.0,
+      "dim": 1.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 2.2,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -135.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 1.0,
+      "slash_t": 1.0,
+      "slash": 1.0
+     }
+    },
+    {
+     "time": 2.75,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -135.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 1.0,
+      "slash_t": 1.0,
+      "slash": 1.0
+     }
+    },
+    {
+     "time": 3.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 0.0,
+      "slash_t": 1.0,
+      "slash": 0.0
+     }
+    }
+   ]
+  },
+  "back": {
+   "keys": [
+    {
+     "time": 0.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 0.44000000000000006,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -88.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.45,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 0.8,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -160.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 1.0,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 1.3,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -160.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 1.0,
+      "dim": 1.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 2.2,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -160.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 1.0,
+      "slash_t": 1.0,
+      "slash": 1.0
+     }
+    },
+    {
+     "time": 2.75,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -160.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 1.0,
+      "slash_t": 1.0,
+      "slash": 1.0
+     }
+    },
+    {
+     "time": 3.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 0.0,
+      "slash_t": 1.0,
+      "slash": 0.0
+     }
+    }
+   ]
+  },
+  "left": {
+   "keys": [
+    {
+     "time": 0.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 0.44000000000000006,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "sword": {
+       "rot": 95.15
+      }
+     },
+     "fx": {
+      "charge": 0.45,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 0.8,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "sword": {
+       "rot": 173.0
+      }
+     },
+     "fx": {
+      "charge": 1.0,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 1.3,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "sword": {
+       "rot": 173.0
+      }
+     },
+     "fx": {
+      "charge": 1.0,
+      "dim": 1.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 2.2,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "sword": {
+       "rot": 173.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 1.0,
+      "slash_t": 1.0,
+      "slash": 1.0
+     }
+    },
+    {
+     "time": 2.75,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "sword": {
+       "rot": 173.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 1.0,
+      "slash_t": 1.0,
+      "slash": 1.0
+     }
+    },
+    {
+     "time": 3.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 0.0,
+      "slash_t": 1.0,
+      "slash": 0.0
+     }
+    }
+   ]
+  },
+  "right": {
+   "keys": [
+    {
+     "time": 0.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 0.44000000000000006,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -43.45
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.45,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 0.8,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -79.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 1.0,
+      "dim": 0.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 1.3,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -79.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 1.0,
+      "dim": 1.0,
+      "slash_t": 0.0,
+      "slash": 0.0
+     }
+    },
+    {
+     "time": 2.2,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -79.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 1.0,
+      "slash_t": 1.0,
+      "slash": 1.0
+     }
+    },
+    {
+     "time": 2.75,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": -79.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 1.0,
+      "slash_t": 1.0,
+      "slash": 1.0
+     }
+    },
+    {
+     "time": 3.0,
+     "ease": "in_out",
+     "poses": {
+      "root": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "torso": {
+       "pos": {
+        "x": 0,
+        "y": 0
+       }
+      },
+      "arm": {
+       "rot": 0.0
+      },
+      "sword": {
+       "rot": 0.0
+      }
+     },
+     "fx": {
+      "charge": 0.0,
+      "dim": 0.0,
+      "slash_t": 1.0,
+      "slash": 0.0
+     }
+    }
+   ]
+  }
+ }
+}

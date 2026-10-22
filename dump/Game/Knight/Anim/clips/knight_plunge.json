@@ -1,0 +1,80 @@
+{
+  "clip": "knight_plunge",
+  "description": "Plunge. The knight winds up, leaps into the air with the sword raised, and drives it into the ground. The growing sword, the wake and the eruptions are not in this clip yet; it is the movement on its own.",
+  "fps": 24,
+  "loop": false,
+  "duration": 1.0,
+  "interpolation": "smooth",
+  "keys": [
+    {
+      "time": 0.0,
+      "ease": "in_out",
+      "poses": {
+        "root": { "pos": { "x": 0, "y": 0 } },
+        "arm": { "rot": 0.0 },
+        "sword": { "rot": 0.0 },
+        "torso": { "pos": { "x": 0, "y": 0 } }
+      }
+    },
+    {
+      "time": 0.15,
+      "ease": "out_cubic",
+      "poses": {
+        "root": { "pos": { "x": 0, "y": 0 } },
+        "arm": { "rot": -25.0 },
+        "sword": { "rot": 0.0 },
+        "torso": { "pos": { "x": 0, "y": 2 } }
+      }
+    },
+    {
+      "time": 0.35,
+      "ease": "out_cubic",
+      "poses": {
+        "root": { "pos": { "x": 0, "y": -28.0 } },
+        "arm": { "rot": -55.0 },
+        "sword": { "rot": 90.0 },
+        "torso": { "pos": { "x": 0, "y": 0 } }
+      }
+    },
+    {
+      "time": 0.6,
+      "ease": "in_out",
+      "poses": {
+        "root": { "pos": { "x": 0, "y": -30.0 } },
+        "arm": { "rot": -55.0 },
+        "sword": { "rot": 180.0 },
+        "torso": { "pos": { "x": 0, "y": 0 } }
+      }
+    },
+    {
+      "time": 0.75,
+      "ease": "in_quad",
+      "poses": {
+        "root": { "pos": { "x": 0, "y": 0 } },
+        "arm": { "rot": -55.0 },
+        "sword": { "rot": 180.0 },
+        "torso": { "pos": { "x": 0, "y": 0 } }
+      }
+    },
+    {
+      "time": 0.9,
+      "ease": "in_out",
+      "poses": {
+        "root": { "pos": { "x": 0, "y": 0 } },
+        "arm": { "rot": -55.0 },
+        "sword": { "rot": 180.0 },
+        "torso": { "pos": { "x": 0, "y": 0 } }
+      }
+    },
+    {
+      "time": 1.0,
+      "ease": "in_out",
+      "poses": {
+        "root": { "pos": { "x": 0, "y": 0 } },
+        "arm": { "rot": 0.0 },
+        "sword": { "rot": 0.0 },
+        "torso": { "pos": { "x": 0, "y": 0 } }
+      }
+    }
+  ]
+}
