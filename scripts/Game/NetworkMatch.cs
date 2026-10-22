@@ -58,11 +58,12 @@ public partial class NetworkMatch : Node
 
     bool Valid(Command c)
     {
-        if (c.Arguments == null) return false;
-        if (c.Viewer < 1 || c.Viewer > 2) return false;
-        if (c.Direction < 1 || c.Direction > 4 || c.Range < 1 || c.Range > 15 || c.Fighter < 0 || c.Fighter >= Session.TeamSize || c.Slot < 0 || c.Slot >= 15 || c.Action < -5 || c.Action > 5) return false;
+        if (c.Arguments == null || c.Phase != (int)Session.Phase) return false;
+        if (c.Viewer < 1 || c.Viewer > 2 || !Session.CanAct(c.Viewer)) return false;
+        if (c.Direction < 1 || c.Direction > 4 || c.Range < 1 || c.Range > 15 || c.Fighter < 0 || c.Fighter >= Session.TeamSize || c.Slot < 0 || c.Slot >= Session.PremoveLimit || c.Action < -5 || c.Action > 5) return false;
         return c.Name switch {
-            "Start" => c.Arguments.Length == 4,
+            "Start" => c.Arguments.Length == 6,
+            "RemoveFighter" => c.Arguments.Length == 2,
             "Deploy" => c.Arguments.Length == 4,
             "SetPerk" => c.Arguments.Length == 2 && c.Arguments[1] >= 0 && c.Arguments[1] <= 3,
             "UndoDeployment" or "ConfirmDeployment" or "ContinueHandoff" or "ClearPlan" or "LockPlan" or "FinishFutureSight" or "ConfirmFighter" => c.Arguments.Length == 1,
@@ -110,9 +111,10 @@ public partial class NetworkMatch : Node
             }
             switch (c.Name)
             {
-                case "Start": Session.Start(false, c.Arguments[2], c.Arguments[3]); break;
+                case "Start": Session.Start(false, c.Arguments[2], c.Arguments[3], c.Arguments[4], c.Arguments[5]); break;
                 case "Deploy": Session.DeployAs(c.Viewer, (CharacterClass)c.Arguments[1], c.Arguments[2], c.Arguments[3]); break;
                 case "SetPerk": Session.SetPerkAs(c.Viewer, c.Arguments[1]); break;
+                case "RemoveFighter": Session.RemoveFighterAs(c.Viewer, c.Arguments[1]); break;
                 case "UndoDeployment": Session.UndoDeploymentAs(c.Viewer); break;
                 case "ConfirmDeployment": Session.ConfirmDeploymentAs(c.Viewer); break;
                 case "ContinueHandoff": Session.ContinueHandoffAs(c.Viewer); break;

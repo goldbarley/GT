@@ -62,6 +62,8 @@ func show_direction(direction: int) -> void:
 		player.smooth_rotation = false
 		player.clips_directory = "res://assets/characters/Mage/anim/clips" if kind == 0 else "res://assets/characters/Knight/Anim/clips"
 		add_child(player)
+		if not player.is_inside_tree():
+			player._cache_rig()
 		player.clip_finished.connect(_finished)
 		rigs[perspective] = rig
 		players[perspective] = player
@@ -102,6 +104,12 @@ func fit_tile(size_in_pixels: float) -> void:
 	var scale_val := tile_size / maxf(canvas.x, canvas.y)
 	scale = Vector2.ONE * scale_val
 
+func fit_display(area: Vector2) -> void:
+	tile_size = 0.0
+	var bounds: Rect2 = rest_bounds[facing]
+	var factor := maxf(1.0, floorf(minf(area.x / maxf(bounds.size.x, 1.0), area.y / maxf(bounds.size.y, 1.0))))
+	scale = Vector2.ONE * factor
+
 func idle() -> void:
 	queue_redraw()
 	action_duration = 0.0
@@ -111,6 +119,20 @@ func idle() -> void:
 	active_clip = ""
 	current.playback_speed = 1.0
 	current.play("mage_idle" if kind == 0 else "knight_idle")
+
+func set_menu_walk(enabled: bool) -> void:
+	if current == null:
+		return
+	if enabled:
+		current.set_process(true)
+		current.playback_speed = 1.35
+		current.play("mage_walk" if kind == 0 else "knight_walk")
+	else:
+		current.set_process(false)
+
+func set_menu_direction(direction: int) -> void:
+	show_direction(direction)
+	set_menu_walk(true)
 
 func perform(action: int, direction: int, destination: Vector2, target: Vector2, duration: float) -> void:
 	action_duration = 0.0

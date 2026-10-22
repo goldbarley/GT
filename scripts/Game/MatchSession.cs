@@ -12,7 +12,10 @@ public sealed class Editor
 public sealed class MatchSession
 {
     public MatchPhase Phase = MatchPhase.Menu;
-    public int Viewer = 1, Local = 1, TeamSize = 1;
+    public int Viewer = 1, Local = 1, TeamSize = 1, PremoveLimit = 8;
+    readonly double[] planningSeconds = new double[2];
+    Random deploymentRandom = new();
+    public bool DeploymentReady(int player) => confirmed[player - 1];
     public bool Solo = true, Paused, Lan;
     public double Seconds, TickSeconds = 1.3;
     public string Message = "", HandoffText = "";
@@ -24,6 +27,8 @@ public sealed class MatchSession
     public readonly Editor[] Editors = { new(), new() };
     public MapElement[,] Map;
     public string MapName = "";
+    public int MapIndex;
+    public double PlanningRemaining(int player) => planningSeconds[player - 1];
     public event System.Action Changed;
     public event System.Action<Snapshot, Snapshot> TickPlayed;
     System.Action afterHandoff;
@@ -47,7 +52,7 @@ public sealed class MatchSession
     public int Action { get => Mine.Action; set => Mine.Action = value; }
 
     public Character Current => configured ? BattleEngine.getPlayer((uint)Viewer).getCharacter(Fighter) : null;
-    public bool PerkTurn => !Lan || PerkOrder == Local || (int)Perks[PerkOrder - 1] >= 0;
+    public bool PerkTurn => !Lan || !confirmed[Local - 1];
 
     public static string ClassName(CharacterClass c) => c == CharacterClass.WARRIOR ? "Knight" : c.ToString()[0] + c.ToString().Substring(1).ToLowerInvariant();
     public static string[] SkillNames(CharacterClass c) => c == CharacterClass.MAGE
@@ -70,39 +75,44 @@ public sealed class MatchSession
         _ => SkillNames(c)[-action - 1]
     };
 
-    public bool MyTurn
+    public bool MyTurn => CanAct(Local);
+
+    public bool CanAct(int player)
     {
-        get
+        if (!Lan) return true;
+        var details = BattleEngine.getDetails();
+        return Phase switch
         {
-            if (!Lan) return true;
-            var details = BattleEngine.getDetails();
-            switch (Phase)
-            {
-                case MatchPhase.Deploy: return !confirmed[Local - 1];
-                case MatchPhase.Planning: return details != null && !details.planningLocked[Local - 1] && !futureSightUsed;
-                case MatchPhase.Foresight: return true;
-                case MatchPhase.Selection: return details == null || details.selected[Local - 1] < 0;
-                default: return true;
-            }
-        }
+            MatchPhase.Deploy => !confirmed[player - 1],
+            MatchPhase.Planning => details != null && !details.planningLocked[player - 1],
+            MatchPhase.Foresight => Perks[player - 1] == SuperPerk.KingCrimson,
+            MatchPhase.Rewind => Perks[player - 1] == SuperPerk.DefyDestiny,
+            MatchPhase.Selection => details == null || details.selected[player - 1] < 0,
+            _ => true
+        };
     }
 
-    public void Start(bool solo, int size, int mapIndex = 0)
+    public void Start(bool solo, int size, int mapIndex = 0, int premoves = 8, int seed = 0)
     {
-        if (Route(nameof(Start), Local, solo ? 1 : 0, size, mapIndex)) return;
+        if (seed == 0) seed = Random.Shared.Next(1, int.MaxValue);
+        if (Route(nameof(Start), Local, solo ? 1 : 0, size, mapIndex, premoves, seed)) return;
+        PremoveLimit = Math.Clamp(premoves, 5, 10);
+        MapIndex = mapIndex;
+        deploymentRandom = new Random(seed);
         Solo = solo; TeamSize = size; Viewer = Lan ? Local : 1;
         configured = false; Paused = false; tickPending = false; Replay.Clear();
         for (int p = 0; p < 2; p++) { Rosters[p].Clear(); Spawns[p].Clear(); Used[p].Clear(); Editors[p] = new Editor(); }
         confirmed[0] = confirmed[1] = false;
         futureSightUsed = futureSightDone = false;
-        Perks[0] = Lan ? (SuperPerk)(-1) : SuperPerk.Teleport;
-        Perks[1] = Lan ? (SuperPerk)(-1) : SuperPerk.Tactician;
-        BattleEngine.setupEngine((uint)mapIndex);
+        Perks[0] = SuperPerk.Teleport;
+        Perks[1] = SuperPerk.Tactician;
+        BattleEngine.setupEngine((uint)mapIndex, (uint)seed);
         Map = BattleEngine.getCurrentMap().map;
         MapName = BattleEngine.getCurrentMap().name;
         PerkOrder = Lan ? BattleEngine.getFirstPerkPicker() : 1;
         SelectedClass = 0;
         Phase = MatchPhase.Deploy;
+        Seconds = 60;
         Message = "Choose your fighters.";
         Notify();
     }
@@ -112,7 +122,7 @@ public sealed class MatchSession
     public void DeployAs(int viewer, CharacterClass type, int row, int col)
     {
         if (Route(nameof(Deploy), viewer, (int)type, row, col)) return;
-        if (Phase != MatchPhase.Deploy) return;
+        if (Phase != MatchPhase.Deploy || !CanAct(viewer)) return;
         if (type != CharacterClass.MAGE && type != CharacterClass.WARRIOR) return;
         int p = viewer - 1;
         if (Rosters[p].Count >= TeamSize) { Message = "Your team is full. Remove a fighter to change it."; Notify(); return; }
@@ -124,7 +134,7 @@ public sealed class MatchSession
         Notify();
     }
 
-    public bool CanAdd => Phase == MatchPhase.Deploy && Rosters[Viewer - 1].Count < TeamSize;
+    public bool CanAdd => Phase == MatchPhase.Deploy && MyTurn && Rosters[Viewer - 1].Count < TeamSize;
 
     public void SelectClass(CharacterClass type)
     {
@@ -143,12 +153,14 @@ public sealed class MatchSession
         Deploy((CharacterClass)SelectedClass, row, col);
     }
 
-    public void RemoveFighter(int index)
+    public void RemoveFighter(int index) => RemoveFighterAs(Viewer, index);
+
+    public void RemoveFighterAs(int viewer, int index)
     {
-        if (Route(nameof(RemoveFighter), Viewer, index)) return;
-        if (Phase != MatchPhase.Deploy || index < 0 || index >= Rosters[Viewer - 1].Count) return;
-        Rosters[Viewer - 1].RemoveAt(index);
-        Spawns[Viewer - 1].RemoveAt(index);
+        if (Route(nameof(RemoveFighter), viewer, index)) return;
+        if (Phase != MatchPhase.Deploy || !CanAct(viewer) || index < 0 || index >= Rosters[viewer - 1].Count) return;
+        Rosters[viewer - 1].RemoveAt(index);
+        Spawns[viewer - 1].RemoveAt(index);
         Notify();
     }
 
@@ -169,7 +181,7 @@ public sealed class MatchSession
     {
         if (Route(nameof(UndoDeployment), viewer)) return;
         int p = viewer - 1;
-        if (Phase == MatchPhase.Deploy && Rosters[p].Count > 0)
+        if (Phase == MatchPhase.Deploy && CanAct(viewer) && Rosters[p].Count > 0)
         { Rosters[p].RemoveAt(Rosters[p].Count - 1); Spawns[p].RemoveAt(Spawns[p].Count - 1); Notify(); }
     }
 
@@ -179,7 +191,7 @@ public sealed class MatchSession
     {
         if (Route(nameof(SetPerk), viewer, perk)) return;
         if (Phase != MatchPhase.Deploy || perk < 0 || perk > 3) return;
-        if (Lan && !PerkTurn) return;
+        if (!CanAct(viewer) || (Lan && perk == (int)SuperPerk.KingCrimson)) return;
         if (Perks[2 - viewer] == (SuperPerk)perk) return;
         Perks[viewer - 1] = (SuperPerk)perk; Notify();
     }
@@ -189,6 +201,7 @@ public sealed class MatchSession
     public void ConfirmDeploymentAs(int viewer)
     {
         if (Route(nameof(ConfirmDeployment), viewer)) return;
+        if (Phase != MatchPhase.Deploy || !CanAct(viewer)) return;
         int p = viewer - 1;
         if (Rosters[p].Count != TeamSize) return;
         if (Lan && (int)Perks[p] < 0) { Message = "Choose a team perk first."; Notify(); return; }
@@ -216,11 +229,31 @@ public sealed class MatchSession
         Notify();
     }
 
+    void CompleteDeployment()
+    {
+        for (int p = 0; p < 2; p++)
+        {
+            var tiles = new List<IVector2>();
+            for (int row = 0; row < Map.GetLength(0); row++)
+                for (int col = 0; col < Map.GetLength(1); col++)
+                    if (Safe(row, col) && (p == 0 ? row < 8 : row >= 8) && !Spawns[p].Any(t => t.x == row && t.y == col))
+                        tiles.Add(new IVector2(row, col));
+            while (Rosters[p].Count < TeamSize && tiles.Count > 0)
+            {
+                int index = deploymentRandom.Next(tiles.Count);
+                Rosters[p].Add(deploymentRandom.Next(2) == 0 ? CharacterClass.WARRIOR : CharacterClass.MAGE);
+                Spawns[p].Add(tiles[index]); tiles.RemoveAt(index);
+            }
+            confirmed[p] = true;
+        }
+        Configure(); Notify();
+    }
+
     void Configure()
     {
         for (int p = 0; p < 2; p++)
         {
-            int[][] plans = Rosters[p].Select(c => new int[c == CharacterClass.MAGE ? 10 : 15]).ToArray();
+            int[][] plans = Rosters[p].Select(c => new int[PremoveLimit]).ToArray();
             BattleEngine.setupPlayer((uint)p + 1, (uint)TeamSize, Rosters[p].ToArray(), plans, Spawns[p].ToArray(), Perks[p]);
         }
         configured = true;
@@ -230,6 +263,12 @@ public sealed class MatchSession
     void BeginPlanning()
     {
         Used[0].Clear(); Used[1].Clear();
+        for (int p = 0; p < 2; p++)
+        {
+            Editors[p] = new Editor { Fighter = FirstAlive(p + 1) };
+            planningSeconds[p] = BattleEngine.getPlanningSeconds((uint)p + 1);
+        }
+        futureSightUsed = futureSightDone = false;
         if (Solo) { Viewer = 1; Planning(); }
         else if (Lan) { Viewer = Local; Planning(); }
         else Handoff(1, "Your private planning window", Planning);
@@ -261,7 +300,7 @@ public sealed class MatchSession
     public void EditAs(int viewer, int action)
     {
         if (Route(nameof(Edit), viewer, action)) return;
-        if (Phase != MatchPhase.Planning && Phase != MatchPhase.Foresight) return;
+        if ((Phase != MatchPhase.Planning && Phase != MatchPhase.Foresight) || !CanAct(viewer)) return;
         var editor = Editors[viewer - 1];
         Character fighter = BattleEngine.getPlayer((uint)viewer).getCharacter(editor.Fighter);
         BattleEngine.setStep((uint)viewer, editor.Fighter, editor.Slot, action, editor.Direction, new IVector2(editor.Range, editor.Range));
@@ -297,7 +336,7 @@ public sealed class MatchSession
     public void ClearPlanAs(int viewer)
     {
         if (Route(nameof(ClearPlan), viewer)) return;
-        if (Phase != MatchPhase.Planning && Phase != MatchPhase.Foresight) return;
+        if ((Phase != MatchPhase.Planning && Phase != MatchPhase.Foresight) || !CanAct(viewer)) return;
         var editor = Editors[viewer - 1];
         Character fighter = BattleEngine.getPlayer((uint)viewer).getCharacter(editor.Fighter);
         for (int i = 0; i < fighter.stepCount(); i++) BattleEngine.setStep((uint)viewer, editor.Fighter, i, 0);
@@ -310,7 +349,7 @@ public sealed class MatchSession
     {
         if (Route(nameof(LockPlan), viewer)) return;
         if (Phase == MatchPhase.Foresight) { FinishFutureSightAs(viewer); return; }
-        if (Phase != MatchPhase.Planning) return;
+        if (Phase != MatchPhase.Planning || !CanAct(viewer)) return;
         NormalizePlan(viewer);
         BattleEngine.finishPlanning((uint)viewer);
         if (Lan) { AfterBothLocked(); Notify(); return; }
@@ -384,7 +423,19 @@ public sealed class MatchSession
     void BeginSelection()
     {
         if (Solo) { Viewer = 1; Selection(); }
-        else if (Lan) { Viewer = Local; Selection(); }
+        else if (Lan)
+        {
+            Viewer = Local; Phase = MatchPhase.Selection;
+            for (int player = 1; player <= 2; player++)
+            {
+                int fighter = Available(player).First();
+                Editors[player - 1].Fighter = fighter;
+                BattleEngine.selectCharacter((uint)player, fighter);
+                Used[player - 1].Add(fighter);
+            }
+            if (BattleEngine.startExchange())
+            { Phase = MatchPhase.Combat; tickClock = 0.25; tickPending = false; Message = "Both parties are executing their plans."; }
+        }
         else Handoff(1, "Choose your next fighter privately", Selection);
     }
 
@@ -433,7 +484,22 @@ public sealed class MatchSession
     public void Update(double delta)
     {
         if (Paused) return;
-        if (Phase == MatchPhase.Planning || Phase == MatchPhase.Foresight)
+        if (Lan && Phase == MatchPhase.Deploy)
+        {
+            Seconds = Math.Max(0, Seconds - delta);
+            if (Seconds == 0) CompleteDeployment();
+            return;
+        }
+        if (Lan && Phase == MatchPhase.Planning)
+        {
+            for (int player = 1; player <= 2 && Phase == MatchPhase.Planning; player++)
+            {
+                planningSeconds[player - 1] = Math.Max(0, planningSeconds[player - 1] - delta);
+                if (planningSeconds[player - 1] == 0 && CanAct(player)) LockPlanAs(player);
+            }
+            Seconds = planningSeconds[Local - 1];
+        }
+        else if (Phase == MatchPhase.Planning || Phase == MatchPhase.Foresight)
         {
             Seconds = Math.Max(0, Seconds - delta);
             if (Seconds == 0) LockPlan();
@@ -450,12 +516,10 @@ public sealed class MatchSession
                 if (Solo && owner == 2) BattleEngine.passRewindDecision(2);
                 else if (Lan)
                 {
-                    if (owner == Local)
-                    {
-                        Phase = MatchPhase.Rewind;
-                        Fighter = BattleEngine.getPlayer((uint)Local).getSelectedIndex(); Action = 0;
-                        Message = "Keep this tick, or risk a 70% rewind with a replacement action.";
-                    }
+                    Phase = MatchPhase.Rewind;
+                    Editors[owner - 1].Fighter = BattleEngine.getPlayer((uint)owner).getSelectedIndex();
+                    Editors[owner - 1].Action = 0;
+                    Message = "Keep this tick, or risk a 70% rewind with a replacement action.";
                 }
                 else
                 {

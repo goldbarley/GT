@@ -1,5 +1,87 @@
 # Premove — Next Steps
 
+## Latest UI direction — screenshot feedback
+
+- Fix the actual Knight/Mage visual origin; both still render outside their showcase in the supplied screenshots. Keep sprite art inside its assigned space at every scale.
+- Replace oversized empty panels with purposeful proportions: larger character art, readable options, and a useful party sidebar, without overlaps.
+- Title screen: Premove and buttons on one side; a slowly scrolling decorative assortment of Grassland and Volcanic tiles on the other. This is scenery, not a playable map.
+- Improve game-facing labels; keep instructions short, contextual, and understandable. Do not fill the screen with explanations.
+- Add HP bars alongside readable health values, plus missing selection/status feedback.
+- Research visual hierarchy, grouping, and accessible game UI before implementation. Keep pixel RPG styling, brown as the base, and red/green/blue accents.
+- No builds, tests, imports, or previews: the user performs validation.
+
+Research: [NN/g visual hierarchy](https://www.nngroup.com/articles/visual-hierarchy-ux-definition/) recommends meaningful scale/contrast and restrained grouping; [Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/full-list/) recommends plain language, consistent input, and reinforcing important text with visuals. Apply these through large character art, compact grouped actions, health bars with numbers, and optional detail in tooltips.
+
+### Paused at user request — credits running low
+
+**Latest UI pass is incomplete and unverified. Do not describe it as finished. No builds, tests, imports, or previews were run. The user reserves testing for themselves.**
+
+#### Changes written so far
+
+- Found a likely centering cause: `BuildFigure` called `configure` before attaching the figure to the scene tree. Animation playback could write the rig position before `ChoreoPlayer._ready()` cached its centered origin. The screenshot offsets match this failure (Knight above its panel; Mage below/right).
+- `Premove.BuildFigure` now configures on the figure's `Ready` signal. `FighterVisual.gd` also caches a player created outside the tree before playback. These fixes have not been observed running.
+- Showcase figures now reparent into the stage Control, use local stage-center coordinates, and are clipped by the stage. Refresh reparents cached figures back to their holder before freeing UI nodes.
+- Added `fit_display(area)` using visible resting bounds and whole-number scaling. The character-screen process fits the figure to the stage with a safety margin.
+- Enlarged the stage and sidebar; party cards expand into available space instead of leaving a large spacer. Empty slots have a plus marker; selected cards use larger portraits and health bars.
+- Added `HealthDisplay` with a bar and numeric HP. It is used for the character preview, selected party members, and battle-header team health. BattleBoard already has individual unit health bars.
+- Shortened several labels: How to play, Choose an arena, Build your party, Choose fighter, Ready to fight. Moved the LAN King Crimson explanation into a tooltip.
+- Added `scripts/Game/TitleTiles.cs`: a decorative, slowly scrolling patchwork of both terrain themes using existing textures. **It is not yet connected to the title screen.**
+
+#### Resume here, in order
+
+1. Read the latest `Premove.cs`, `FighterVisual.gd`, and `TitleTiles.cs` edits. No compilation has been attempted. Inspect C# event/reparent lifecycle, layout sizing, and GDScript initialization before adding more changes.
+2. Finish the title screen: replace its current centered stack with Premove/buttons on the left and an expanding `TitleTiles` panel on the right. Provide a small pause-motion control using `TitleTiles.Moving`. Do not put a playable map or gameplay controls in this decoration.
+3. Finish responsive character layout. Current stage/sidebar minimum sizes are larger; make sure the page can fit smaller windows instead of assuming the larger game window. Prefer proportional container sizing or a compact breakpoint. Keep the title, art, health, options, and party in separate non-overlapping areas.
+4. Ask the user to review actual centering after the initialization fix. If it still fails, trace `_rest_target_pos`, rig position, sprite bounds, and transforms; do not add per-character screen offsets. Verify the cache survives switching characters and opening/closing placement menus.
+5. Review the expanded party-card proportions for team sizes 1, 2, and 3. Make portrait/name/health/removal controls readable without huge empty cards or vertical overflow.
+6. Finish label cleanup and contextual guidance. Avoid duplicate map names, technical status labels, and always-visible paragraphs. Keep core keys nearby and longer explanations in tooltips/the short tutorial. Existing skill/cooldown UI should be reviewed for clarity before adding redundant panels.
+7. User validation is still required for the earlier LAN selection timeout, replicated random deployment, simultaneous planning, automatic fighter rotation, premove limits, and menu layers. Do not run checks without the user's permission.
+
+#### Relevant files
+
+- `scripts/Game/Premove.cs`: `BuildFigure`, `Refresh`, `CharacterScreen`, `_Process`, `HealthDisplay`, `Menu`.
+- `scripts/Game/FighterVisual.gd`: `show_direction`, `_visible_bounds`, `fit_display`.
+- `scripts/Animation/choreo_player.gd`: `_ready`, `_cache_rig`, `_rest_target_pos`, `apply_pose`.
+- `scripts/Game/TitleTiles.cs`: new decorative control, not yet instantiated.
+- `scripts/Game/MatchSession.cs`, `NetworkMatch.cs`, `scripts/Character.cs`: previous LAN/premove changes, still awaiting user validation.
+
+Keep the supplied screenshot feedback as the reference: the Mage overlaps the name/controls below the blue stage, the Knight overlaps the heading above the red stage, and the sidebar has excessive empty space. The changes above aim to address these defects but are not visually confirmed.
+
+## Requested next — character selection and simultaneous LAN flow
+
+- Center Knight and Mage within the actual character showcase, removing character-specific screen offsets.
+- Move selected party members into a bordered sidebar with visible slots and removal controls.
+- Give both LAN players the same 60-second character-selection window. Both can choose simultaneously; no opponent-turn or perk-order deadlock.
+- Start planning immediately when both players confirm. At the deadline, randomly fill unchosen character slots and randomly deploy those additions on legal, unoccupied tiles.
+- Keep planning simultaneous. When both players lock their plans, advance immediately into combat with an available fighter selected automatically.
+- Limit premoves to 5–10; use a host-selected match setting, default 8.
+- Strengthen borders and panel contrast. Brown remains the main color, with distinct muted red, green, and blue backgrounds and accents.
+- Do not run tests, builds, or previews for this work. The user will validate it.
+
+### Implemented in this pass — untested
+
+- Showcase placement follows the actual stage rectangle every frame, without Mage/Knight-specific offsets. Selection uses a framed main panel and vertical party sidebar with all slots visible.
+- Stronger square borders, a darker brown backdrop, blue controls, green party/ready panels, and red character/action panels provide separation. Label outlines were removed to improve small-text clarity.
+- Both LAN players choose concurrently for 60 seconds. Default valid, distinct perks remove the disabled-ready deadlock. Ready players retain their party screen; both confirmations immediately open planning.
+- A match seed is sent with Start. Deadline additions choose Knight/Mage and legal unoccupied spawn tiles using the same seed on both peers; existing selections remain intact.
+- Planning clocks run for both players under the host's replicated updates. Both locks immediately start combat; available fighters rotate automatically in party order. Planning deadlines lock only the unfinished player's plan.
+- Premoves are selected on the map screen from 5–10, default 8; +/- also adjusts them. The host sends the setting. Both playable classes receive that many steps. The engine still accepts legacy class-sized plans for existing callers.
+- Party removal is now replicated. Confirmed parties cannot be edited. LAN rewind waits use the same phase on both peers; leaving LAN clears LAN mode before couch play.
+
+### Explicit LAN behavior
+
+King Crimson is not offered in LAN because its extra post-lock planning window conflicts with immediate combat. It remains available in couch/practice. Teleport, Defy Destiny, and Tactician remain available; Tactician retains its longer planning clock. Manual fighter selection remains in couch/practice; LAN automatically chooses the next available fighter.
+
+### Remaining work for user validation
+
+No builds, tests, imports, or previews were run for this pass, per instruction. The changes are implemented but unverified at runtime. Both machines must use the updated code because the Start message now carries premove count and random seed.
+
+- Try both ready before timeout, one ready/one unfinished, both unfinished, and removing a fighter before confirming. Compare automatic roster additions and spawn coordinates across machines.
+- Try both early planning locks, one planning timeout, Tactician's longer timer, subsequent fighter exchanges/cycles, rewind decisions, rematches, and switching from LAN to couch.
+- Review both character centers, all three sidebar slots, popup layering, keyboard navigation, and contrast at the actual window sizes used.
+- Full independent left-facing Knight limb/cape/shield motion still requires separated artwork. Other incomplete characters remain Coming Soon.
+- Earlier combat/animation polish and LAN reliability checks below remain pending unless separately validated by the user.
+
 ## Current handoff — 2026-10-22
 
 This section supersedes older implementation and validation notes below.
