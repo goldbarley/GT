@@ -11,8 +11,10 @@ render_mode blend_add;
 //  frames - the arc as it opens, grows and breaks into embers.
 //
 //  The fire is drawn in the screen's own pixels, but it is placed and sized
-//  by the knight, so it is always the size of him and always where his
-//  sword is, however the camera is placed.
+//  by the knight, so it is always the size of him and always in front of his
+//  face, however the camera is placed.  The knight says where his face is
+//  and which way he looks, and the fire is turned so that its hollow opens
+//  back towards him.
 //
 //    charge      0 to 1, how far the fire has climbed the blade
 //    slash       0 to 1, how much of the sweep is showing
@@ -21,19 +23,18 @@ render_mode blend_add;
 //    drift       how far the embers have drifted, in the master's pixels
 //    drift_mix   0 to 1, how much of the art has drifted
 //
-//  The master's canvas is where the frames were painted, and the arc's centre
-//  and radius in it are measured from the frames themselves.
+//  The master's canvas is where the frames were painted, and the arc's centre,
+//  its radius and the way its hollow opens are measured from the frames
+//  themselves.
 // ===========================================================================
 
 uniform sampler2D flipbook : filter_linear, repeat_disable;
 
-uniform vec2 arena_origin = vec2(0.0);
-uniform vec2 arena_size = vec2(0.0);
-
 uniform float frames = 8.0;
 uniform vec2 master_size = vec2(1158.0, 740.0);   // the canvas the art is on
-uniform vec2 art_centre = vec2(374.6, 195.6);    // the arc's centre in it
-uniform float art_radius = 239.6;                  // the arc's radius in it
+uniform vec2 art_centre = vec2(473.0, 295.0);     // the arc's centre in it
+uniform float art_radius = 265.0;                  // the arc's radius in it
+uniform vec2 art_mouth = vec2(-0.464, -0.886);     // the way the hollow opens
 
 uniform float charge : hint_range(0.0, 1.0) = 0.0;
 uniform float slash : hint_range(0.0, 1.0) = 0.0;
@@ -44,6 +45,7 @@ uniform vec2 screen_size = vec2(1280.0, 720.0);  // the screen, in its own pixel
 uniform vec2 origin = vec2(0.0, 0.0);        // the master's canvas, on the screen
 uniform float scale = 0.05;                    // screen pixels per master pixel
 uniform float mirror = 1.0;                    // -1 for the view that faces the other way
+uniform float rotation = 0.0;                  // how far the fire is turned, in radians
 uniform vec2 drift = vec2(0.0, 0.0);           // the embers, floating
 uniform float drift_mix : hint_range(0.0, 1.0) = 0.0;
 uniform float drift_wander = 26.0;              // how far each ember wanders on its own
@@ -56,6 +58,14 @@ uniform float blade_len = 10.0;                // the blade's length on screen
 uniform vec3 core_color : source_color = vec3(1.0, 0.95, 0.78);
 uniform vec3 mid_color : source_color = vec3(1.0, 0.45, 0.06);
 uniform vec3 cool_color : source_color = vec3(0.70, 0.12, 0.02);
+
+
+// A turn, in the screen's own terms.
+vec2 turn(vec2 v, float a) {
+	float c = cos(a);
+	float s = sin(a);
+	return vec2(v.x * c - v.y * s, v.x * s + v.y * c);
+}
 
 
 // A number that never repeats, from a place.  Used to give each scrap of
@@ -83,7 +93,6 @@ float vnoise(vec2 p) {
 void fragment() {
 	// where this pixel is, on the screen
 	vec2 px = UV * screen_size;
-	if (arena_size.x > 0.0 && (any(lessThan(px, arena_origin)) || any(greaterThan(px, arena_origin + arena_size)))) { discard; }
 
 	vec3 colour = vec3(0.0);
 
@@ -123,23 +132,32 @@ void fragment() {
 
 	// ---- the sweep --------------------------------------------------------
 	if (slash > 0.001) {
-		// the master's canvas, laid over the screen: the arc turns about the
-		// knight's shoulder, and the blade's reach sets the size
+		// The master's canvas, laid over the screen.  The fire is turned so
+		// that its hollow opens back towards the knight, and then it is laid
+		// over him at the size he is.
 		vec2 rel = (px - origin) / scale;
+		rel = turn(rel, -rotation);
 		rel.x *= mirror;
 		vec2 master = art_centre + rel;
 
 		// The last of the fire is embers, and embers do not stop where
 		// they are: they float.  The whole lot rises, and each scrap of
 		// fire wanders on its own course, so the embers drift apart
-		// rather than sliding as one piece.
+		// rather than sliding as one piece.  They float in the screen's
+		// own terms, so they always rise, whichever way the fire is turned.
 		if (drift_mix > 0.001) {
 			float slow = drift_time * 0.30;
 			vec2 flow = vec2(
 				vnoise(master * 0.013 + vec2(slow, 0.0)) - 0.5,
 				vnoise(master * 0.013 + vec2(19.3, -slow * 0.8)) - 0.5
 			) * 2.0;
-			master += (drift + flow * drift_wander) * drift_mix;
+			// the drift is in the master's pixels, and the master's pixels
+			// are the screen's pixels, scaled
+			px -= (drift + flow * drift_wander) * drift_mix * scale;
+			rel = (px - origin) / scale;
+			rel = turn(rel, -rotation);
+			rel.x *= mirror;
+			master = art_centre + rel;
 		}
 
 		vec2 m_uv = master / master_size;

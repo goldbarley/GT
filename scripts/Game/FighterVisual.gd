@@ -35,6 +35,10 @@ func show_direction(direction: int) -> void:
 		current.stop()
 	for rig in rigs.values():
 		rig.visible = false
+		# Hide dark layer too
+		var dark_layer: CanvasLayer = rig.get_node_or_null("KnightUltimateDarkLayer")
+		if dark_layer != null:
+			dark_layer.visible = false
 	for layer in edge_layers.values():
 		layer.visible = false
 	for player in players.values():
@@ -67,6 +71,10 @@ func show_direction(direction: int) -> void:
 		players[perspective] = player
 	current = players[perspective]
 	rigs[perspective].visible = true
+	# Show dark layer for this perspective
+	var dark_layer: CanvasLayer = rigs[perspective].get_node_or_null("KnightUltimateDarkLayer")
+	if dark_layer != null:
+		dark_layer.visible = true
 	if edge_layers.has(perspective):
 		edge_layers[perspective].visible = true
 	current.set_process(true)
@@ -186,10 +194,24 @@ func _fire_beams(duration: float) -> void:
 	)
 
 func _add_edge(rig: ModularRig, perspective: String) -> void:
-	var layer := CanvasLayer.new()
-	layer.layer = 2
-	rig.add_child(layer)
-	edge_layers[perspective] = layer
+	# Dark layer (underneath) - blacks out the screen
+	var dark_layer := CanvasLayer.new()
+	dark_layer.layer = 100
+	rig.add_child(dark_layer)
+	var dark := ColorRect.new()
+	dark.name = "KnightUltimateDark"
+	dark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var dark_material := ShaderMaterial.new()
+	dark_material.shader = load("res://assets/characters/Knight/Anim/KnightUltimate/knight_ultimate_dark.gdshader")
+	dark.material = dark_material
+	dark_layer.add_child(dark)
+
+	# Fire layer (on top) - the fire sweep
+	var fire_layer := CanvasLayer.new()
+	fire_layer.layer = 101
+	rig.add_child(fire_layer)
+	edge_layers[perspective] = fire_layer
 	var effect := ColorRect.new()
 	effect.name = "KnightUltimateFX"
 	effect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -198,14 +220,18 @@ func _add_edge(rig: ModularRig, perspective: String) -> void:
 	material.shader = load("res://assets/characters/Knight/Anim/KnightUltimate/knight_ultimate_fire.gdshader")
 	material.set_shader_parameter("flipbook", load("res://assets/characters/Knight/Anim/KnightUltimate/sprites/fire_slash.png"))
 	material.set_shader_parameter("master_size", Vector2(1158, 740))
-	material.set_shader_parameter("art_centre", Vector2(616.43, 426.49))
-	material.set_shader_parameter("art_radius", 239.56)
+	material.set_shader_parameter("art_centre", Vector2(472.9, 294.77))
+	material.set_shader_parameter("art_radius", 264.75)
+	material.set_shader_parameter("art_mouth", Vector2(-0.939693, 0.34202))
 	effect.material = material
 	effect.set_script(load("res://assets/characters/Knight/Anim/KnightUltimate/knight_ultimate_fx.gd"))
 	effect.set("rig_path", NodePath("../.."))
-	effect.set("arc_scale", 0.067953)
+	effect.set("dark_path", NodePath("../../KnightUltimateDarkLayer/KnightUltimateDark"))
+	effect.set("art_scale", 0.037469)
+	effect.set("art_distance", 15.92)
+	effect.set("drift_speed", Vector2(-14.0, -52.0))
 	effect.set("mirror", -1.0 if perspective == "front" or perspective == "right" else 1.0)
-	layer.add_child(effect)
+	fire_layer.add_child(effect)
 
 func set_arena_clip(area: Rect2) -> void:
 	arena_clip = area
@@ -213,10 +239,21 @@ func set_arena_clip(area: Rect2) -> void:
 		var material: ShaderMaterial = layer.get_child(0).material
 		material.set_shader_parameter("arena_origin", area.position)
 		material.set_shader_parameter("arena_size", area.size)
+		# Also pass to dark layer
+		var dark_layer: CanvasLayer = rigs[facing].get_node_or_null("KnightUltimateDarkLayer")
+		if dark_layer != null:
+			var dark: ColorRect = dark_layer.get_node_or_null("KnightUltimateDark")
+			if dark != null and dark.material is ShaderMaterial:
+				(dark.material as ShaderMaterial).set_shader_parameter("arena_origin", area.position)
+				(dark.material as ShaderMaterial).set_shader_parameter("arena_size", area.size)
 	for rig in rigs.values():
 		var explosion: Node = rig.get_node_or_null("ExplosionFX")
 		if explosion != null:
 			explosion.clip_rect = area
+		var effect: Node = rig.get_node_or_null("KnightUltimateFX")
+		if effect != null:
+			effect.set("arena_origin", area.position)
+			effect.set("arena_size", area.size)
 
 func react_to_hit(defeated: bool) -> void:
 	if reaction != null and reaction.is_valid():
@@ -235,6 +272,13 @@ func reset_visual() -> void:
 	modulate = Color.WHITE
 	if beam != null:
 		beam.set_playing(false)
+	# Hide ultimate effect layers
+	for rig in rigs.values():
+		var dark_layer: CanvasLayer = rig.get_node_or_null("KnightUltimateDarkLayer")
+		if dark_layer != null:
+			dark_layer.visible = false
+	for layer in edge_layers.values():
+		layer.visible = false
 	idle()
 
 func _process(delta: float) -> void:

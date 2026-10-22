@@ -19,8 +19,8 @@
   "groups": {
     "torso": {
       "pivot": {
-        "x": 0,
-        "y": -7
+        "x": 16,
+        "y": 25
       },
       "members": [
         "body",
@@ -29,8 +29,8 @@
     },
     "all": {
       "pivot": {
-        "x": 0,
-        "y": 0
+        "x": 16,
+        "y": 32
       },
       "members": [
         "body",

@@ -16,34 +16,31 @@
     "arm": "arm",
     "sword": "sword",
     "foot_a": "boot_a",
-    "foot_b": "boot_b",
-    "torso_backing": "torso_backing"
+    "foot_b": "boot_b"
   },
   "groups": {
     "torso": {
       "pivot": {
-        "x": 0,
-        "y": -7
+        "x": 16,
+        "y": 25
       },
       "members": [
         "body",
         "sword",
-        "arm",
-        "torso_backing"
+        "arm"
       ]
     },
     "all": {
       "pivot": {
-        "x": 0,
-        "y": 0
+        "x": 16,
+        "y": 32
       },
       "members": [
         "body",
         "sword",
         "arm",
         "boot_a",
-        "boot_b",
-        "torso_backing"
+        "boot_b"
       ]
     }
   },
@@ -66,7 +63,7 @@
         "x": 21,
         "y": 31
       },
-      "z_index": 1,
+      "z_index": 0,
       "description": "body"
     },
     "sword": {
@@ -84,7 +81,7 @@
         "x": 5,
         "y": 6
       },
-      "z_index": 2,
+      "z_index": 1,
       "description": "sword",
       "source_regions": [
         [
@@ -111,7 +108,7 @@
         "x": 3,
         "y": 0
       },
-      "z_index": 3,
+      "z_index": 2,
       "description": "arm",
       "source_regions": [
         [
@@ -138,7 +135,7 @@
         "x": 0,
         "y": 0
       },
-      "z_index": 4,
+      "z_index": 3,
       "description": "boot_a",
       "source_regions": [
         [
@@ -165,7 +162,7 @@
         "x": 0,
         "y": 0
       },
-      "z_index": 5,
+      "z_index": 4,
       "description": "boot_b",
       "source_regions": [
         [
@@ -176,24 +173,6 @@
           6
         ]
       ]
-    },
-    "torso_backing": {
-      "texture": "torso_source.png",
-      "region": {
-        "x": 0,
-        "y": 14,
-        "w": 19,
-        "h": 10
-      },
-      "position": {
-        "x": -15,
-        "y": -14
-      },
-      "pivot": {
-        "x": 0,
-        "y": 0
-      },
-      "z_index": 0
     }
   },
   "facing": {
