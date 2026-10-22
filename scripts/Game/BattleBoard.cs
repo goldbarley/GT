@@ -163,6 +163,7 @@ public partial class BattleBoard : Control
                     IVector2 length = slot < before.lengths[p][i].Length ? before.lengths[p][i][slot] : new IVector2(1, 1);
                     IVector2 target = MatchSession.Move(to, direction, direction <= 2 ? length.x : length.y);
                     actor.Call("perform", action, direction, Center(to.x, to.y), Center(target.x, target.y), (float)Session.TickSeconds);
+                    if (action == -1 && Session.Rosters[p][i] == CharacterClass.MAGE) Sound?.Play("fireball", 0.05f);
                 }
             }
         }
@@ -183,8 +184,38 @@ public partial class BattleBoard : Control
             actors[(p, i)].Call("react_to_hit", hp <= 0);
             hurt |= hp < oldHp;
         }
-        if (hurt) Sound?.Play("hurt", 0.06f);
+        if (hurt) Sound?.Play(KnightBladeHit() ? "sword_hit" : "hurt", 0.06f);
         ImpactShown?.Invoke();
+    }
+
+    bool KnightBladeHit()
+    {
+        if (visualBefore == null || visualAfter == null) return false;
+        for (int p = 0; p < 2; p++)
+        {
+            int actor = visualBefore.selected[p];
+            if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
+            if (Session.Rosters[p][actor] != CharacterClass.WARRIOR) continue;
+            int slot = visualBefore.exchangeTick;
+            int[] steps = visualBefore.steps[p][actor];
+            if (slot < 0 || slot >= steps.Length) continue;
+            int action = steps[slot];
+            if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
+            // Knight actions: -1 is Slash, -3 is Plunge.
+            if (action != -1 && action != -3) continue;
+
+            int[,] grid = p == 0 ? visualAfter.player1SkillGrid : visualAfter.player2SkillGrid;
+            if (grid == null) continue;
+            for (int i = 0; i < Session.Rosters[1 - p].Count; i++)
+            {
+                int oldHp = (1 - p) == 0 ? visualBefore.player1CharacterHPs[i] : visualBefore.player2CharacterHPs[i];
+                int hp = (1 - p) == 0 ? visualAfter.player1CharacterHPs[i] : visualAfter.player2CharacterHPs[i];
+                IVector2 at = (1 - p) == 0 ? visualAfter.player1CharacterPositions[i] : visualAfter.player2CharacterPositions[i];
+                if (hp >= oldHp) continue;
+                if (at.x >= 0 && at.y >= 0 && at.x < grid.GetLength(0) && at.y < grid.GetLength(1) && grid[at.x, at.y] > 0) return true;
+            }
+        }
+        return false;
     }
 
     public override void _Process(double delta)
