@@ -52,6 +52,12 @@ Both players set up at the same time: each picks their own fighters and places t
 
 The window is light brown, with tan panels, dark brown text and pastel green, blue and red kept for highlights. Setup uses separate full-screen selections. The battle view has a statistics bar, a translucent numpad, and last-action messages. Executed skill and movement keys glow green. Hover skills and statistics for details; the three-page tutorial gives the essentials. The camera tracks the midpoint of the active fighters and widens its framing when they separate. The design follows the [Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/full-list/) on consistent keyboard access, concise help, and an option to disable camera tracking.
 
+## Music and audio
+
+Music loads from `assets/music/`: `title`, `battle`, `victory` and `defeat` are all bundled, and each slot can be replaced with an `.ogg`, `.wav` or `.mp3` file of the same name; see [`assets/music/README.md`](assets/music/README.md). The game crossfades between the title, battle and result themes and prints one hint per missing track.
+
+**Audio settings** on the title screen and in the pause menu controls music volume and mute. Choices are saved to `user://audio.cfg` and restored on the next run.
+
 ## Team perks
 
 - **King Crimson:** after both teams lock, inspect enemy plans and edit your own during a 20-second window.
