@@ -164,6 +164,7 @@ public partial class BattleBoard : Control
                     IVector2 target = MatchSession.Move(to, direction, direction <= 2 ? length.x : length.y);
                     actor.Call("perform", action, direction, Center(to.x, to.y), Center(target.x, target.y), (float)Session.TickSeconds);
                     if (action == -1 && Session.Rosters[p][i] == CharacterClass.MAGE) Sound?.Play("fireball", 0.05f);
+                    if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("flame_sword", 0.05f);
                 }
             }
         }
