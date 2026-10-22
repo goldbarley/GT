@@ -1,0 +1,143 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/Archer/archer_back/ArcherBack.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/characters/Archer/archer_back/Archer_back_clean.png" id="2_tex"]
+[ext_resource type="Shader" path="res://assets/characters/Archer/anim/shaders/archer_character_clip.gdshader" id="3_clip"]
+[ext_resource type="Shader" path="res://assets/characters/Archer/anim/shaders/archer_godray.gdshader" id="4_godray"]
+[ext_resource type="Texture2D" path="res://assets/characters/Archer/art/energy_bow.png" id="5_energy"]
+[ext_resource type="Texture2D" path="res://assets/characters/Archer/art/basic_charge.png" id="6_basic_charge"]
+[ext_resource type="Texture2D" path="res://assets/characters/Archer/art/basic_burst.png" id="7_basic_burst"]
+
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_character_clip"]
+resource_local_to_scene = true
+shader = ExtResource("3_clip")
+shader_parameter/band_top = -100000.0
+shader_parameter/band_bottom = 100000.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_godray"]
+resource_local_to_scene = true
+shader = ExtResource("4_godray")
+shader_parameter/gather = 0.0
+shader_parameter/spiral = 0.0
+shader_parameter/focus = 0.0
+shader_parameter/energy_bow = 0.0
+shader_parameter/arrow = 0.0
+shader_parameter/charge = 0.0
+shader_parameter/flash = 0.0
+shader_parameter/aim = -1.0
+shader_parameter/energy_tex = ExtResource("5_energy")
+shader_parameter/basic_charge = 0.0
+shader_parameter/basic_burst = 0.0
+shader_parameter/basic_charge_tex = ExtResource("6_basic_charge")
+shader_parameter/basic_burst_tex = ExtResource("7_basic_burst")
+
+[node name="ArcherBack" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_script")
+
+[node name="Bow" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_character_clip")
+z_index = 0
+texture_filter = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(43, 0, 19, 19)
+centered = false
+offset = Vector2(-4.83, -13.0)
+position = Vector2(4.83, 23.0)
+metadata/pivot = Vector2(4.83, 13.0)
+
+[node name="GodrayFX" type="ColorRect" parent="Bow"]
+material = SubResource("ShaderMaterial_godray")
+z_index = 3
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="LeafA" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_character_clip")
+z_index = 7
+texture_filter = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(63, 0, 10, 12)
+centered = false
+offset = Vector2(-1, 0)
+position = Vector2(16, 5)
+metadata/pivot = Vector2(1, 0)
+
+[node name="Cape" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_character_clip")
+z_index = 6
+texture_filter = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(74, 0, 11, 10)
+centered = false
+offset = Vector2(-1, 0)
+position = Vector2(28, 19)
+metadata/pivot = Vector2(1, 0)
+
+[node name="Arm" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_character_clip")
+z_index = 3
+texture_filter = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(86, 0, 9, 7)
+centered = false
+offset = Vector2(-6.5, -0.0)
+position = Vector2(10.5, 18.0)
+metadata/pivot = Vector2(6.5, 0.0)
+
+[node name="Quiver" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_character_clip")
+z_index = 5
+texture_filter = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(29, 0, 13, 22)
+centered = false
+offset = Vector2(-6.0, -10.5)
+position = Vector2(24.0, 14.5)
+metadata/pivot = Vector2(6.0, 10.5)
+
+[node name="FootB" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_character_clip")
+z_index = 2
+texture_filter = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(96, 0, 4, 4)
+centered = false
+offset = Vector2(-1.5, -0.0)
+position = Vector2(15.5, 28.0)
+metadata/pivot = Vector2(1.5, 0.0)
+
+[node name="FootA" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_character_clip")
+z_index = 1
+texture_filter = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(101, 0, 4, 4)
+centered = false
+offset = Vector2(-2.5, -0.0)
+position = Vector2(23.5, 28.0)
+metadata/pivot = Vector2(2.5, 0.0)
+
+[node name="Body" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_character_clip")
+z_index = 4
+texture_filter = 1
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 28, 31)
+centered = false
+offset = Vector2(-13.5, -25.0)
+position = Vector2(20.5, 25.0)
+metadata/pivot = Vector2(13.5, 25.0)

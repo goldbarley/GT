@@ -40,7 +40,7 @@ public partial class Premove : Control
         showcaseHolder = new Node2D { Name = "ShowcaseHolder" }; AddChild(showcaseHolder);
         var menuLayer = new CanvasLayer { Name = "MenuLayer", Layer = 10 }; AddChild(menuLayer);
         popup = new Control { Name = "Popup", MouseFilter = MouseFilterEnum.Ignore }; menuLayer.AddChild(popup); popup.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        for (int kind = 0; kind < 2; kind++) { var figure = BuildFigure(kind); figure.Visible = false; showcaseHolder.AddChild(figure); showcaseCache[kind] = figure; }
+        foreach (int kind in new[] { 0, 1, 2 }) { var figure = BuildFigure(kind); figure.Visible = false; showcaseHolder.AddChild(figure); showcaseCache[kind] = figure; }
         network = new NetworkMatch { Name = "Network", Session = match }; AddChild(network);
         music = new MusicPlayer { Name = "Music" }; AddChild(music);
         sfx = new SoundEffects { Name = "Sfx" }; AddChild(sfx);
@@ -417,9 +417,9 @@ public partial class Premove : Control
         var stageFrame = new PanelContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
         stageFrame.AddThemeStyleboxOverride("panel", Box(characterIndex == 0 ? "dfb7a7" : "bfd2df", characterIndex == 0 ? "90483d" : "355c75")); main.AddChild(stageFrame);
         var stage = new Control { CustomMinimumSize = new Vector2(320, 200), SizeFlagsVertical = SizeFlags.ExpandFill, MouseFilter = MouseFilterEnum.Ignore, ClipContents = true }; stageFrame.AddChild(stage); showcaseStage = stage;
-        if (characterIndex < 2)
+        if (characterIndex < 3)
         {
-            var figure = showcaseCache[characterIndex == 0 ? 1 : 0]; showcase = figure;
+            var figure = showcaseCache[characterIndex == 0 ? 1 : characterIndex == 1 ? 0 : 2]; showcase = figure;
             figure.Reparent(stage, false);
             figure.Call("show_direction", 2); figure.Call("reset_visual"); figure.Call("fit_tile", 192f);
             figure.Visible = true; figure.Modulate = Colors.White;
@@ -430,11 +430,6 @@ public partial class Premove : Control
             }
             stage.ItemRectChanged += CenterFigure;
             CenterFigure();
-        }
-        else if (characterIndex == 2)
-        {
-            var center = new CenterContainer(); stage.AddChild(center); center.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-            center.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/sprites/archer_portrait.png"), CustomMinimumSize = new Vector2(192, 192), TextureFilter = TextureFilterEnum.Nearest, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, Modulate = new Color("6f573c") });
         }
         else
         {
@@ -447,14 +442,15 @@ public partial class Premove : Control
         main.AddChild(Label(characterIndex switch {
             0 => $"Sword & shield  /  {MatchSession.MoveLimit(CharacterClass.WARRIOR, premoveLimit)} moves",
             1 => $"Fire & magic  /  {MatchSession.MoveLimit(CharacterClass.MAGE, premoveLimit)} moves",
+            2 => $"Bow & arrows  /  {MatchSession.MoveLimit(CharacterClass.ARCHER, premoveLimit)} moves",
             _ => "Coming soon"
         }, 14, muted));
-        if (characterIndex < 2)
+        if (characterIndex < 3)
         {
-            int hp = characterIndex == 0 ? 120 : 75;
+            int hp = characterIndex switch { 0 => 120, 1 => 75, _ => 100 };
             main.AddChild(HealthDisplay("", hp, hp, characterIndex == 0 ? coral : cyan));
         }
-        var chooseFighter = Button(characterIndex > 1 ? "Coming soon" : "Choose fighter  [Enter]", () => { BeginPlacement(); placementOpen = true; Refresh(); }, characterIndex > 1 || !match.CanAdd, true);
+        var chooseFighter = Button(characterIndex > 2 ? "Coming soon" : "Choose fighter  [Enter]", () => { BeginPlacement(); placementOpen = true; Refresh(); }, characterIndex > 2 || !match.CanAdd, true);
         main.AddChild(chooseFighter);
         if (!chooseFighter.Disabled) BlinkAttention(chooseFighter);
         main.AddChild(Label("← → Browse   Enter Choose   Backspace Remove", 16, muted));
@@ -480,8 +476,8 @@ public partial class Premove : Control
                 continue;
             }
             var at = match.Spawns[match.Viewer - 1][i]; var kind = match.Rosters[match.Viewer - 1][i];
-            PortraitRow(fighterBox, MatchSession.ClassName(kind), $"Tile {at.y + 1},{at.x + 1}", kind == CharacterClass.MAGE ? "mage" : "knight", false);
-            int hp = kind == CharacterClass.MAGE ? 75 : 120;
+            PortraitRow(fighterBox, MatchSession.ClassName(kind), $"Tile {at.y + 1},{at.x + 1}", kind == CharacterClass.MAGE ? "mage" : kind == CharacterClass.ARCHER ? "archer" : "knight", false);
+            int hp = kind switch { CharacterClass.MAGE => 75, CharacterClass.ARCHER => 100, _ => 120 };
             fighterBox.AddChild(HealthDisplay("", hp, hp, new Color("3d6548")));
             int index = i; fighterBox.AddChild(Button("Remove", () => match.RemoveFighter(index), !match.MyTurn));
         }
@@ -509,8 +505,8 @@ public partial class Premove : Control
     }
     void BeginPlacement()
     {
-        if (characterIndex > 1 || !match.CanAdd) return;
-        match.SelectClass(characterIndex == 0 ? CharacterClass.WARRIOR : CharacterClass.MAGE);
+        if (characterIndex > 2 || !match.CanAdd) return;
+        match.SelectClass(characterIndex switch { 0 => CharacterClass.WARRIOR, 1 => CharacterClass.MAGE, _ => CharacterClass.ARCHER });
         transient = match.Message;
         if (GodotObject.IsInstanceValid(showcase)) showcase.Call("perform", -1, 2, showcase.Position, showcase.Position + new Vector2(100, 0), 1.0f);
         Refresh();
@@ -956,7 +952,7 @@ public partial class Premove : Control
             }
             if (key.Keycode == Key.Left) BrowseCharacter(-1);
             else if (key.Keycode == Key.Right) BrowseCharacter(1);
-            else if (key.Keycode is Key.Enter or Key.KpEnter) { if (characterIndex < 2 && match.CanAdd) { BeginPlacement(); placementOpen = true; } }
+            else if (key.Keycode is Key.Enter or Key.KpEnter) { if (characterIndex < 3 && match.CanAdd) { BeginPlacement(); placementOpen = true; } }
             else if (key.Keycode == Key.Space) match.ConfirmDeployment();
             else if (key.Keycode == Key.Backspace) match.RemoveFighter(match.Rosters[match.Viewer - 1].Count - 1);
             else if (key.Keycode == Key.P) CyclePerk();
@@ -1085,12 +1081,16 @@ public partial class Premove : Control
             GD.Print("SMOKE: practice phase=" + match.Phase + " tick=" + BattleEngine.getClock());
             board.Reset();
             match.Start(false, 2);
-            match.Deploy(CharacterClass.WARRIOR, 6, 5); match.Deploy(CharacterClass.MAGE, 6, 6); match.ConfirmDeployment();
+            match.Deploy(CharacterClass.ARCHER, 6, 5); match.Deploy(CharacterClass.MAGE, 6, 6); match.ConfirmDeployment();
             match.ContinueHandoff(); match.Deploy(CharacterClass.WARRIOR, 9, 5); match.Deploy(CharacterClass.MAGE, 9, 6); match.ConfirmDeployment();
-            match.ContinueHandoff(); match.Edit(2); match.LockPlan(); match.ContinueHandoff(); match.Edit(1); match.LockPlan();
+            match.ContinueHandoff(); match.Direction = 2; match.Range = 3; match.Edit(-1); match.LockPlan();
+            match.ContinueHandoff(); match.Edit(0); match.LockPlan();
             match.ContinueHandoff(); match.ConfirmFighter(); match.ContinueHandoff(); match.ConfirmFighter();
             match.Update(3);
             if (match.Phase == MatchPhase.Rewind) match.Rewind(false);
+            if (BattleEngine.getPlayer(2).getCharacter(0).currentHP() != 102)
+                throw new InvalidOperationException("Archer smoke attack did not resolve.");
+            for (int frame = 0; frame < 45; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             GD.Print("SMOKE: local phase=" + match.Phase + " tick=" + BattleEngine.getClock());
             GD.Print("SMOKE PASS");
         }

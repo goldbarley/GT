@@ -12,8 +12,8 @@ public static class MatchChecks
     static void Setup(CharacterClass a, CharacterClass b, IVector2 at, IVector2 bt, SuperPerk perk = SuperPerk.Teleport)
     {
         BattleEngine.setupEngine(0, 123);
-        BattleEngine.setupPlayer(1, 1, new[] { a }, new[] { new int[a == CharacterClass.MAGE ? 10 : 15] }, new[] { at }, perk);
-        BattleEngine.setupPlayer(2, 1, new[] { b }, new[] { new int[b == CharacterClass.MAGE ? 10 : 15] }, new[] { bt }, SuperPerk.Tactician);
+        BattleEngine.setupPlayer(1, 1, new[] { a }, new[] { new int[a == CharacterClass.MAGE ? 10 : a == CharacterClass.ARCHER ? 20 : 15] }, new[] { at }, perk);
+        BattleEngine.setupPlayer(2, 1, new[] { b }, new[] { new int[b == CharacterClass.MAGE ? 10 : b == CharacterClass.ARCHER ? 20 : 15] }, new[] { bt }, SuperPerk.Tactician);
     }
 
     static void Fight()
@@ -62,6 +62,30 @@ public static class MatchChecks
         Fight(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 90,
             "A skill must become available again when its cooldown expires.");
+
+        Setup(CharacterClass.ARCHER, CharacterClass.WARRIOR, new(7, 5), new(10, 5));
+        BattleEngine.setStep(1, 0, 0, -1, 2, new(3, 3));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 102,
+            "Archer basic shot must deal 18 damage at three tiles.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[0] == 2,
+            "Archer basic shot must apply its cooldown.");
+
+        Setup(CharacterClass.ARCHER, CharacterClass.WARRIOR, new(7, 5), new(11, 5));
+        BattleEngine.setStep(1, 0, 0, -2, 2, new(4, 4));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 105,
+            "Archer double shot must hit at four tiles.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[1] == 3,
+            "Archer double shot must apply its cooldown.");
+
+        Setup(CharacterClass.ARCHER, CharacterClass.WARRIOR, new(7, 5), new(10, 5));
+        BattleEngine.setStep(1, 0, 0, -3, 2, new(3, 3));
+        Fight(); BattleEngine.advanceOneTick();
+        Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 110,
+            "Archer Godray must hit along its cardinal line.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[2] == 5,
+            "Archer Godray must apply its cooldown.");
 
         Setup(CharacterClass.MAGE, CharacterClass.WARRIOR, new(7, 5), new(9, 5));
         BattleEngine.setStep(1, 0, 0, 5, 4, new(10, 10));
@@ -134,11 +158,15 @@ public static class MatchChecks
 
         session.Start(true, 1, 0, 5, 321);
         int spawnCol = Enumerable.Range(0, session.Map.GetLength(1)).First(col => session.CanPlace(6, col));
-        session.Deploy(CharacterClass.WARRIOR, 6, spawnCol);
+        session.Deploy(CharacterClass.ARCHER, 6, spawnCol);
         session.ConfirmDeployment();
         session.LockPlan();
         Require(session.Phase == MatchPhase.Combat, "Single-fighter matches should auto-select both fighters.");
         Require(BattleEngine.getDetails().selected.All(fighter => fighter == 0), "Single-fighter teams should be selected automatically.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).characterClass() == CharacterClass.ARCHER,
+            "Archer must be deployable in a playable match.");
+        Require(BattleEngine.getPlayer(1).getCharacter(0).stepCount() == MatchSession.MoveLimit(CharacterClass.ARCHER, 5),
+            "Archer must receive its class-based move allowance.");
 
         GD.Print("CHECKS PASS: damage, defense, cooldowns, snapshots, teleport, collisions, future sight, rewind, privacy, clock, cycles");
     }

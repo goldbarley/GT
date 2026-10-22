@@ -125,7 +125,7 @@ public partial class BattleBoard : Control
     (IVector2 at, int hp, int max) Unit(int p, int i)
     {
         CharacterClass c = Session.Rosters[p][i];
-        int max = c == CharacterClass.MAGE ? 75 : 120;
+        int max = c switch { CharacterClass.MAGE => 75, CharacterClass.ARCHER => 100, _ => 120 };
         if (ReplayFrame != null)
             return (p == 0 ? ReplayFrame.player1CharacterPositions[i] : ReplayFrame.player2CharacterPositions[i],
                 p == 0 ? ReplayFrame.player1CharacterHPs[i] : ReplayFrame.player2CharacterHPs[i], max);

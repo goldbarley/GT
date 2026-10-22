@@ -1,0 +1,110 @@
+{
+  "clip": "archer_idle",
+  "description": "Breathing idle shared by all four perspectives. The torso group lifts the chest a single pixel and rolls the shoulders, the weight shifts from one boot to the other, the bow drifts on the grip, the quiver sways on the strap and the arm moves with the chest.",
+  "fps": 8,
+  "loop": true,
+  "duration": 4.0,
+  "keys": [
+    {
+      "time": 0.0,
+      "ease": "in_out",
+      "poses": {}
+    },
+    {
+      "time": 0.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": 0.0, "pos": { "x": 0, "y": -1 } },
+        "foot_a": { "pos": { "x": 0, "y": 0 } },
+        "foot_b": { "pos": { "x": 0, "y": 0 } },
+        "bow": { "rot": 1.0 },
+        "quiver": { "rot": 0.8 },
+        "arm": { "rot": 0.5 },
+        "cape": { "rot": 0.4 }
+      }
+    },
+    {
+      "time": 1.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": -0.8, "pos": { "x": 1, "y": -1 } },
+        "foot_a": { "pos": { "x": 0, "y": -1 } },
+        "foot_b": { "pos": { "x": 1, "y": 0 } },
+        "bow": { "rot": 2.0 },
+        "quiver": { "rot": 1.5 },
+        "arm": { "rot": 1.0 },
+        "cape": { "rot": 0.8 }
+      }
+    },
+    {
+      "time": 1.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": -0.8, "pos": { "x": 1, "y": 0 } },
+        "foot_a": { "pos": { "x": 0, "y": 0 } },
+        "foot_b": { "pos": { "x": 1, "y": 0 } },
+        "bow": { "rot": 2.0 },
+        "quiver": { "rot": 1.5 },
+        "arm": { "rot": 1.0 },
+        "cape": { "rot": 0.8 }
+      }
+    },
+    {
+      "time": 2.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": 0.0, "pos": { "x": 0, "y": 0 } },
+        "foot_a": { "pos": { "x": 0, "y": 0 } },
+        "foot_b": { "pos": { "x": 0, "y": 0 } },
+        "bow": { "rot": 1.0 },
+        "quiver": { "rot": 0.8 },
+        "arm": { "rot": 0.5 },
+        "cape": { "rot": 0.4 }
+      }
+    },
+    {
+      "time": 2.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": 0.0, "pos": { "x": 0, "y": -1 } },
+        "foot_a": { "pos": { "x": 0, "y": 0 } },
+        "foot_b": { "pos": { "x": 0, "y": 0 } },
+        "bow": { "rot": 1.0 },
+        "quiver": { "rot": 0.8 },
+        "arm": { "rot": 0.5 },
+        "cape": { "rot": 0.4 }
+      }
+    },
+    {
+      "time": 3.0,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": 0.8, "pos": { "x": -1, "y": -1 } },
+        "foot_a": { "pos": { "x": -1, "y": 0 } },
+        "foot_b": { "pos": { "x": 0, "y": -1 } },
+        "bow": { "rot": 0.0 },
+        "quiver": { "rot": 0.2 },
+        "arm": { "rot": 0.0 },
+        "cape": { "rot": 0.0 }
+      }
+    },
+    {
+      "time": 3.5,
+      "ease": "in_out",
+      "poses": {
+        "torso": { "rot": 0.8, "pos": { "x": -1, "y": 0 } },
+        "foot_a": { "pos": { "x": -1, "y": 0 } },
+        "foot_b": { "pos": { "x": 0, "y": -1 } },
+        "bow": { "rot": 0.0 },
+        "quiver": { "rot": 0.2 },
+        "arm": { "rot": 0.0 },
+        "cape": { "rot": 0.0 }
+      }
+    },
+    {
+      "time": 4.0,
+      "ease": "in_out",
+      "poses": {}
+    }
+  ]
+}

@@ -65,11 +65,20 @@ public sealed class MatchSession
     public static string ClassName(CharacterClass c) => c == CharacterClass.WARRIOR ? "Knight" : c.ToString()[0] + c.ToString().Substring(1).ToLowerInvariant();
     public static string[] SkillNames(CharacterClass c) => c == CharacterClass.MAGE
         ? new[] { "Fireball", "Energy barrier", "Meteorite", "Quad beam" }
-        : new[] { "Slash", "Stab", "Plunge", "Knight's Edge", "Shield" };
-    public static int[] Cooldowns(CharacterClass c) => c == CharacterClass.MAGE ? new[] { 1, 1, 3, 3 } : new[] { 0, 1, 3, 2, 2 };
+        : c == CharacterClass.ARCHER
+            ? new[] { "Basic shot", "Double shot", "Godray" }
+            : new[] { "Slash", "Stab", "Plunge", "Knight's Edge", "Shield" };
+    public static int[] Cooldowns(CharacterClass c) => c switch
+    {
+        CharacterClass.MAGE => new[] { 1, 1, 3, 3 },
+        CharacterClass.ARCHER => new[] { 1, 2, 4 },
+        _ => new[] { 0, 1, 3, 2, 2 }
+    };
     public static string[] SkillDetails(CharacterClass c) => c == CharacterClass.MAGE
         ? new[] { "15 damage · cardinal target", "Block 20 damage · self", "20 damage · 3 × 3 area", "10 damage · four diagonal rays" }
-        : new[] { "20 damage · 1 tile", "30 damage · 2 tiles", "15 damage · 3 × 3 · range 2–3", "25 damage · 2 tiles", "Block 30 damage · self" };
+        : c == CharacterClass.ARCHER
+            ? new[] { "18 damage · cardinal target at 3 tiles · cooldown 1", "15 damage at 4 and 5 tiles · cooldown 2", "10 damage along the full cardinal line · cooldown 4" }
+            : new[] { "20 damage · 1 tile", "30 damage · 2 tiles", "15 damage · 3 × 3 · range 2–3", "25 damage · 2 tiles", "Block 30 damage · self" };
     public static string[] PerkNames = { "King Crimson", "Defy Destiny", "Teleport", "Tactician" };
     public static string[] PerkDetails = {
         "See enemy plans for 20 seconds after both sides lock. Edit your own plan in that window.",
@@ -132,7 +141,7 @@ public sealed class MatchSession
     {
         if (Route(nameof(Deploy), viewer, (int)type, row, col)) return;
         if (Phase != MatchPhase.Deploy || !CanAct(viewer)) return;
-        if (type != CharacterClass.MAGE && type != CharacterClass.WARRIOR) return;
+        if (type != CharacterClass.MAGE && type != CharacterClass.WARRIOR && type != CharacterClass.ARCHER) return;
         int p = viewer - 1;
         if (Rosters[p].Count >= TeamSize) { Message = "Your team is full. Remove a fighter to change it."; Notify(); return; }
 
@@ -181,6 +190,9 @@ public sealed class MatchSession
         (CharacterClass.WARRIOR, 1) => new[] { 2 },
         (CharacterClass.WARRIOR, 2) => new[] { 2, 3 },
         (CharacterClass.WARRIOR, 3) => new[] { 2 },
+        (CharacterClass.ARCHER, 0) => new[] { 3 },
+        (CharacterClass.ARCHER, 1) => new[] { 4, 5 },
+        (CharacterClass.ARCHER, 2) => new[] { 1 },
         _ => Array.Empty<int>()
     };
 
@@ -674,7 +686,12 @@ public sealed class MatchSession
                 {
                     action = NextMove(at, target);
                     if (action > 0) at = Move(at, action);
-                    else action = c.characterClass() == CharacterClass.MAGE ? -2 : -5;
+                    else action = c.characterClass() switch
+                    {
+                        CharacterClass.MAGE => -2,
+                        CharacterClass.ARCHER => -1,
+                        _ => -5
+                    };
                 }
                 BattleEngine.setStep(2, i, slot, action, direction, new IVector2(range, range));
             }

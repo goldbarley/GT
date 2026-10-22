@@ -1,0 +1,204 @@
+{
+  "perspective": "front",
+  "canvas_size": {
+    "width": 33,
+    "height": 32
+  },
+  "spritesheet": "Archer_front_clean.png",
+  "reference_rect": {
+    "x": 0,
+    "y": 30,
+    "w": 33,
+    "h": 32
+  },
+  "roles": {
+    "leaf": "leaf_a",
+    "cape": "cape",
+    "foot_b": "foot_b",
+    "arm": "arm",
+    "body": "body",
+    "bow": "bow",
+    "quiver": "quiver",
+    "foot_a": "foot_a"
+  },
+  "groups": {
+    "torso": {
+      "pivot": {
+        "x": 18.0,
+        "y": 24.0
+      },
+      "members": [
+        "body",
+        "arm",
+        "cape",
+        "leaf_a"
+      ]
+    },
+    "all": {
+      "pivot": {
+        "x": 16,
+        "y": 32
+      },
+      "members": [
+        "leaf_a",
+        "cape",
+        "foot_b",
+        "arm",
+        "body",
+        "bow",
+        "quiver",
+        "foot_a"
+      ]
+    }
+  },
+  "piece_parents": {
+    "bow": "arm",
+    "quiver": "body"
+  },
+  "pieces": {
+    "leaf_a": {
+      "region": {
+        "x": 76,
+        "y": 0,
+        "w": 7,
+        "h": 8
+      },
+      "position": {
+        "x": 6,
+        "y": 2
+      },
+      "pivot": {
+        "x": 5.5,
+        "y": 2.25
+      },
+      "z_index": 7,
+      "description": "leaf"
+    },
+    "cape": {
+      "region": {
+        "x": 54,
+        "y": 0,
+        "w": 13,
+        "h": 13
+      },
+      "position": {
+        "x": 0,
+        "y": 16
+      },
+      "pivot": {
+        "x": 11.0,
+        "y": 0.0
+      },
+      "z_index": 3,
+      "description": "cape"
+    },
+    "foot_b": {
+      "region": {
+        "x": 84,
+        "y": 0,
+        "w": 5,
+        "h": 4
+      },
+      "position": {
+        "x": 17,
+        "y": 28
+      },
+      "pivot": {
+        "x": 1.5,
+        "y": 0.0
+      },
+      "z_index": 5,
+      "description": "foot"
+    },
+    "arm": {
+      "region": {
+        "x": 68,
+        "y": 0,
+        "w": 7,
+        "h": 12
+      },
+      "position": {
+        "x": 21,
+        "y": 14
+      },
+      "pivot": {
+        "x": 1.67,
+        "y": 1.11
+      },
+      "z_index": 6,
+      "description": "arm"
+    },
+    "body": {
+      "region": {
+        "x": 0,
+        "y": 0,
+        "w": 20,
+        "h": 29
+      },
+      "position": {
+        "x": 8,
+        "y": 0
+      },
+      "pivot": {
+        "x": 9.5,
+        "y": 23.0
+      },
+      "z_index": 2,
+      "description": "body"
+    },
+    "bow": {
+      "region": {
+        "x": 34,
+        "y": 0,
+        "w": 19,
+        "h": 19
+      },
+      "position": {
+        "x": 14,
+        "y": 11
+      },
+      "pivot": {
+        "x": 12.33,
+        "y": 13.17
+      },
+      "z_index": 0,
+      "description": "bow"
+    },
+    "quiver": {
+      "region": {
+        "x": 21,
+        "y": 0,
+        "w": 12,
+        "h": 23
+      },
+      "position": {
+        "x": 2,
+        "y": 9
+      },
+      "pivot": {
+        "x": 5.5,
+        "y": 11.0
+      },
+      "z_index": 1,
+      "description": "quiver"
+    },
+    "foot_a": {
+      "region": {
+        "x": 90,
+        "y": 0,
+        "w": 4,
+        "h": 3
+      },
+      "position": {
+        "x": 13,
+        "y": 29
+      },
+      "pivot": {
+        "x": 2.0,
+        "y": 0.0
+      },
+      "z_index": 4,
+      "description": "foot"
+    }
+  }
+}

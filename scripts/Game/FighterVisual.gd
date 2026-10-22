@@ -47,6 +47,8 @@ func show_direction(direction: int) -> void:
 		var path: String
 		if kind == 0:
 			path = "res://assets/characters/Mage/mage_%s/mage_%s.tscn" % [perspective, perspective]
+		elif kind == 2:
+			path = "res://assets/characters/Archer/archer_%s/archer_%s.tscn" % [perspective, perspective]
 		else:
 			path = "res://assets/characters/Knight/Knight_%s/Knight%s.tscn" % [perspective, perspective.capitalize()]
 		var rig := (load(path) as PackedScene).instantiate() as ModularRig
@@ -63,11 +65,13 @@ func show_direction(direction: int) -> void:
 		var player := ChoreoPlayer.new()
 		player.target = rig
 		player.smooth_rotation = false
-		player.clips_directory = "res://assets/characters/Mage/anim/clips" if kind == 0 else "res://assets/characters/Knight/Anim/clips"
+		player.clips_directory = "res://assets/characters/Mage/anim/clips" if kind == 0 else "res://assets/characters/Archer/anim/clips" if kind == 2 else "res://assets/characters/Knight/Anim/clips"
 		add_child(player)
 		if not player.is_inside_tree():
 			player._cache_rig()
 		player.clip_finished.connect(_finished)
+		if kind == 2:
+			player.clip_impact.connect(_archer_impact)
 		rigs[perspective] = rig
 		players[perspective] = player
 	current = players[perspective]
@@ -124,7 +128,7 @@ func idle() -> void:
 		current.dismiss_effect()
 	active_clip = ""
 	current.playback_speed = 1.0
-	current.play("mage_idle" if kind == 0 else "knight_idle")
+	current.play("mage_idle" if kind == 0 else "archer_idle" if kind == 2 else "knight_idle")
 
 func set_menu_walk(enabled: bool) -> void:
 	if current == null:
@@ -136,7 +140,7 @@ func set_menu_walk(enabled: bool) -> void:
 	if enabled:
 		current.set_process(true)
 		current.playback_speed = 1.0
-		current.play("mage_walk" if kind == 0 else "knight_walk")
+		current.play("mage_walk" if kind == 0 else "archer_walk" if kind == 2 else "knight_walk")
 	else:
 		current.set_process(false)
 
@@ -171,11 +175,17 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 	show_direction(direction if action < 0 or action == 5 else action if action > 0 else direction)
 	var clip: String = ""
 	if action >= 1 and action <= 4:
-		clip = "mage_walk" if kind == 0 else "knight_walk"
+		clip = "mage_walk" if kind == 0 else "archer_walk" if kind == 2 else "knight_walk"
 	elif action == 5:
-		clip = "mage_teleport_reappear" if kind == 0 else "knight_walk"
+		clip = "mage_teleport_reappear" if kind == 0 else "archer_idle" if kind == 2 else "knight_walk"
 	elif action < 0:
-		var names: Array = ["mage_fireball", "mage_energy_barrier", "mage_meteorite", "mage_cast"] if kind == 0 else ["knight_slash", "knight_stab", "knight_plunge", "knight_ultimate", "knight_guard"]
+		var names: Array
+		if kind == 0:
+			names = ["mage_fireball", "mage_energy_barrier", "mage_meteorite", "mage_cast"]
+		elif kind == 2:
+			names = ["archer_basic_attack", "archer_skill", "archer_charged_shot"]
+		else:
+			names = ["knight_slash", "knight_stab", "knight_plunge", "knight_ultimate", "knight_guard"]
 		clip = names[-action - 1]
 	if kind == 0:
 		rigs[facing].cast_target = get_parent().get_global_transform() * target
@@ -202,6 +212,29 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 
 func _finished(_clip: String) -> void:
 	call_deferred("idle")
+
+func _archer_impact(_clip: String) -> void:
+	var rig: ModularRig = rigs[facing]
+	var bow: Sprite2D = rig.get_piece("bow")
+	if bow == null:
+		push_error("Archer attack rig is missing its bow.")
+		return
+	var aim: Vector2 = get_parent().get_global_transform() * cast_target_local
+	var direction := (aim - bow.global_position).normalized()
+	if direction == Vector2.ZERO:
+		direction = Vector2.RIGHT
+	var shot_scale := absf(scale.x)
+	var host: Node = get_parent()
+	var origin := bow.global_position
+	var ground_y := rig.to_global(rig.get_feet_centre()).y
+	if playing_action == -1:
+		ArcherShot.fire_basic_attack(host, origin, direction, 1200.0, ground_y, shot_scale)
+	elif playing_action == -2:
+		var spread := direction.orthogonal() * 4.0 * shot_scale
+		ArcherShot.fire_skill(host, origin - spread, direction, 1200.0, ground_y, shot_scale)
+		ArcherShot.fire_skill(host, origin + spread, direction, 1200.0, ground_y, shot_scale)
+	elif playing_action == -3:
+		ArcherShot.fire(host, origin, direction, 1500.0, ground_y, shot_scale)
 
 func _ignore_mouse(node: Node) -> void:
 	if node is Control:
