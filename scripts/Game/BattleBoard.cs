@@ -25,6 +25,8 @@ public partial class BattleBoard : Control
     
     readonly GDScript visualScript = GD.Load<GDScript>("res://scripts/Game/FighterVisual.gd");
     readonly Dictionary<(int, int), Node2D> actors = new();
+    readonly Dictionary<(int, int), (int action, int direction, int range, int slot)> previewActions = new();
+    readonly Queue<(Snapshot before, Snapshot after)> queuedTicks = new();
     readonly List<(Vector2 position, string text, Color color)> damage = new();
     readonly Color blue = new("70d9ef"), red = new("ff9984"), gold = new("edcc88");
     readonly Color pending = new("f0d264"), settled = new("8fd694");
@@ -110,7 +112,9 @@ public partial class BattleBoard : Control
     public void Reset()
     {
         foreach (var actor in actors.Values) actor.QueueFree();
-        actors.Clear(); visualBefore = visualAfter = null; impactShown = true; tickAnimationsWaiting = false; cameraScale = 0; hover = new(-1, -1); effects = null; damage.Clear(); ReplayFrame = null; QueueRedraw();
+        actors.Clear(); previewActions.Clear(); queuedTicks.Clear();
+        visualBefore = visualAfter = null; impactShown = true; tickAnimationsWaiting = false;
+        cameraScale = 0; hover = new(-1, -1); effects = null; damage.Clear(); ReplayFrame = null; QueueRedraw();
     }
 
     public void Sync()
@@ -133,13 +137,45 @@ public partial class BattleBoard : Control
                     actors[key] = actor;
                 }
                 var unit = Unit(p, i);
-                actor.Call("reset_visual");
+                bool planningPreview = Session.Phase is MatchPhase.Planning or MatchPhase.Foresight
+                    && p == Session.Viewer - 1;
+                if (!planningPreview) actor.Call("reset_visual");
                 actor.Visible = unit.hp > 0;
                 actor.Call("fit_tile", tile * 1.2f);
-                actor.Position = Center(unit.at.x, unit.at.y) + offsets.GetValueOrDefault(key);
+                Vector2 destination = Center(unit.at.x, unit.at.y) + offsets.GetValueOrDefault(key);
+                if (planningPreview && actor.Visible)
+                {
+                    actor.Call("slide_to", destination, 0.18f);
+                    PreviewAction(actor, key, unit.at);
+                }
+                else
+                {
+                    previewActions.Remove(key);
+                    actor.Position = destination;
+                }
                 actor.ZIndex = unit.at.x * 2 + 10;
             }
         QueueRedraw();
+    }
+
+    void PreviewAction(Node2D actor, (int, int) key, IVector2 position)
+    {
+        int action = key.Item1 == Session.Viewer - 1 && key.Item2 == Session.Fighter
+            ? Session.Action
+            : 0;
+        if (action >= 0)
+        {
+            previewActions.Remove(key);
+            return;
+        }
+
+        var signature = (action, Session.Direction, Session.Range, Session.Slot);
+        if (previewActions.TryGetValue(key, out var previous) && previous == signature) return;
+        previewActions[key] = signature;
+        IVector2 target = action == 5
+            ? position
+            : MatchSession.Move(position, Session.Direction, Session.Range);
+        actor.Call("perform", action, Session.Direction, actor.Position, Center(target.x, target.y), (float)Session.TickSeconds);
     }
 
     Dictionary<(int, int), Vector2> GetTileOffsets(
@@ -188,11 +224,31 @@ public partial class BattleBoard : Control
                 p == 0 ? ReplayFrame.player1CharacterHPs[i] : ReplayFrame.player2CharacterHPs[i], max);
         if (Session.Phase == MatchPhase.Deploy) return (Session.Spawns[p][i], max, max);
         Character unit = BattleEngine.getPlayer((uint)p + 1).getCharacter(i);
-        bool hidden = p != Session.Viewer - 1 && (Session.Phase == MatchPhase.Planning || Session.Phase == MatchPhase.Foresight);
-        return (hidden ? Session.Spawns[p][i] : unit.currentPosition(), DisplayHP(p, i), max);
+        bool planning = Session.Phase is MatchPhase.Planning or MatchPhase.Foresight;
+        bool hidden = planning && p != Session.Viewer - 1;
+        IVector2 position = hidden ? Session.Spawns[p][i] : unit.currentPosition();
+        if (planning && p == Session.Viewer - 1)
+        {
+            position = BattleEngine.previewPosition((uint)p + 1, i, Session.Slot - 1);
+            if (Session.Fighter == i && Session.Action is >= 1 and <= 4)
+                position = MatchSession.Move(position, Session.Action, 1);
+            else if (Session.Fighter == i && Session.Action == 5)
+                position = MatchSession.Move(position, Session.Direction, Session.Range);
+        }
+        return (position, DisplayHP(p, i), max);
     }
 
     public void PlayTick(Snapshot before, Snapshot after)
+    {
+        if (tickAnimationsWaiting)
+        {
+            queuedTicks.Enqueue((before, after));
+            return;
+        }
+        BeginTick(before, after);
+    }
+
+    void BeginTick(Snapshot before, Snapshot after)
     {
         if (actors.Count == 0) Sync();
         visualBefore = before; visualAfter = after; tickElapsed = 0; tickImpactDelay = 0; impactShown = false;
@@ -230,11 +286,16 @@ public partial class BattleBoard : Control
                     if (action == 5 && before.teleportCooldowns[p][i] > 1) action = 0;
                     int direction = slot < before.directions[p][i].Length ? before.directions[p][i][slot] : 2;
                     IVector2 length = slot < before.lengths[p][i].Length ? before.lengths[p][i][slot] : new IVector2(1, 1);
-                    IVector2 target = MatchSession.Move(to, direction, direction <= 2 ? length.x : length.y);
+                    IVector2 target = action == 5
+                        ? to
+                        : MatchSession.Move(from, direction, direction <= 2 ? length.x : length.y);
+                    Vector2 targetPosition = action == 5
+                        ? Center(to.x, to.y) + afterOffsets.GetValueOrDefault((p, i))
+                        : Center(target.x, target.y);
                     movesOnTile = action >= 1 && action <= 4 || action == 5;
                     actor.Call("perform", action, direction,
                         Center(to.x, to.y) + afterOffsets.GetValueOrDefault((p, i)),
-                        Center(target.x, target.y), (float)Session.TickSeconds);
+                        targetPosition, (float)Session.TickSeconds);
                     if (action < 0)
                     {
                         int skillIndex = -action - 1;
@@ -263,6 +324,12 @@ public partial class BattleBoard : Control
         foreach (var actor in actors.Values)
             if (GodotObject.IsInstanceValid(actor) && actor.Call("is_action_playing").AsBool())
                 return;
+        if (queuedTicks.Count > 0)
+        {
+            var next = queuedTicks.Dequeue();
+            BeginTick(next.before, next.after);
+            return;
+        }
         tickAnimationsWaiting = false;
         TickAnimationsFinished?.Invoke();
     }
@@ -510,12 +577,14 @@ public partial class BattleBoard : Control
         else if (action < 0)
         {
             int skill = -action - 1;
+            var selected = SkillCells(unit, skill, Session.Direction, Session.Range).ToHashSet();
+            var alternatives = new HashSet<(int row, int col)>();
             foreach (int distance in MatchSession.SkillRanges(unit.characterClass(), skill))
-            {
-                if (distance == Session.Range) continue;
-                foreach (var cell in SkillCells(unit, skill, Session.Direction, distance)) Dotted(cell);
-            }
-            foreach (var cell in SkillCells(unit, skill, Session.Direction, Session.Range)) Shade(new IVector2(cell.row, cell.col), pending);
+                for (int direction = 1; direction <= 4; direction++)
+                    foreach (var cell in SkillCells(unit, skill, direction, distance))
+                        if (!selected.Contains(cell)) alternatives.Add(cell);
+            foreach (var cell in alternatives) ShadeAlternative(cell);
+            foreach (var cell in selected) Shade(new IVector2(cell.row, cell.col), pending);
         }
     }
 
@@ -564,6 +633,14 @@ public partial class BattleBoard : Control
         Rect2 rect = Tile(cell.x, cell.y).Grow(-2);
         DrawRect(rect, new Color(color, 0.28f));
         DrawRect(rect, color, false, 2);
+    }
+
+    void ShadeAlternative((int row, int col) cell)
+    {
+        Rect2 rect = Tile(cell.row, cell.col).Grow(-2);
+        Color gray = new("aeb8c2");
+        DrawRect(rect, new Color(gray, 0.4f));
+        DrawRect(rect, new Color(gray, 0.9f), false, 2);
     }
 
     void Dotted((int row, int col) cell)

@@ -30,7 +30,11 @@ public partial class NetworkMatch : Node
         public int Action { get; set; }
         public int Phase { get; set; }
         public double Delta { get; set; }
+        public bool AnimationHold { get; set; }
+        public long Sequence { get; set; }
     }
+
+    long sequence;
 
     public override void _Ready()
     {
@@ -40,19 +44,39 @@ public partial class NetworkMatch : Node
         transport.ConnectionLost += () => ConnectionLost?.Invoke();
         transport.GuestLeft += () => ConnectionLost?.Invoke();
         transport.GuestJoined += () => StatusChanged?.Invoke("Player two joined. Choose a map to begin.");
-        transport.CommandReceived += (player, _, json) => {
+        transport.CommandReceived += (player, rpcName, json) => {
             if (player != 2) return;
             try
             {
                 var command = JsonSerializer.Deserialize<Command>(json);
-                if (command == null || command.Name is "Start" or "Update" || command.Viewer != player || !Valid(command)) return;
-                transport.SendView(json); Apply(command);
+                if (command == null || command.Name != rpcName || command.Name is "Start" or "Update" || command.Viewer != player
+                    || !Valid(command))
+                {
+                    GD.PushWarning($"Rejected LAN command from player {player}.");
+                    return;
+                }
+                command.Sequence = ++sequence;
+                Apply(command);
+                transport.SendView(JsonSerializer.Serialize(command));
             }
-            catch (JsonException) { }
+            catch (JsonException error) { GD.PushWarning($"Rejected malformed LAN command: {error.Message}"); }
         };
         transport.ViewReceived += json => {
-            try { var command = JsonSerializer.Deserialize<Command>(json); if (command != null) Apply(command); }
-            catch (JsonException) { }
+            try
+            {
+                var command = JsonSerializer.Deserialize<Command>(json);
+                if (command == null) { GD.PushWarning("Received an empty LAN update."); return; }
+                if (command.Name != "Update")
+                {
+                    if (command.Name == "Start") sequence = 0;
+                    if (command.Sequence <= sequence) return;
+                    if (command.Sequence != sequence + 1)
+                        GD.PushWarning($"LAN command sequence jumped from {sequence} to {command.Sequence}.");
+                    sequence = command.Sequence;
+                }
+                Apply(command);
+            }
+            catch (JsonException error) { GD.PushWarning($"Rejected malformed host update: {error.Message}"); }
         };
     }
 
@@ -86,9 +110,11 @@ public partial class NetworkMatch : Node
             Fighter = editor.Fighter, Slot = editor.Slot, Direction = editor.Direction, Range = editor.Range, Action = editor.Action };
         if (name == "Start" && !CanStart) return true;
         if (name != "Start" && !Session.MyTurn) return true;
+        if (name == "Start") sequence = 0;
+        command.Sequence = transport.Mode == LanSession.SessionMode.Host ? ++sequence : 0;
         string json = JsonSerializer.Serialize(command);
         if (transport.Mode == LanSession.SessionMode.Client) transport.SendCommand(name, json);
-        else { transport.SendView(json); Apply(command); }
+        else { Apply(command); transport.SendView(json); }
         return true;
     }
 
@@ -124,7 +150,9 @@ public partial class NetworkMatch : Node
                 case "FinishFutureSight": Session.FinishFutureSightAs(c.Viewer); break;
                 case "ConfirmFighter": Session.ConfirmFighterAs(c.Viewer); break;
                 case "Rewind": Session.RewindAs(c.Viewer, c.Arguments[1] != 0); break;
-                case "Update": Session.Update(c.Delta); break;
+                case "Update":
+                    Session.Update(c.Delta, transport.Mode == LanSession.SessionMode.Client ? c.AnimationHold : null);
+                    break;
             }
         }
         finally { applying = false; }
@@ -136,7 +164,12 @@ public partial class NetworkMatch : Node
         if (transport.Mode != LanSession.SessionMode.Host || !transport.GuestConnected || Session.Phase == MatchPhase.Menu) return;
         elapsed += delta;
         if (elapsed < 0.05) return;
-        var c = new Command { Name = "Update", Delta = elapsed }; elapsed = 0;
+        var c = new Command {
+            Name = "Update",
+            Delta = elapsed,
+            AnimationHold = Session.Phase == MatchPhase.Combat && Session.IsWaitingForAnimations
+        };
+        elapsed = 0;
         transport.SendView(JsonSerializer.Serialize(c)); Apply(c);
     }
 }

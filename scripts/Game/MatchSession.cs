@@ -49,6 +49,7 @@ public sealed class MatchSession
         characterClass == CharacterClass.MAGE ? Math.Max(1, maximum - 1) : maximum;
 
     public Func<string, int[], bool> Intercept;
+    public bool IsWaitingForAnimations => tickPending && tickAnimationPending;
     bool Route(string name, params int[] arguments) => Intercept?.Invoke(name, arguments) ?? false;
 
     public Editor Mine => Editors[Viewer - 1];
@@ -539,7 +540,7 @@ public sealed class MatchSession
         Notify();
     }
 
-    public void Update(double delta)
+    public void Update(double delta, bool? remoteAnimationHold = null)
     {
         if (Paused) return;
         if (Lan && Phase == MatchPhase.Deploy)
@@ -556,7 +557,7 @@ public sealed class MatchSession
         if (Phase != MatchPhase.Combat) return;
         tickClock -= delta;
         if (tickClock > 0) return;
-        if (tickPending && tickAnimationPending) return;
+        if (remoteAnimationHold ?? (tickPending && tickAnimationPending)) return;
         if (tickPending)
         {
             tickPending = false;

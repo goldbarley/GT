@@ -1120,7 +1120,18 @@ public partial class Premove : Control
                 match.Fighter = available[(index + (key.Keycode == Key.Left ? available.Length - 1 : 1)) % available.Length]; Refresh();
             }
             else if (key.Keycode == Key.Space) match.LockPlan();
-            else if (key.Keycode == Key.Tab && match.Current != null) { match.Fighter = (match.Fighter + 1) % match.TeamSize; match.Slot = 0; Refresh(); }
+            else if (key.Keycode == Key.Tab && match.Current != null)
+            {
+                int next = match.Fighter;
+                for (int count = 0; count < match.TeamSize; count++)
+                {
+                    next = (next + 1) % match.TeamSize;
+                    if (BattleEngine.getPlayer((uint)match.Viewer).getCharacter(next).isAlive()) break;
+                }
+                match.Fighter = next;
+                match.Slot = 0;
+                Refresh();
+            }
             else if (key.Keycode is Key.Left or Key.Right or Key.Up or Key.Down)
             { match.Direction = key.Keycode switch { Key.Up => 1, Key.Down => 2, Key.Left => 3, _ => 4 }; Refresh(); }
             else if (key.Keycode is Key.KpAdd or Key.Equal or Key.Plus) { match.StepRange(1); Refresh(); }

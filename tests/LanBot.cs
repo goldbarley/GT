@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 /// Drives a whole LAN match from one machine's point of view, so the networked
@@ -15,6 +16,7 @@ public partial class LanBot : Node
     public async void Run(string role)
     {
         Role = role;
+        bool threeFighter = OS.GetCmdlineUserArgs().Contains("--lan-test-three");
         Network.Address = "127.0.0.1";
         if (role == "host") GD.Print("LAN HOST: " + Network.Host());
         else GD.Print("LAN JOIN: " + Network.Join());
@@ -23,7 +25,7 @@ public partial class LanBot : Node
         if (!Network.Ready) { GD.Print("LAN FAIL: no connection"); GetTree().Quit(1); return; }
         GD.Print("LAN " + role.ToUpperInvariant() + ": connected as player " + Network.LocalPlayer);
 
-        if (role == "host") { Session.Start(false, 1); }
+        if (role == "host") { Session.Start(false, threeFighter ? 3 : 1); }
         while (Session.Phase == MatchPhase.Menu) await Frame();
 
         while (Session.Phase == MatchPhase.Deploy)
@@ -32,8 +34,15 @@ public partial class LanBot : Node
             if (!deployed && Session.MyTurn)
             {
                 deployed = true;
-                int row = Session.Local == 1 ? 6 : 9;
-                Session.Deploy(CharacterClass.WARRIOR, row, 5);
+                for (int i = 0; i < Session.TeamSize; i++)
+                {
+                    var spot = Enumerable.Range(0, Session.Map.GetLength(0))
+                        .SelectMany(row => Enumerable.Range(0, Session.Map.GetLength(1))
+                            .Select(col => (row, col)))
+                        .First(tile => Session.CanPlace(tile.row, tile.col));
+                    Session.Deploy(CharacterClass.WARRIOR, spot.row, spot.col);
+                    while (Session.Rosters[Session.Local - 1].Count <= i) await Frame();
+                }
                 Session.SetPerk(Session.Local == 1 ? (int)SuperPerk.DefyDestiny : (int)SuperPerk.Tactician);
                 Session.ConfirmDeployment();
             }
@@ -43,16 +52,37 @@ public partial class LanBot : Node
         MatchPhase last = MatchPhase.Deploy;
         bool connected = true;
         bool sawRewind = false;
+        bool sawThirdPlan = false;
+        int frames = 0;
         while (Session.Phase != MatchPhase.Finished && connected)
         {
             await Frame();
+            frames++;
+            if (threeFighter && frames > 1200) break;
+            sawThirdPlan |= threeFighter
+                && Enumerable.Range(0, 3).All(fighter =>
+                    BattleEngine.getPlayer(1).getCharacter(fighter).getStep(0) == 2
+                    && BattleEngine.getPlayer(2).getCharacter(fighter).getStep(0) == 2);
             if (Session.Phase == MatchPhase.Menu && last != MatchPhase.Menu) { connected = false; break; }
             sawRewind |= Session.Phase == MatchPhase.Rewind;
             if (Session.Phase != last) { last = Session.Phase; planned = selected = rewound = false; }
             if (Session.Phase == MatchPhase.Planning && Session.MyTurn && !planned)
             {
                 planned = true;
-                Session.Edit(2);
+                for (int fighter = 0; fighter < Session.TeamSize; fighter++)
+                {
+                    Session.Fighter = fighter;
+                    Session.Slot = 0;
+                    Session.Edit(2);
+                    while (BattleEngine.getPlayer((uint)Session.Local).getCharacter(fighter).getStep(0) != 2)
+                        await Frame();
+                }
+                sawThirdPlan |= Session.TeamSize == 3
+                    && Enumerable.Range(0, 3).All(fighter =>
+                        BattleEngine.getPlayer(1).getCharacter(fighter).getStep(0) == 2
+                        && BattleEngine.getPlayer(2).getCharacter(fighter).getStep(0) == 2);
+                Session.Fighter = 0;
+                Session.Slot = 0;
                 Session.LockPlan();
             }
             else if (Session.Phase == MatchPhase.Foresight && !selected) { selected = true; Session.FinishFutureSight(); }
@@ -62,6 +92,12 @@ public partial class LanBot : Node
                 Session.ConfirmFighter();
             }
             else if (Session.Phase == MatchPhase.Rewind && !rewound) { rewound = true; Session.Rewind(false); }
+            if (threeFighter && sawThirdPlan && Session.Phase == MatchPhase.Combat && BattleEngine.getClock() > 0)
+            {
+                GD.Print($"LAN {role.ToUpperInvariant()}: {(Session.TeamSize == 3 ? "three-fighter sync passed" : "failed")} phase={Session.Phase} clock={BattleEngine.getClock()}");
+                GetTree().Quit(Session.TeamSize == 3 ? 0 : 1);
+                return;
+            }
         }
 
         for (int i = 0; i < 180 && connected; i++) await Frame();

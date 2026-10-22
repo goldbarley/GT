@@ -26,6 +26,8 @@ var arena_clip := Rect2()
 var teleport_progress := -1.0
 var teleport_destination := Vector2.ZERO
 var teleport_moved := false
+var teleport_phase := 0
+const TELEPORT_PHASE_DURATION := 0.9
 
 func configure(character_class: int) -> void:
 	kind = character_class
@@ -130,6 +132,7 @@ func idle() -> void:
 	queue_redraw()
 	action_duration = 0.0
 	teleport_progress = -1.0
+	teleport_phase = 0
 	for rig in rigs.values():
 		rig.modulate = Color.WHITE
 	if current != null:
@@ -184,13 +187,21 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 		current.dismiss_effect()
 	show_direction(direction if action < 0 or action == 5 else action if action > 0 else direction)
 	if action == 5:
-		teleport_progress = 0.0
-		teleport_destination = destination
+		teleport_destination = target
 		teleport_moved = false
 		action_elapsed = 0.0
-		action_duration = maxf(duration, 0.8)
+		teleport_phase = 1
+		active_clip = "mage_teleport"
+		if kind == 0:
+			current.playback_speed = 1.0
+			current.play(active_clip)
+			current.restore_effect()
+			action_duration = current.get_duration()
+			return
+		teleport_progress = 0.0
+		action_duration = TELEPORT_PHASE_DURATION
 		current.playback_speed = 1.0
-		current.play("mage_idle" if kind == 0 else "archer_idle" if kind == 2 else "knight_idle")
+		current.play("archer_idle" if kind == 2 else "knight_idle")
 		return
 	var clip: String = ""
 	if action >= 1 and action <= 4:
@@ -230,6 +241,23 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 		motion.tween_callback(_finish_move)
 
 func _finished(_clip: String) -> void:
+	if playing_action == 5 and kind == 0:
+		if teleport_phase == 1:
+			position = teleport_destination
+			teleport_moved = true
+			teleport_phase = 2
+			active_clip = "mage_teleport_reappear"
+			current.playback_speed = 1.0
+			current.play(active_clip)
+			current.restore_effect()
+			action_elapsed = 0.0
+			action_duration = current.get_duration()
+			return
+		if teleport_phase == 2:
+			teleport_phase = 0
+			teleport_progress = -1.0
+			idle()
+			return
 	call_deferred("idle")
 
 func _parent_global_transform() -> Transform2D:
@@ -257,10 +285,7 @@ func _archer_impact(_clip: String) -> void:
 	if bow == null:
 		push_error("Archer attack rig is missing its bow.")
 		return
-	var aim := _parent_to_global(cast_target_local)
-	var direction := (aim - bow.global_position).normalized()
-	if direction == Vector2.ZERO:
-		direction = Vector2.RIGHT
+	var direction := _direction_vector(_direction_code(facing))
 	var shot_scale := absf(scale.x)
 	var host: Node = get_parent()
 	var origin := bow.global_position
@@ -285,8 +310,7 @@ func _apply_aim_pose(_t: float, perspective: String) -> void:
 	var bow: Sprite2D = rig.get_piece("bow")
 	if bow == null:
 		return
-	var aim := _parent_to_global(cast_target_local)
-	bow.global_rotation = (aim - bow.global_position).angle()
+	bow.global_rotation = _direction_vector(_direction_code(perspective)).angle()
 
 func _direction_code(perspective: String) -> int:
 	return {"back": 1, "front": 2, "left": 3, "right": 4}[perspective]
@@ -375,6 +399,7 @@ func reset_visual() -> void:
 		reaction.kill()
 	modulate = Color.WHITE
 	teleport_progress = -1.0
+	teleport_phase = 0
 	if beam != null:
 		beam.set_playing(false)
 	for rig in rigs.values():
@@ -408,37 +433,39 @@ func _process(delta: float) -> void:
 	if action_duration > 0.0:
 		action_elapsed += delta
 		var progress := action_elapsed / action_duration
-		if teleport_progress >= 0.0:
+		if playing_action == 5 and kind != 0:
 			teleport_progress = clampf(progress, 0.0, 1.0)
-			if progress >= 0.5 and not teleport_moved:
-				position = teleport_destination
-				teleport_moved = true
-			var opacity := clampf(absf(teleport_progress - 0.5) * 2.0, 0.0, 1.0)
-			for rig in rigs.values():
-				rig.modulate = Color(1.0, 1.0, 1.0, opacity)
+			var opacity := 1.0 - teleport_progress if teleport_phase == 1 else teleport_progress
+			rigs[facing].modulate = Color(1.0, 1.0, 1.0, opacity)
 		if kind == 0 and playing_action == -4 and progress >= impact_fraction and not beam_started:
 			beam_started = true
 			_fire_beams()
 		if progress >= 1.0:
-			idle()
+			if playing_action == 5 and kind != 0:
+				if teleport_phase == 1:
+					position = teleport_destination
+					teleport_moved = true
+					teleport_phase = 2
+					active_clip = "mage_teleport_reappear"
+					action_elapsed = 0.0
+					action_duration = TELEPORT_PHASE_DURATION
+					teleport_progress = 0.0
+				else:
+					idle()
+			elif not (kind == 0 and playing_action == 5):
+				idle()
 	if beam != null and beam.is_playing():
 		beam.anchor_to_gem(rigs[facing])
 
 func _draw() -> void:
-	if teleport_progress >= 0.0:
-		var openness := 1.0 - teleport_progress * 2.0 if teleport_progress <= 0.5 else (teleport_progress - 0.5) * 2.0
-		var separation := 28.0 * openness
-		var radius := 3.0 + 10.0 * openness
-		var tint := Color(0.72, 0.93, 1.0, 0.85)
-		for side in [-1.0, 1.0]:
-			var center := Vector2(side * separation, 0.0)
-			for ring in range(2):
-				var ring_radius := radius + float(ring) * 3.0
-				for segment in range(20):
-					var angle_a := TAU * float(segment) / 20.0
-					var angle_b := TAU * float(segment + 1) / 20.0
-					draw_line(center + Vector2.from_angle(angle_a) * ring_radius,
-						center + Vector2.from_angle(angle_b) * ring_radius, tint, 1.5)
+	if teleport_progress >= 0.0 and kind != 0:
+		var progress := teleport_progress if teleport_phase == 1 else 1.0 - teleport_progress
+		var bar_progress := progress / 0.7 if progress <= 0.7 else (1.0 - progress) / 0.3
+		var half_width := lerpf(0.5, 16.0, clampf(bar_progress, 0.0, 1.0))
+		var offset := lerpf(16.0, 0.0, progress)
+		var tint := Color(0.72, 0.93, 1.0, 0.9)
+		for y in [-offset, offset]:
+			draw_line(Vector2(-half_width, y), Vector2(half_width, y), tint, 2.0, true)
 	if kind != 1 or action_duration <= 0.0 or playing_action >= 0 or playing_action == -5:
 		return
 	var phase := action_elapsed / action_duration - impact_fraction
