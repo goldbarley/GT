@@ -58,7 +58,7 @@ Music loads from `assets/music/`: `title`, `battle`, `victory` and `defeat` are 
 
 Combat hit sounds come from `assets/sounds/`; `hurt.wav` plays once per tick whenever a fighter loses HP, Knight Slash hits use `sword_hit.wav`, Plunge hits use `plunge.wav`, Mage Fireball casts use `fireball.wav`, and Knight's Edge casts use `flame_sword.wav`. See [`assets/sounds/README.md`](assets/sounds/README.md).
 
-**Audio settings** on the title screen and in the pause menu controls music and effects volume and mute independently. Choices are saved to `user://audio.cfg` and restored on the next run.
+**Audio settings** on the title screen and in the pause menu controls music and effects volume and mute independently. Choices are saved to `user://audio.cfg` and restored on the next run. Enabled buttons play a quiet `hover.wav` beep when the mouse enters them.
 
 ## Team perks
 
