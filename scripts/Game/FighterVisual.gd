@@ -1,5 +1,7 @@
 extends Node2D
 
+const HitEffectClass := preload("res://assets/effects/hit/hit_effect.gd")
+
 var kind: int = 0
 var rigs: Dictionary = {}
 var players: Dictionary = {}
@@ -265,6 +267,7 @@ func react_to_hit(defeated: bool) -> void:
 	reaction.tween_property(self, "modulate", Color(1, 1, 1, 0) if defeated else Color.WHITE, 0.24)
 	if defeated:
 		reaction.tween_callback(hide)
+	HitEffectClass.spawn_at(self, Vector2(0, 0), 0.5, 0.24)
 
 func reset_visual() -> void:
 	if motion != null and motion.is_valid():

@@ -177,24 +177,24 @@
           "time": 0.7,
           "ease": "out_cubic",
           "poses": {
-            "arm": {
-              "rot": -57.802
-            },
-            "bow": {
-              "rot": 87.552
-            },
-            "torso": {
-              "rot": 3.0,
+              "arm": {
+                "rot": -34.0
+              },
+              "bow": {
+                "rot": 54.0
+              },
+              "torso": {
+                "rot": 9.0,
               "pos": {
                 "x": 0,
-                "y": 1
+                  "y": 2
               }
             },
             "foot_a": {
-              "rot": -4.5
+                "rot": -7.0
             },
             "foot_b": {
-              "rot": 4.5
+                "rot": 7.0
             }
           },
           "fx": {
@@ -429,24 +429,24 @@
           "time": 0.7,
           "ease": "out_cubic",
           "poses": {
-            "arm": {
-              "rot": 35.196
-            },
-            "bow": {
-              "rot": -64.946
-            },
-            "torso": {
-              "rot": -3.0,
+              "arm": {
+                "rot": 19.0
+              },
+              "bow": {
+                "rot": -40.0
+              },
+              "torso": {
+                "rot": -9.0,
               "pos": {
                 "x": 0,
-                "y": 1
+                  "y": 2
               }
             },
             "foot_a": {
-              "rot": 4.5
+                "rot": 7.0
             },
             "foot_b": {
-              "rot": -4.5
+                "rot": -7.0
             }
           },
           "fx": {
@@ -681,24 +681,24 @@
           "time": 0.7,
           "ease": "out_cubic",
           "poses": {
-            "arm": {
-              "rot": 35.196
-            },
-            "bow": {
-              "rot": -5.446
-            },
-            "torso": {
-              "rot": 3.0,
+              "arm": {
+                "rot": 19.0
+              },
+              "bow": {
+                "rot": -2.0
+              },
+              "torso": {
+                "rot": 9.0,
               "pos": {
                 "x": 0,
-                "y": 1
+                  "y": 2
               }
             },
             "foot_a": {
-              "rot": -4.5
+                "rot": -7.0
             },
             "foot_b": {
-              "rot": 4.5
+                "rot": 7.0
             }
           },
           "fx": {
@@ -933,24 +933,24 @@
           "time": 0.7,
           "ease": "out_cubic",
           "poses": {
-            "arm": {
-              "rot": -51.058
-            },
-            "bow": {
-              "rot": 21.308
-            },
-            "torso": {
-              "rot": -3.0,
+              "arm": {
+                "rot": -31.0
+              },
+              "bow": {
+                "rot": 12.0
+              },
+              "torso": {
+                "rot": -9.0,
               "pos": {
                 "x": 0,
-                "y": 1
+                  "y": 2
               }
             },
             "foot_a": {
-              "rot": 4.5
+                "rot": 7.0
             },
             "foot_b": {
-              "rot": -4.5
+                "rot": -7.0
             }
           },
           "fx": {

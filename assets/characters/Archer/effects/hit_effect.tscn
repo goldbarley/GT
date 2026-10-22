@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://c8hitspark001"]
+
+[ext_resource type="Script" path="res://assets/effects/hit/hit_effect.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/hit_effect.gdshader" id="2_shader"]
+[ext_resource type="Texture2D" path="res://assets/effects/hit/hit_spark_sheet.png" id="3_texture"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_spark"]
+resource_local_to_scene = true
+shader = ExtResource("2_shader")
+shader_parameter/hit_texture = ExtResource("3_texture")
+shader_parameter/progress = 0.0
+shader_parameter/num_frames = 9.0
+shader_parameter/hit_color = Color(1, 1, 1, 1)
+shader_parameter/flash_intensity = 0.0
+shader_parameter/flash_color = Color(1, 1, 1, 1)
+shader_parameter/overlay_on_sprite = false
+shader_parameter/spark_offset = Vector2(0.5, 0.5)
+shader_parameter/spark_size = Vector2(1, 1)
+
+[node name="HitEffect" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_script")
+
+[node name="Spark" type="ColorRect" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_spark")
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 2
