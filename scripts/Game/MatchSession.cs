@@ -77,12 +77,12 @@ public sealed class MatchSession
         _ => new[] { 0, 2, 4, 2, 2 }
     };
     public static string[] SkillDetails(CharacterClass c) => c == CharacterClass.MAGE
-        ? new[] { "15 damage · cardinal target · cooldown 1", "Block 20 damage · self · cooldown 1", "20 damage · 3 × 3 area · cooldown 4", "10 damage · four diagonal rays · cooldown 3" }
+        ? new[] { "15 damage · cardinal target · cooldown 1", "Block 20 damage · self · cooldown 1", "30 damage · 3 × 3 area · cooldown 4", "15 damage · four diagonal rays · cooldown 3" }
         : c == CharacterClass.ARCHER
-            ? new[] { "18 damage · cardinal target at 3 tiles · cooldown 1", "15 damage at 4 and 5 tiles · cooldown 3", "25 damage · cardinal target at 6 tiles · cooldown 3", "10 damage along the full cardinal line · cooldown 4" }
+            ? new[] { "18 damage · cardinal target at 3 tiles · cooldown 1", "15 damage at 4 and 5 tiles · cooldown 3", "40 damage · cardinal target at 6 tiles · cooldown 3", "25 damage along the full cardinal line · cooldown 4" }
             : c == CharacterClass.ORC
                 ? new[] { "28 damage · cardinal target", "20 damage · 3 × 3 area", "Block 25 damage · self" }
-                : new[] { "20 damage · 1 tile · cooldown 0", "30 damage · 2 tiles · cooldown 2", "15 damage · 3 × 3 · range 2–3 · cooldown 4", "25 damage · 2 tiles · cooldown 2", "Block 30 damage · self · cooldown 2" };
+                : new[] { "20 damage · 1 tile · cooldown 0", "30 damage · 2 tiles · cooldown 2", "25 damage · 3 × 3 · range 2–3 · cooldown 4", "45 damage · 2 tiles · cooldown 2", "Block 30 damage · self · cooldown 2" };
     public static string[] PerkNames = { "King Crimson", "Defy Destiny", "Teleport", "Tactician" };
     public static string[] PerkDetails = {
         "See enemy plans for 90 seconds after both sides lock. Edit your own plan in that window.",

@@ -126,7 +126,7 @@ public partial class Premove : Control
         left = new VBoxContainer { CustomMinimumSize = new Vector2(0, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill }; leftScroll.AddChild(left);
         var center = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         battleCenterMargin = new MarginContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        battleCenterMargin.AddThemeConstantOverride("margin_right", 272);
+        battleCenterMargin.AddThemeConstantOverride("margin_right", 356);
         battleCenterMargin.AddChild(center); body.AddChild(battleCenterMargin);
         var boardPanel = new PanelContainer { SizeFlagsVertical = SizeFlags.ExpandFill };
         boardPanel.AddThemeStyleboxOverride("panel", Box("88674c", "38271f", 0)); center.AddChild(boardPanel);
@@ -137,7 +137,7 @@ public partial class Premove : Control
         board.TileHovered += text => tileInfo.Text = text == "" ? "ARENA   /   G: TILE VIEW" : text;
         keyPanel = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
         keyPanel.AddThemeStyleboxOverride("panel", Box("c6d6dfef", "355c75", 0));
-        keyOverlay = keyPanel; AddChild(keyPanel); keyPanel.SetAnchorsAndOffsetsPreset(LayoutPreset.TopRight);
+        keyOverlay = keyPanel; AddChild(keyPanel); keyPanel.SetAnchorsAndOffsetsPreset(LayoutPreset.RightWide);
         var rightScroll = new ScrollContainer {
             HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
             VerticalScrollMode = ScrollContainer.ScrollMode.Auto,
@@ -156,11 +156,12 @@ public partial class Premove : Control
     {
         if (keyPanel == null) return;
         Vector2 viewport = GetViewportRect().Size;
-        keyPanel.OffsetLeft = -292;
+        float panelWidth = Mathf.Min(356, Mathf.Max(300, viewport.X * 0.278f));
+        keyPanel.OffsetLeft = -panelWidth;
         keyPanel.OffsetRight = -24;
         keyPanel.OffsetTop = 88;
         keyPanel.OffsetBottom = -24;
-        battleCenterMargin?.AddThemeConstantOverride("margin_right", Mathf.RoundToInt(Mathf.Min(272, Mathf.Max(208, viewport.X * 0.34f))));
+        battleCenterMargin?.AddThemeConstantOverride("margin_right", Mathf.RoundToInt(panelWidth));
     }
 
     Label Label(string text, int size = 15, Color? color = null)
@@ -1178,7 +1179,10 @@ public partial class Premove : Control
         screen = "map"; Refresh(); await Capture("/tmp/premove-map.png");
         teamSize = 2; solo = true; match.Start(true, 2);
         await Capture("/tmp/premove-characters.png");
-        match.Deploy(CharacterClass.WARRIOR, 6, 5); match.Deploy(CharacterClass.MAGE, 6, 6);
+        BrowseCharacter(2); await Capture("/tmp/premove-archer-select.png");
+        BeginPlacement(); placementOpen = true; Refresh(); await Capture("/tmp/premove-archer-placement.png");
+        placementOpen = false;
+        match.Deploy(CharacterClass.ARCHER, 6, 5); match.Deploy(CharacterClass.MAGE, 6, 6);
         await Capture("/tmp/premove-deployment.png");
         match.ConfirmDeployment(); match.Edit(2); match.Edit(-1);
         match.Fighter = 1; match.Slot = 0; match.Range = 4; match.Direction = 2; match.Action = -3;
@@ -1203,8 +1207,13 @@ public partial class Premove : Control
         }
         await Capture("/tmp/premove-knight-poses.png");
         var effectsPage = FullScreen("ATTACK PLAYBACK", 1200);
-        var effectStage = new Control { CustomMinimumSize = new Vector2(1050, 480) }; effectsPage.AddChild(effectStage);
-        foreach (var (kind, action, spot) in new[] { (0, -1, new Vector2(150, 120)), (0, -3, new Vector2(150, 340)), (1, -1, new Vector2(650, 120)), (1, -4, new Vector2(650, 340)) })
+        var effectStage = new Control { CustomMinimumSize = new Vector2(1150, 500) }; effectsPage.AddChild(effectStage);
+        foreach (var (kind, action, spot) in new[] {
+            (0, -1, new Vector2(140, 120)), (0, -3, new Vector2(430, 120)),
+            (1, -1, new Vector2(720, 120)), (1, -4, new Vector2(1010, 120)),
+            (2, -1, new Vector2(140, 380)), (2, -2, new Vector2(430, 380)),
+            (2, -3, new Vector2(720, 380)), (2, -4, new Vector2(1010, 380))
+        })
         {
             var actor = new Node2D { ProcessMode = ProcessModeEnum.Always }; actor.SetScript(GD.Load<GDScript>("res://scripts/Game/FighterVisual.gd")); effectStage.AddChild(actor);
             actor.Position = spot; actor.Call("configure", kind); actor.Call("fit_tile", 64f);

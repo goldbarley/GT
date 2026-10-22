@@ -119,6 +119,9 @@ public partial class BattleBoard : Control
         LoadTileTextures();
         foreach (var actor in actors.Values) actor.Visible = false;
         if (Concealed) { QueueRedraw(); return; }
+        var offsets = GetTileOffsets(
+            (p, i) => Unit(p, i).at,
+            (p, i) => Unit(p, i).hp > 0);
         for (int p = 0; p < 2; p++)
             for (int i = 0; i < Session.Rosters[p].Count; i++)
             {
@@ -133,11 +136,48 @@ public partial class BattleBoard : Control
                 actor.Call("reset_visual");
                 actor.Visible = unit.hp > 0;
                 actor.Call("fit_tile", tile * 1.2f);
-                actor.Position = Center(unit.at.x, unit.at.y);
+                actor.Position = Center(unit.at.x, unit.at.y) + offsets.GetValueOrDefault(key);
                 actor.ZIndex = unit.at.x * 2 + 10;
             }
         QueueRedraw();
     }
+
+    Dictionary<(int, int), Vector2> GetTileOffsets(
+        Func<int, int, IVector2> position,
+        Func<int, int, bool> alive)
+    {
+        var occupants = new Dictionary<(int, int), List<(int, int)>>();
+        for (int p = 0; p < 2; p++)
+            for (int i = 0; i < Session.Rosters[p].Count; i++)
+            {
+                if (!alive(p, i)) continue;
+                IVector2 at = position(p, i);
+                var tilePosition = (at.x, at.y);
+                if (!occupants.TryGetValue(tilePosition, out var fighters))
+                    occupants[tilePosition] = fighters = new List<(int, int)>();
+                fighters.Add((p, i));
+            }
+
+        var offsets = new Dictionary<(int, int), Vector2>();
+        foreach (var fighters in occupants.Values)
+        {
+            if (fighters.Count < 2) continue;
+            for (int index = 0; index < fighters.Count; index++)
+            {
+                Vector2 offset = fighters.Count == 2
+                    ? new Vector2((index == 0 ? -1 : 1) * tile * 0.24f, 0)
+                    : Vector2.FromAngle(-Mathf.Pi / 2 + Mathf.Tau * index / fighters.Count) * tile * 0.28f;
+                offsets[fighters[index]] = offset;
+            }
+        }
+        return offsets;
+    }
+
+    static IVector2 SnapshotPosition(Snapshot snapshot, int player, int fighter) =>
+        player == 0 ? snapshot.player1CharacterPositions[fighter] : snapshot.player2CharacterPositions[fighter];
+
+    static int SnapshotHP(Snapshot snapshot, int player, int fighter) =>
+        player == 0 ? snapshot.player1CharacterHPs[fighter] : snapshot.player2CharacterHPs[fighter];
 
     (IVector2 at, int hp, int max) Unit(int p, int i)
     {
@@ -159,6 +199,12 @@ public partial class BattleBoard : Control
         tickAnimationsWaiting = true;
         damage.Clear(); effects = new int[Rows, Columns]; flash = 0;
         abilityLighting.Visible = false;
+        var beforeOffsets = GetTileOffsets(
+            (p, i) => SnapshotPosition(before, p, i),
+            (p, i) => SnapshotHP(before, p, i) > 0);
+        var afterOffsets = GetTileOffsets(
+            (p, i) => SnapshotPosition(after, p, i),
+            (p, i) => SnapshotHP(after, p, i) > 0);
         for (int p = 0; p < 2; p++)
         {
             int[,] skill = p == 0 ? after.player1SkillGrid : after.player2SkillGrid;
@@ -172,9 +218,10 @@ public partial class BattleBoard : Control
                 actor.Call("reset_visual");
                 actor.Visible = oldHp > 0;
                 var from = p == 0 ? before.player1CharacterPositions[i] : before.player2CharacterPositions[i];
-                actor.Position = Center(from.x, from.y);
+                actor.Position = Center(from.x, from.y) + beforeOffsets.GetValueOrDefault((p, i));
                 actor.ZIndex = to.x * 2 + 10;
 
+                bool movesOnTile = false;
                 if (before.selected[p] == i && oldHp > 0)
                 {
                     int slot = before.exchangeTick;
@@ -184,7 +231,10 @@ public partial class BattleBoard : Control
                     int direction = slot < before.directions[p][i].Length ? before.directions[p][i][slot] : 2;
                     IVector2 length = slot < before.lengths[p][i].Length ? before.lengths[p][i][slot] : new IVector2(1, 1);
                     IVector2 target = MatchSession.Move(to, direction, direction <= 2 ? length.x : length.y);
-                    actor.Call("perform", action, direction, Center(to.x, to.y), Center(target.x, target.y), (float)Session.TickSeconds);
+                    movesOnTile = action >= 1 && action <= 4 || action == 5;
+                    actor.Call("perform", action, direction,
+                        Center(to.x, to.y) + afterOffsets.GetValueOrDefault((p, i)),
+                        Center(target.x, target.y), (float)Session.TickSeconds);
                     if (action < 0)
                     {
                         int skillIndex = -action - 1;
@@ -197,6 +247,10 @@ public partial class BattleBoard : Control
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("flame_sword", 0.05f);
                     tickImpactDelay = Math.Max(tickImpactDelay, (float)actor.Call("get_action_impact_time").AsDouble());
                 }
+                if (oldHp > 0 && !movesOnTile)
+                    actor.Call("slide_to",
+                        Center(to.x, to.y) + afterOffsets.GetValueOrDefault((p, i)),
+                        Math.Min(0.3f, (float)Session.TickSeconds));
             }
         }
         CompleteTickAnimationsIfReady();
@@ -279,12 +333,20 @@ public partial class BattleBoard : Control
         if (TrackCamera && Session.Phase != MatchPhase.Deploy && TryGetBattleBounds(out Rect2 battleBounds))
         {
             focus = battleBounds.GetCenter();
-            Vector2 framedSize = battleBounds.Size + Vector2.One * tile * 4.5f;
+            Vector2 framedSize = battleBounds.Size + Vector2.One * tile * 2f;
             framedSize.X = Math.Max(framedSize.X, tile * 4);
             framedSize.Y = Math.Max(framedSize.Y, tile * 4);
             desiredScale = Math.Min(1.5f, Math.Min((Size.X - 32) / framedSize.X, (Size.Y - 32) / framedSize.Y));
         }
-        float blend = 1 - Mathf.Exp(-(float)delta * 5);
+        bool fightersOffscreen = actors.Values.Any(actor =>
+        {
+            if (!actor.Visible) return false;
+            Vector2 screenPosition = cameraOffset + actor.Position * cameraScale;
+            float margin = tile * cameraScale * 0.5f;
+            return screenPosition.X < margin || screenPosition.X > Size.X - margin
+                || screenPosition.Y < margin || screenPosition.Y > Size.Y - margin;
+        });
+        float blend = 1 - Mathf.Exp(-(float)delta * (fightersOffscreen ? 16 : 7));
         if (cameraScale <= 0) { cameraScale = fit; cameraOffset = Size / 2 - focus * fit; }
         cameraScale = Mathf.Lerp(cameraScale, Math.Max(fit, desiredScale), blend);
         Vector2 halfView = Size / (2 * cameraScale);

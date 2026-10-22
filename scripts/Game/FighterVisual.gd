@@ -8,6 +8,7 @@ var players: Dictionary = {}
 var facing: String = "front"
 var current: ChoreoPlayer
 var motion: Tween
+var formation_motion: Tween
 var active_clip: String = ""
 var beam: MageBeamBurst
 var edge_layers: Dictionary = {}
@@ -204,7 +205,7 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 			names = ["knight_slash", "knight_stab", "knight_plunge", "knight_ultimate", "knight_guard"]
 		clip = names[-action - 1]
 	if kind == 0:
-		rigs[facing].cast_target = get_parent().to_global(target)
+		rigs[facing].cast_target = _parent_to_global(target)
 		if action == -3:
 			var explosion: ExplosionColumn = rigs[facing].get_node_or_null("ExplosionFX")
 			if explosion != null:
@@ -231,6 +232,17 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 func _finished(_clip: String) -> void:
 	call_deferred("idle")
 
+func _parent_global_transform() -> Transform2D:
+	var parent := get_parent()
+	if parent is Node2D:
+		return (parent as Node2D).get_global_transform()
+	if parent is Control:
+		return (parent as Control).get_global_transform()
+	return Transform2D.IDENTITY
+
+func _parent_to_global(point: Vector2) -> Vector2:
+	return _parent_global_transform() * point
+
 func _finish_move() -> void:
 	idle()
 
@@ -245,7 +257,7 @@ func _archer_impact(_clip: String) -> void:
 	if bow == null:
 		push_error("Archer attack rig is missing its bow.")
 		return
-	var aim: Vector2 = get_parent().to_global(cast_target_local)
+	var aim := _parent_to_global(cast_target_local)
 	var direction := (aim - bow.global_position).normalized()
 	if direction == Vector2.ZERO:
 		direction = Vector2.RIGHT
@@ -256,7 +268,7 @@ func _archer_impact(_clip: String) -> void:
 	if playing_action == -1:
 		ArcherShot.fire_basic_attack(host, origin, direction, 1200.0, ground_y, shot_scale)
 	elif playing_action == -2:
-		var transform: Transform2D = get_parent().get_global_transform()
+		var transform := _parent_global_transform()
 		var tile_offset := (transform.x * direction.x + transform.y * direction.y) * 52.0
 		var spread := direction.orthogonal() * 3.0 * shot_scale
 		ArcherShot.fire_skill(host, origin - spread, direction, 1200.0, ground_y, shot_scale)
@@ -273,7 +285,7 @@ func _apply_aim_pose(_t: float, perspective: String) -> void:
 	var bow: Sprite2D = rig.get_piece("bow")
 	if bow == null:
 		return
-	var aim: Vector2 = get_parent().to_global(cast_target_local)
+	var aim := _parent_to_global(cast_target_local)
 	bow.global_rotation = (aim - bow.global_position).angle()
 
 func _direction_code(perspective: String) -> int:
@@ -357,6 +369,8 @@ func react_to_hit(defeated: bool) -> void:
 func reset_visual() -> void:
 	if motion != null and motion.is_valid():
 		motion.kill()
+	if formation_motion != null and formation_motion.is_valid():
+		formation_motion.kill()
 	if reaction != null and reaction.is_valid():
 		reaction.kill()
 	modulate = Color.WHITE
@@ -372,7 +386,15 @@ func reset_visual() -> void:
 	idle()
 
 func is_action_playing() -> bool:
-	return action_duration > 0.0 or (motion != null and motion.is_running()) or (reaction != null and reaction.is_running()) or (beam != null and beam.is_playing())
+	return action_duration > 0.0 or (motion != null and motion.is_running()) or (formation_motion != null and formation_motion.is_running()) or (reaction != null and reaction.is_running()) or (beam != null and beam.is_playing())
+
+func slide_to(destination: Vector2, duration: float) -> void:
+	if formation_motion != null and formation_motion.is_valid():
+		formation_motion.kill()
+	if position.is_equal_approx(destination):
+		return
+	formation_motion = create_tween()
+	formation_motion.tween_property(self, "position", destination, maxf(duration, 0.01)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func get_action_impact_time() -> float:
 	if action_duration <= 0.0:
@@ -382,7 +404,7 @@ func get_action_impact_time() -> float:
 func _process(delta: float) -> void:
 	queue_redraw()
 	if kind == 0 and rigs.has(facing) and cast_target_local != Vector2.INF:
-		rigs[facing].cast_target = get_parent().to_global(cast_target_local)
+		rigs[facing].cast_target = _parent_to_global(cast_target_local)
 	if action_duration > 0.0:
 		action_elapsed += delta
 		var progress := action_elapsed / action_duration
