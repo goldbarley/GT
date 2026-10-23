@@ -24,6 +24,8 @@ public partial class BattleBoard : Control
     readonly Color pending = new("f0d264"), settled = new("8fd694");
     string loadedTheme = "";
     Snapshot visualBefore, visualAfter;
+    const float ImpactFraction = 0.58f;
+    const float KnightEdgeLeadSeconds = 0.15f; // The fiery strike leads the swing so its peak lands on the slash.
     float tickElapsed;
     bool impactShown = true;
     public event Action ImpactShown;
@@ -137,6 +139,7 @@ public partial class BattleBoard : Control
         if (actors.Count == 0) Sync();
         visualBefore = before; visualAfter = after; tickElapsed = 0; impactShown = false;
         damage.Clear(); effects = new int[Rows, Columns]; flash = 0;
+        bool knightEdge = false;
         for (int p = 0; p < 2; p++)
         {
             int[,] skill = p == 0 ? after.player1SkillGrid : after.player2SkillGrid;
@@ -165,7 +168,16 @@ public partial class BattleBoard : Control
                     actor.Call("perform", action, direction, Center(to.x, to.y), Center(target.x, target.y), (float)Session.TickSeconds);
                     if (action == -1 && Session.Rosters[p][i] == CharacterClass.MAGE) Sound?.Play("fireball", 0.05f);
                     if (action == -1 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_basic", 0.05f);
-                    if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("sword_draw", 0.05f);
+                    if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR)
+                    {
+                        Sound?.Play("sword_draw", 0.05f);
+                        if (!knightEdge)
+                        {
+                            knightEdge = true;
+                            float delay = Math.Max(0f, (float)Session.TickSeconds * ImpactFraction - KnightEdgeLeadSeconds);
+                            GetTree().CreateTimer(delay, false).Timeout += () => Sound?.Play("flame_sword", 0.06f);
+                        }
+                    }
                     if (action == -2 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("twinstring", 0.05f);
                     if (action == -3 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_piercer", 0.05f);
                 }
@@ -189,7 +201,11 @@ public partial class BattleBoard : Control
             hurt |= hp < oldHp;
         }
         string ultimate = UltimateSound();
-        if (ultimate != null) Sound?.Play(ultimate, 0.06f);
+        if (ultimate == "flame_sword")
+        {
+            // PlayTick already scheduled the fiery strike just before this impact.
+        }
+        else if (ultimate != null) Sound?.Play(ultimate, 0.06f);
         else if (hurt) Sound?.Play(ImpactSound() ?? "hurt", 0.06f);
         else
         {
@@ -282,7 +298,7 @@ public partial class BattleBoard : Control
         if (!GetTree().Paused && !Session.Paused)
         {
             tickElapsed += (float)delta;
-            if (!impactShown && tickElapsed >= Session.TickSeconds * 0.58) PresentImpact();
+            if (!impactShown && tickElapsed >= Session.TickSeconds * ImpactFraction) PresentImpact();
             flash = Math.Max(0, flash - (float)delta / 0.5f);
         }
         Vector2 mapSize = new(Columns * tile, Rows * tile);
