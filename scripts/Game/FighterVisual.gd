@@ -12,6 +12,8 @@ var formation_motion: Tween
 var active_clip: String = ""
 var beam: MageBeamBurst
 var edge_layers: Dictionary = {}
+var bowstring_upper: Line2D
+var bowstring_lower: Line2D
 var tile_size: float = 0.0
 var rest_bounds: Dictionary = {}
 var cast_target_local := Vector2.INF
@@ -31,11 +33,24 @@ const TELEPORT_PHASE_DURATION := 0.9
 
 func configure(character_class: int) -> void:
 	kind = character_class
+	if kind == 2:
+		bowstring_upper = _new_bowstring()
+		bowstring_lower = _new_bowstring()
+		add_child(bowstring_upper)
+		add_child(bowstring_lower)
 	if current != null:
 		current.stop()
 		current.dismiss_effect()
 	show_direction(2)
 	idle()
+
+func _new_bowstring() -> Line2D:
+	var line := Line2D.new()
+	line.width = 1.2
+	line.default_color = Color(1.0, 0.88, 0.57, 0.95)
+	line.z_index = 1
+	line.visible = false
+	return line
 
 func show_direction(direction: int) -> void:
 	var perspective: String = ["front", "back", "front", "left", "right"][direction]
@@ -79,7 +94,6 @@ func show_direction(direction: int) -> void:
 			player._cache_rig()
 		player.clip_finished.connect(_finished)
 		player.clip_impact.connect(_animation_impact)
-		player.pose_applied.connect(_apply_aim_pose.bind(perspective))
 		rigs[perspective] = rig
 		players[perspective] = player
 	current = players[perspective]
@@ -221,8 +235,6 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 			var explosion: ExplosionColumn = rigs[facing].get_node_or_null("ExplosionFX")
 			if explosion != null:
 				explosion.clip_rect = arena_clip if arena_clip.has_area() else Rect2(Vector2.ZERO, get_viewport_rect().size)
-	if kind == 2 and action < 0:
-		_apply_aim_pose(0.0, facing)
 	if clip != "":
 		active_clip = clip
 		current.playback_speed = 1.0
@@ -288,7 +300,7 @@ func _archer_impact(_clip: String) -> void:
 	var direction := _direction_vector(_direction_code(facing))
 	var shot_scale := absf(scale.x)
 	var host: Node = get_parent()
-	var origin := bow.global_position
+	var origin := get_archer_nock_global_position()
 	var ground_y := rig.to_global(rig.get_feet_centre()).y
 	if playing_action == -1:
 		ArcherShot.fire_basic_attack(host, origin, direction, 1200.0, ground_y, shot_scale)
@@ -303,14 +315,25 @@ func _archer_impact(_clip: String) -> void:
 	elif playing_action == -4:
 		ArcherShot.fire(host, origin, direction, 1500.0, ground_y, shot_scale)
 
-func _apply_aim_pose(_t: float, perspective: String) -> void:
-	if kind != 2 or playing_action >= 0 or cast_target_local == Vector2.INF or not rigs.has(perspective):
-		return
-	var rig: ModularRig = rigs[perspective]
-	var bow: Sprite2D = rig.get_piece("bow")
+func get_archer_nock_global_position() -> Vector2:
+	if kind != 2 or not rigs.has(facing):
+		return global_position
+	var bow: Sprite2D = rigs[facing].get_piece("bow")
 	if bow == null:
-		return
-	bow.global_rotation = _direction_vector(_direction_code(perspective)).angle()
+		return global_position
+	var center := bow.to_global(bow.get_rect().get_center())
+	var aim := _parent_global_transform().basis_xform(_direction_vector(_direction_code(facing))).normalized()
+	return center - aim * 4.5 * absf(global_scale.x) * get_archer_draw_strength()
+
+func get_archer_draw_strength() -> float:
+	if kind != 2 or playing_action >= 0 or action_duration <= 0.0:
+		return 0.0
+	var release_time := get_action_impact_time()
+	if release_time <= 0.0:
+		return 0.0
+	if action_elapsed <= release_time:
+		return smoothstep(0.0, release_time, action_elapsed)
+	return 1.0 - clampf((action_elapsed - release_time) / 0.08, 0.0, 1.0)
 
 func _direction_code(perspective: String) -> int:
 	return {"back": 1, "front": 2, "left": 3, "right": 4}[perspective]
@@ -428,6 +451,7 @@ func get_action_impact_time() -> float:
 
 func _process(delta: float) -> void:
 	queue_redraw()
+	_update_bowstring()
 	if kind == 0 and rigs.has(facing) and cast_target_local != Vector2.INF:
 		rigs[facing].cast_target = _parent_to_global(cast_target_local)
 	if action_duration > 0.0:
@@ -456,6 +480,26 @@ func _process(delta: float) -> void:
 				idle()
 	if beam != null and beam.is_playing():
 		beam.anchor_to_gem(rigs[facing])
+
+func _update_bowstring() -> void:
+	if bowstring_upper == null or bowstring_lower == null:
+		return
+	var drawing := kind == 2 and rigs.has(facing) and action_duration > 0.0 and playing_action < 0
+	bowstring_upper.visible = drawing
+	bowstring_lower.visible = drawing
+	if not drawing:
+		return
+	var bow: Sprite2D = rigs[facing].get_piece("bow")
+	if bow == null:
+		return
+	var center := bow.to_global(bow.get_rect().get_center())
+	var aim := _parent_global_transform().basis_xform(_direction_vector(_direction_code(facing))).normalized()
+	var radius := 7.0 * absf(global_scale.x)
+	var upper := to_local(center - aim.orthogonal() * radius)
+	var lower := to_local(center + aim.orthogonal() * radius)
+	var nock := to_local(get_archer_nock_global_position())
+	bowstring_upper.points = PackedVector2Array([upper, nock])
+	bowstring_lower.points = PackedVector2Array([nock, lower])
 
 func _draw() -> void:
 	if teleport_progress >= 0.0 and kind != 0:

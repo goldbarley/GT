@@ -28,6 +28,7 @@ const BEAM_LENGTH := 1200.0
 var direction: Vector2 = Vector2.RIGHT
 ## Where the beam left the bow, in world space.
 var origin_point: Vector2 = Vector2.ZERO
+var origin_offset: Vector2 = Vector2.ZERO
 ## If an origin node is provided (e.g. the Bow Sprite2D), the beam continuously
 ## locks its origin position and orientation to it dynamically.
 var origin_node: Node2D = null
@@ -42,7 +43,7 @@ func _ready() -> void:
 	_elapsed = 0.0
 	_next_tear = tear_spacing
 	if origin_node and is_instance_valid(origin_node):
-		origin_point = origin_node.global_position
+		origin_point = origin_node.to_global(origin_offset)
 		global_position = origin_point
 		rotation = origin_node.global_rotation
 	elif origin_point == Vector2.ZERO:
@@ -69,7 +70,7 @@ func _physics_process(delta: float) -> void:
 
 	# Dynamically follow origin node if present, otherwise stay anchored at origin_point
 	if origin_node and is_instance_valid(origin_node):
-		global_position = origin_node.global_position
+		global_position = origin_node.to_global(origin_offset)
 		rotation = origin_node.global_rotation
 	else:
 		global_position = origin_point

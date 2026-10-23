@@ -18,9 +18,11 @@ const GroundTearScene := preload("res://assets/characters/Archer/effects/ground_
 const ArrowScene := preload("res://assets/characters/Archer/effects/arrow_projectile.tscn")
 const ChargedArrowScene := preload("res://assets/characters/Archer/effects/charged_arrow_projectile.tscn")
 
-## How far ahead of the bow the burst goes off.
-const BURST_OFFSET := 10.0
-
+static func _nock_position(source_node: Node2D, fallback: Vector2) -> Vector2:
+	if source_node is Sprite2D:
+		var bow := source_node as Sprite2D
+		return bow.to_global(bow.get_rect().get_center())
+	return source_node.global_position if source_node and is_instance_valid(source_node) else fallback
 
 ## Fires the basic attack arrow in a straight line.
 static func fire_basic_attack(parent: Node, origin: Vector2, direction: Vector2,
@@ -32,7 +34,7 @@ static func fire_basic_attack(parent: Node, origin: Vector2, direction: Vector2,
 	if dir == Vector2.ZERO:
 		dir = Vector2.RIGHT
 	if source_node and is_instance_valid(source_node):
-		origin = source_node.global_position
+		origin = _nock_position(source_node, origin)
 
 	var size := Vector2(arrow_scale, arrow_scale)
 
@@ -43,7 +45,7 @@ static func fire_basic_attack(parent: Node, origin: Vector2, direction: Vector2,
 		arrow.direction = dir
 		arrow.speed = speed
 		parent.add_child(arrow)
-		arrow.global_position = origin + dir * 10.0 * arrow_scale
+		arrow.global_position = origin
 		arrow.rotation = dir.angle()
 
 
@@ -57,7 +59,7 @@ static func fire_skill(parent: Node, origin: Vector2, direction: Vector2,
 	if dir == Vector2.ZERO:
 		dir = Vector2.RIGHT
 	if source_node and is_instance_valid(source_node):
-		origin = source_node.global_position
+		origin = _nock_position(source_node, origin)
 
 	var size := Vector2(arrow_scale, arrow_scale)
 
@@ -65,7 +67,7 @@ static func fire_skill(parent: Node, origin: Vector2, direction: Vector2,
 	if burst:
 		parent.add_child(burst)
 		burst.scale = size * 0.7
-		burst.global_position = origin + dir * 6.0 * arrow_scale
+		burst.global_position = origin
 		burst.rotation = dir.angle()
 
 	var arrow := ArrowScene.instantiate() as ArrowProjectile
@@ -74,7 +76,7 @@ static func fire_skill(parent: Node, origin: Vector2, direction: Vector2,
 		arrow.direction = dir
 		arrow.speed = speed
 		parent.add_child(arrow)
-		arrow.global_position = origin + dir * 10.0 * arrow_scale
+		arrow.global_position = origin
 		arrow.rotation = dir.angle()
 
 
@@ -88,7 +90,7 @@ static func fire_strong_skill(parent: Node, origin: Vector2, direction: Vector2,
 	if dir == Vector2.ZERO:
 		dir = Vector2.RIGHT
 	if source_node and is_instance_valid(source_node):
-		origin = source_node.global_position
+		origin = _nock_position(source_node, origin)
 
 	var size := Vector2(arrow_scale, arrow_scale)
 
@@ -96,7 +98,7 @@ static func fire_strong_skill(parent: Node, origin: Vector2, direction: Vector2,
 	if burst:
 		parent.add_child(burst)
 		burst.scale = size
-		burst.global_position = origin + dir * BURST_OFFSET * arrow_scale
+		burst.global_position = origin
 		burst.rotation = dir.angle()
 
 	var proj := ChargedArrowScene.instantiate() as ChargedArrowProjectile
@@ -106,7 +108,7 @@ static func fire_strong_skill(parent: Node, origin: Vector2, direction: Vector2,
 		proj.speed = speed
 		proj.ground_y_level = ground_y
 		parent.add_child(proj)
-		proj.global_position = origin + dir * 14.0 * arrow_scale
+		proj.global_position = origin
 		proj.rotation = dir.angle()
 
 	var tear := GroundTearScene.instantiate() as GroundTear
@@ -130,7 +132,7 @@ static func fire(parent: Node, origin: Vector2, direction: Vector2,
 		dir = Vector2.RIGHT
 	if source_node and is_instance_valid(source_node):
 		dir = Vector2.RIGHT.rotated(source_node.global_rotation)
-		origin = source_node.global_position
+		origin = _nock_position(source_node, origin)
 
 	var size := Vector2(arrow_scale, arrow_scale)
 
@@ -138,12 +140,14 @@ static func fire(parent: Node, origin: Vector2, direction: Vector2,
 	if burst:
 		parent.add_child(burst)
 		burst.scale = size
-		burst.global_position = origin + dir * BURST_OFFSET * arrow_scale
+		burst.global_position = origin
 		burst.rotation = dir.angle()
 
 	var beam := BeamScene.instantiate() as ArcherBeam
 	if beam:
 		beam.origin_node = source_node
+		if source_node is Sprite2D:
+			beam.origin_offset = (source_node as Sprite2D).get_rect().get_center()
 		beam.direction = dir
 		beam.origin_point = origin
 		beam.speed = speed
