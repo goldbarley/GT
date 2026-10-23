@@ -185,25 +185,29 @@ public partial class BattleBoard : Control
             actors[(p, i)].Call("react_to_hit", hp <= 0);
             hurt |= hp < oldHp;
         }
-        if (hurt) Sound?.Play(KnightBladeSound() ?? "hurt", 0.06f);
+        if (hurt) Sound?.Play(ImpactSound() ?? "hurt", 0.06f);
         ImpactShown?.Invoke();
     }
 
-    string KnightBladeSound()
+    string ImpactSound()
     {
         if (visualBefore == null || visualAfter == null) return null;
         for (int p = 0; p < 2; p++)
         {
             int actor = visualBefore.selected[p];
             if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
-            if (Session.Rosters[p][actor] != CharacterClass.WARRIOR) continue;
+            CharacterClass type = Session.Rosters[p][actor];
             int slot = visualBefore.exchangeTick;
             int[] steps = visualBefore.steps[p][actor];
             if (slot < 0 || slot >= steps.Length) continue;
             int action = steps[slot];
             if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
-            // Knight actions: -1 is Slash, -3 is Plunge.
-            if (action != -1 && action != -3) continue;
+            // Knight: -1 is Slash, -3 is Plunge. Mage: -1 is Fireball.
+            string sound = null;
+            if (type == CharacterClass.WARRIOR && action == -1) sound = "sword_hit";
+            else if (type == CharacterClass.WARRIOR && action == -3) sound = "plunge";
+            else if (type == CharacterClass.MAGE && action == -1) sound = "fireball_hit";
+            if (sound == null) continue;
 
             int[,] grid = p == 0 ? visualAfter.player1SkillGrid : visualAfter.player2SkillGrid;
             if (grid == null) continue;
@@ -213,7 +217,7 @@ public partial class BattleBoard : Control
                 int hp = (1 - p) == 0 ? visualAfter.player1CharacterHPs[i] : visualAfter.player2CharacterHPs[i];
                 IVector2 at = (1 - p) == 0 ? visualAfter.player1CharacterPositions[i] : visualAfter.player2CharacterPositions[i];
                 if (hp >= oldHp) continue;
-                if (at.x >= 0 && at.y >= 0 && at.x < grid.GetLength(0) && at.y < grid.GetLength(1) && grid[at.x, at.y] > 0) return action == -3 ? "plunge" : "sword_hit";
+                if (at.x >= 0 && at.y >= 0 && at.x < grid.GetLength(0) && at.y < grid.GetLength(1) && grid[at.x, at.y] > 0) return sound;
             }
         }
         return null;

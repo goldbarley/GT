@@ -152,7 +152,7 @@ public partial class Premove : Control
         b.AddThemeFontSizeOverride("font_size", 24);
         if (accent) { b.AddThemeStyleboxOverride("normal", Box("e8c48c", "8a5a2b", 0)); b.AddThemeColorOverride("font_color", cyan); }
         b.Pressed += () => { transient = ""; action(); };
-        b.MouseEntered += () => { if (!b.Disabled) sfx?.Play("hover", 0f, -6f); };
+        b.MouseEntered += () => { if (!b.Disabled) sfx?.Play("hover", 0f, -12f); };
         return b;
     }
 
