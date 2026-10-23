@@ -167,6 +167,7 @@ public partial class BattleBoard : Control
                     if (action == -1 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_basic", 0.05f);
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("sword_draw", 0.05f);
                     if (action == -2 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("twinstring", 0.05f);
+                    if (action == -3 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_piercer", 0.05f);
                 }
             }
         }
@@ -216,6 +217,7 @@ public partial class BattleBoard : Control
             if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
             if (type == CharacterClass.WARRIOR && action == -4) return "flame_sword";
             if (type == CharacterClass.MAGE && action == -3) return "meteorite";
+            if (type == CharacterClass.MAGE && action == -4) return "quad_beam";
         }
         return null;
     }
