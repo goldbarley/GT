@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8hitspark001"]
+[gd_scene format=3 uid="uid://blew002byn0t2"]
 
 [ext_resource type="Script" path="res://assets/effects/hit/hit_effect.gd" id="1_script"]
 [ext_resource type="Shader" path="res://assets/shaders/hit_effect.gdshader" id="2_shader"]
