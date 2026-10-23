@@ -281,7 +281,9 @@ public partial class BattleBoard : Control
                             && before.cooldowns[p][i][skillIndex] <= 1)
                             TriggerAbilityLighting(actor, Session.Rosters[p][i], skillIndex);
                     }
-                    if (action == -1 && Session.Rosters[p][i] == CharacterClass.MAGE) Sound?.Play("fireball", 0.05f);
+                    if (Session.Rosters[p][i] == CharacterClass.MAGE &&
+                        (action == -1 || action is -3 or -4))
+                        Sound?.Play("fireball", 0.05f);
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("sword_draw", 0.05f);
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_godray");
                     tickImpactDelay = Math.Max(tickImpactDelay, (float)actor.Call("get_action_impact_time").AsDouble());
@@ -326,91 +328,63 @@ public partial class BattleBoard : Control
             actors[(p, i)].Call("react_to_hit", hp <= 0);
             hurt |= hp < oldHp;
         }
-        string ultimate = KnightUltimateSound();
-        if (ultimate != null) Sound?.Play(ultimate, 0.06f);
-        else if (hurt) Sound?.Play(AttackImpactSound() ?? "hurt", 0.06f);
-        else
+        bool attackSound = false;
+        for (int p = 0; p < 2; p++)
         {
-            string swing = SwingSound();
-            if (swing != null) Sound?.Play(swing, 0.06f);
+            string sound = AttackImpactSound(p);
+            if (sound == null) continue;
+            Sound?.Play(sound, 0.06f);
+            attackSound = true;
         }
+        if (hurt && !attackSound) Sound?.Play("hurt", 0.06f);
         ImpactShown?.Invoke();
     }
 
-    string KnightUltimateSound()
-    {
-        if (visualBefore == null) return null;
-        for (int p = 0; p < 2; p++)
-        {
-            int actor = visualBefore.selected[p];
-            if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
-            if (Session.Rosters[p][actor] != CharacterClass.WARRIOR) continue;
-            int oldHp = p == 0 ? visualBefore.player1CharacterHPs[actor] : visualBefore.player2CharacterHPs[actor];
-            if (oldHp <= 0) continue;
-            int slot = visualBefore.exchangeTick;
-            int[] steps = visualBefore.steps[p][actor];
-            if (slot < 0 || slot >= steps.Length) continue;
-            int action = steps[slot];
-            if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
-            if (action == -4) return "flame_sword";
-        }
-        return null;
-    }
-
-    string SwingSound()
-    {
-        if (visualBefore == null) return null;
-        for (int p = 0; p < 2; p++)
-        {
-            int actor = visualBefore.selected[p];
-            if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
-            if (Session.Rosters[p][actor] != CharacterClass.WARRIOR) continue;
-            int oldHp = p == 0 ? visualBefore.player1CharacterHPs[actor] : visualBefore.player2CharacterHPs[actor];
-            if (oldHp <= 0) continue;
-            int slot = visualBefore.exchangeTick;
-            int[] steps = visualBefore.steps[p][actor];
-            if (slot < 0 || slot >= steps.Length) continue;
-            int action = steps[slot];
-            if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
-            if (action == -1) return "sword_hit";
-        }
-        return null;
-    }
-
-    string AttackImpactSound()
+    string AttackImpactSound(int player)
     {
         if (visualBefore == null || visualAfter == null) return null;
-        for (int p = 0; p < 2; p++)
-        {
-            int actor = visualBefore.selected[p];
-            if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
-            CharacterClass type = Session.Rosters[p][actor];
-            int oldActorHp = p == 0 ? visualBefore.player1CharacterHPs[actor] : visualBefore.player2CharacterHPs[actor];
-            if (oldActorHp <= 0) continue;
-            int slot = visualBefore.exchangeTick;
-            int[] steps = visualBefore.steps[p][actor];
-            if (slot < 0 || slot >= steps.Length) continue;
-            int action = steps[slot];
-            if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
-            string sound = null;
-            if (type == CharacterClass.WARRIOR && action == -1) sound = "sword_hit";
-            else if (type == CharacterClass.WARRIOR && action == -3) sound = "plunge";
-            else if (type == CharacterClass.MAGE && action == -1) sound = "fireball_hit";
-            if (sound == null) continue;
+        int actor = visualBefore.selected[player];
+        if (actor < 0 || actor >= Session.Rosters[player].Count) return null;
+        int oldActorHp = player == 0
+            ? visualBefore.player1CharacterHPs[actor]
+            : visualBefore.player2CharacterHPs[actor];
+        if (oldActorHp <= 0) return null;
 
-            int[,] grid = p == 0 ? visualAfter.player1SkillGrid : visualAfter.player2SkillGrid;
-            if (grid == null) continue;
-            for (int i = 0; i < Session.Rosters[1 - p].Count; i++)
-            {
-                int oldHp = (1 - p) == 0 ? visualBefore.player1CharacterHPs[i] : visualBefore.player2CharacterHPs[i];
-                int hp = (1 - p) == 0 ? visualAfter.player1CharacterHPs[i] : visualAfter.player2CharacterHPs[i];
-                IVector2 at = (1 - p) == 0 ? visualAfter.player1CharacterPositions[i] : visualAfter.player2CharacterPositions[i];
-                if (hp >= oldHp) continue;
-                if (at.x >= 0 && at.y >= 0 && at.x < grid.GetLength(0) && at.y < grid.GetLength(1) && grid[at.x, at.y] > 0)
-                    return sound;
-            }
+        int slot = visualBefore.exchangeTick;
+        int[] steps = visualBefore.steps[player][actor];
+        if (slot < 0 || slot >= steps.Length) return null;
+        int action = steps[slot];
+        if (action >= 0) return null;
+        if (visualBefore.cooldowns[player][actor][-action - 1] > 1) return null;
+
+        if (Session.Rosters[player][actor] == CharacterClass.WARRIOR)
+            return action switch { -1 or -2 => "sword_hit", -3 => "plunge", -4 => "flame_sword", _ => null };
+
+        if (Session.Rosters[player][actor] != CharacterClass.MAGE || !AttackHit(player)) return null;
+        return action is -1 or -3 or -4 ? "fireball_hit" : null;
+    }
+
+    bool AttackHit(int player)
+    {
+        int[,] grid = player == 0 ? visualAfter.player1SkillGrid : visualAfter.player2SkillGrid;
+        if (grid == null) return false;
+        int opponent = 1 - player;
+        for (int i = 0; i < Session.Rosters[opponent].Count; i++)
+        {
+            int oldHp = opponent == 0
+                ? visualBefore.player1CharacterHPs[i]
+                : visualBefore.player2CharacterHPs[i];
+            int hp = opponent == 0
+                ? visualAfter.player1CharacterHPs[i]
+                : visualAfter.player2CharacterHPs[i];
+            IVector2 at = opponent == 0
+                ? visualAfter.player1CharacterPositions[i]
+                : visualAfter.player2CharacterPositions[i];
+            if (hp < oldHp && at.x >= 0 && at.y >= 0 &&
+                at.x < grid.GetLength(0) && at.y < grid.GetLength(1) && grid[at.x, at.y] > 0)
+                return true;
         }
-        return null;
+        return false;
     }
 
     public override void _Process(double delta)

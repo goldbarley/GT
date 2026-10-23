@@ -37,7 +37,7 @@ public partial class MapPreview : Control
 
     public override void _Draw()
     {
-        var maps = new[] { "Grassland_1", "Grassland_2", "Grassland_3", "Volcanic_Ruins_1", "Volcanic_Ruins_2", "Volcanic_Ruins_3" };
+        var maps = MapTable.getMaps();
         if (MapIndex < 0 || MapIndex >= maps.Length) return;
 
         var path = $"res://data/{maps[MapIndex]}.json";

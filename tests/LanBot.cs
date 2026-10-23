@@ -17,6 +17,17 @@ public partial class LanBot : Node
     {
         Role = role;
         bool threeFighter = OS.GetCmdlineUserArgs().Contains("--lan-test-three");
+        string mapArgument = OS.GetCmdlineUserArgs().FirstOrDefault(a => a.StartsWith("--lan-test-map="));
+        int mapIndex = mapArgument != null && int.TryParse(mapArgument["--lan-test-map=".Length..], out int requestedMap)
+            ? requestedMap
+            : 0;
+        string[] maps = MapTable.getMaps();
+        if (mapIndex < 0 || mapIndex >= maps.Length)
+        {
+            GD.Print($"LAN FAIL: invalid map index {mapIndex}");
+            GetTree().Quit(1);
+            return;
+        }
         Network.Address = "127.0.0.1";
         if (role == "host") GD.Print("LAN HOST: " + Network.Host());
         else GD.Print("LAN JOIN: " + Network.Join());
@@ -25,8 +36,15 @@ public partial class LanBot : Node
         if (!Network.Ready) { GD.Print("LAN FAIL: no connection"); GetTree().Quit(1); return; }
         GD.Print("LAN " + role.ToUpperInvariant() + ": connected as player " + Network.LocalPlayer);
 
-        if (role == "host") { Session.Start(false, threeFighter ? 3 : 1); }
+        if (role == "host") { Session.Start(false, threeFighter ? 3 : 1, mapIndex); }
         while (Session.Phase == MatchPhase.Menu) await Frame();
+        if (Session.MapIndex != mapIndex || Session.MapName != maps[mapIndex])
+        {
+            GD.Print($"LAN FAIL: expected map {maps[mapIndex]}, got {Session.MapName} ({Session.MapIndex})");
+            GetTree().Quit(1);
+            return;
+        }
+        GD.Print($"LAN {role.ToUpperInvariant()}: selected map {Session.MapName}");
 
         while (Session.Phase == MatchPhase.Deploy)
         {
@@ -53,6 +71,10 @@ public partial class LanBot : Node
         bool connected = true;
         bool sawRewind = false;
         bool sawThirdPlan = false;
+        bool sawSelection = false;
+        bool sawFullSelectionCycle = false;
+        int selectionsThisCycle = 0;
+        var selectedFightersThisCycle = new System.Collections.Generic.HashSet<int>();
         int frames = 0;
         while (Session.Phase != MatchPhase.Finished && connected)
         {
@@ -65,7 +87,17 @@ public partial class LanBot : Node
                     && BattleEngine.getPlayer(2).getCharacter(fighter).getStep(0) == 2);
             if (Session.Phase == MatchPhase.Menu && last != MatchPhase.Menu) { connected = false; break; }
             sawRewind |= Session.Phase == MatchPhase.Rewind;
-            if (Session.Phase != last) { last = Session.Phase; planned = selected = rewound = false; }
+            if (Session.Phase != last)
+            {
+                if (Session.Phase == MatchPhase.Planning && selectionsThisCycle == Session.TeamSize)
+                {
+                    sawFullSelectionCycle = true;
+                    selectionsThisCycle = 0;
+                    selectedFightersThisCycle.Clear();
+                }
+                last = Session.Phase;
+                planned = selected = rewound = false;
+            }
             if (Session.Phase == MatchPhase.Planning && Session.MyTurn && !planned)
             {
                 planned = true;
@@ -89,19 +121,38 @@ public partial class LanBot : Node
             else if (Session.Phase == MatchPhase.Selection && Session.MyTurn && !selected)
             {
                 selected = true;
+                sawSelection = true;
+                if (BattleEngine.getDetails().selected[Session.Local - 1] >= 0)
+                {
+                    GD.Print($"LAN {role.ToUpperInvariant()} FAIL: fighter was selected before player confirmation");
+                    GetTree().Quit(1);
+                    return;
+                }
+                int fighter = Session.Available(Session.Local).Last();
+                if (!selectedFightersThisCycle.Add(fighter))
+                {
+                    GD.Print($"LAN {role.ToUpperInvariant()} FAIL: fighter {fighter} selected twice in one cycle");
+                    GetTree().Quit(1);
+                    return;
+                }
+                selectionsThisCycle++;
+                Session.Fighter = fighter;
                 Session.ConfirmFighter();
             }
             else if (Session.Phase == MatchPhase.Rewind && !rewound) { rewound = true; Session.Rewind(false); }
-            if (threeFighter && sawThirdPlan && Session.Phase == MatchPhase.Combat && BattleEngine.getClock() > 0)
+            if (threeFighter && sawThirdPlan && sawFullSelectionCycle &&
+                Session.Phase == MatchPhase.Combat && BattleEngine.getClock() > 0)
             {
-                GD.Print($"LAN {role.ToUpperInvariant()}: {(Session.TeamSize == 3 ? "three-fighter sync passed" : "failed")} phase={Session.Phase} clock={BattleEngine.getClock()}");
-                GetTree().Quit(Session.TeamSize == 3 ? 0 : 1);
+                bool threeFighterPassed = Session.TeamSize == 3 && sawSelection &&
+                    Session.MapName == maps[mapIndex];
+                GD.Print($"LAN {role.ToUpperInvariant()}: {(threeFighterPassed ? "three-fighter sync passed" : "failed")} map={Session.MapName} fullSelectionCycle={sawFullSelectionCycle} phase={Session.Phase} clock={BattleEngine.getClock()}");
+                GetTree().Quit(threeFighterPassed ? 0 : 1);
                 return;
             }
         }
 
         for (int i = 0; i < 180 && connected; i++) await Frame();
-        bool passed = connected && sawRewind && BattleEngine.getClock() > 1;
+        bool passed = connected && sawRewind && sawSelection && BattleEngine.getClock() > 1;
         GD.Print($"LAN {role.ToUpperInvariant()}: {(passed ? "finished" : "failed")} rewind={sawRewind} outcome={BattleEngine.getOutcome()} clock={BattleEngine.getClock()} hp={BattleEngine.getPlayer(1).getCharacter(0).currentHP()}/{BattleEngine.getPlayer(2).getCharacter(0).currentHP()}");
         GetTree().Quit(passed ? 0 : 1);
     }

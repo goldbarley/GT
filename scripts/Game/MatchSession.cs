@@ -463,12 +463,8 @@ public sealed class MatchSession
     {
         if (Lan)
         {
-            Viewer = Local; Phase = MatchPhase.Selection;
-            for (int player = 1; player <= 2; player++)
-            {
-                SelectAutomatically(player);
-            }
-            StartExchange();
+            Viewer = Local;
+            Selection();
         }
         else if (TeamSize == 1)
         {

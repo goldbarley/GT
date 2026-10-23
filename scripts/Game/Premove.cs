@@ -380,7 +380,7 @@ public partial class Premove : Control
         }
         else
         {
-            var maps = new[] { "Grassland_1", "Grassland_2", "Grassland_3", "Volcanic_Ruins_1", "Volcanic_Ruins_2", "Volcanic_Ruins_3" };
+            var maps = MapTable.getMaps();
             page.SizeFlagsVertical = SizeFlags.ExpandFill;
             page.CustomMinimumSize = new Vector2(
                 Math.Max(320, GetViewportRect().Size.X - 144),
@@ -415,10 +415,10 @@ public partial class Premove : Control
             var nav = new HBoxContainer();
             nav.AddThemeConstantOverride("separation", 12);
             controls.AddChild(nav);
-            var previousMap = Button("← Prev", () => { mapIndex = (mapIndex + 5) % 6; Refresh(); });
+            var previousMap = Button("← Prev", () => { mapIndex = (mapIndex + maps.Length - 1) % maps.Length; Refresh(); });
             previousMap.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             nav.AddChild(previousMap);
-            var nextMap = Button("Next →", () => { mapIndex = (mapIndex + 1) % 6; Refresh(); });
+            var nextMap = Button("Next →", () => { mapIndex = (mapIndex + 1) % maps.Length; Refresh(); });
             nextMap.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             nav.AddChild(nextMap);
 
@@ -1076,8 +1076,8 @@ public partial class Premove : Control
         {
             if (screen == "map")
             {
-                if (key.Keycode == Key.Left) { mapIndex = (mapIndex + 5) % 6; Refresh(); }
-                else if (key.Keycode == Key.Right) { mapIndex = (mapIndex + 1) % 6; Refresh(); }
+                if (key.Keycode == Key.Left) { int count = MapTable.getMaps().Length; mapIndex = (mapIndex + count - 1) % count; Refresh(); }
+                else if (key.Keycode == Key.Right) { int count = MapTable.getMaps().Length; mapIndex = (mapIndex + 1) % count; Refresh(); }
                 else if (key.Keycode is Key.KpAdd or Key.Equal or Key.Plus) { premoveLimit = Math.Min(10, premoveLimit + 1); Refresh(); }
                 else if (key.Keycode is Key.KpSubtract or Key.Minus) { premoveLimit = Math.Max(5, premoveLimit - 1); Refresh(); }
                 else if (key.Keycode is Key.Enter or Key.KpEnter) { board.Reset(); match.Start(solo, teamSize, mapIndex, premoveLimit); }
