@@ -164,7 +164,7 @@ public partial class BattleBoard : Control
                     IVector2 target = MatchSession.Move(to, direction, direction <= 2 ? length.x : length.y);
                     actor.Call("perform", action, direction, Center(to.x, to.y), Center(target.x, target.y), (float)Session.TickSeconds);
                     if (action == -1 && Session.Rosters[p][i] == CharacterClass.MAGE) Sound?.Play("fireball", 0.05f);
-                    if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("flame_sword", 0.05f);
+                    if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("sword_draw", 0.05f);
                 }
             }
         }
@@ -185,13 +185,35 @@ public partial class BattleBoard : Control
             actors[(p, i)].Call("react_to_hit", hp <= 0);
             hurt |= hp < oldHp;
         }
-        if (hurt) Sound?.Play(ImpactSound() ?? "hurt", 0.06f);
+        string ultimate = UltimateSound();
+        if (ultimate != null) Sound?.Play(ultimate, 0.06f);
+        else if (hurt) Sound?.Play(ImpactSound() ?? "hurt", 0.06f);
         else
         {
             string swing = SwingSound();
             if (swing != null) Sound?.Play(swing, 0.06f);
         }
         ImpactShown?.Invoke();
+    }
+
+    string UltimateSound()
+    {
+        if (visualBefore == null) return null;
+        for (int p = 0; p < 2; p++)
+        {
+            int actor = visualBefore.selected[p];
+            if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
+            if (Session.Rosters[p][actor] != CharacterClass.WARRIOR) continue;
+            int oldHp = p == 0 ? visualBefore.player1CharacterHPs[actor] : visualBefore.player2CharacterHPs[actor];
+            if (oldHp <= 0) continue;
+            int slot = visualBefore.exchangeTick;
+            int[] steps = visualBefore.steps[p][actor];
+            if (slot < 0 || slot >= steps.Length) continue;
+            int action = steps[slot];
+            if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
+            if (action == -4) return "flame_sword";
+        }
+        return null;
     }
 
     string SwingSound()

@@ -56,7 +56,7 @@ The window is light brown, with tan panels, dark brown text and pastel green, bl
 
 Music loads from `assets/music/`: `title`, `battle`, `victory` and `defeat` are all bundled, and each slot can be replaced with an `.ogg`, `.wav` or `.mp3` file of the same name; see [`assets/music/README.md`](assets/music/README.md). The game crossfades between the title, battle and result themes and prints one hint per missing track.
 
-Combat hit sounds come from `assets/sounds/`; `hurt.wav` plays once per tick whenever a fighter loses HP, Knight Slashes use `sword_hit.wav` even when they miss, Plunge hits use `plunge.wav`, Mage Fireball casts use `fireball.wav`, Fireball impacts use `fireball_hit.wav`, and Knight's Edge casts use `flame_sword.wav`. See [`assets/sounds/README.md`](assets/sounds/README.md).
+Combat hit sounds come from `assets/sounds/`; `hurt.wav` plays once per tick whenever a fighter loses HP, Knight Slashes use `sword_hit.wav` even when they miss, Plunge hits use `plunge.wav`, Mage Fireball casts use `fireball.wav`, Fireball impacts use `fireball_hit.wav`, and Knight's Edge draws with `sword_draw.wav` before striking with `flame_sword.wav`. See [`assets/sounds/README.md`](assets/sounds/README.md).
 
 **Audio settings** on the title screen and in the pause menu controls music and effects volume and mute independently. Choices are saved to `user://audio.cfg` and restored on the next run. Enabled buttons play a quiet `hover.wav` beep when the mouse enters them.
 
