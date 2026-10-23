@@ -11,6 +11,7 @@ One-shot effects load from this folder by fixed names. The first matching format
 | `fireball_hit` | A Mage's Fireball connects, replacing `hurt` for that tick |
 | `sword_draw` | A Knight begins Knight's Edge (the opening sword draw) |
 | `flame_sword` | Knight's Edge reaches its fiery strike (the second part of the ultimate) |
+| `meteorite` | A Mage's Meteorite drops, whether or not it damages a fighter; it replaces `hurt` for that tick |
 | `archer_godray` | The Archer's godray charged shot (reserved for the Archer) |
 | `hover` | The mouse enters an enabled button (played quietly) |
 
@@ -21,6 +22,7 @@ One-shot effects load from this folder by fixed names. The first matching format
 - `fireball_hit.wav` is an edited excerpt of [Simulated Small Explosion in Small Room 1](https://freesound.org/s/132098/) by tcpp (trimmed and faded), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Credit is required when distributing the game.
 - `flame_sword.wav` is [Sword_Fire01.wav](https://freesound.org/s/649361/) by SonoFxAudio, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is used unmodified; credit is required when distributing the game.
 - `sword_draw.wav` is an edited excerpt of [Sword draw unsheathe](https://freesound.org/s/581594/) by SamsterBirdies, released under [CC0](https://creativecommons.org/publicdomain/zero/1.0/). Trimmed to fit the opening of Knight's Edge, with a short fade-out.
+- `meteorite.wav` is an edited excerpt of [custom rock boulder impact sounds part 3](https://freesound.org/s/829272/) by Artninja, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The first impact is trimmed to 1.5 s, lowered 3 dB, and faded out; credit is required when distributing the game. The creator's source list includes an NC-licensed sample, so clear commercial use with the author.
 - `archer_godray.wav` is extracted from the user-provided `Pixel Archer Animation.mkv`, time-fitted to the 2.58 s godray clip, with a short fade-out. Confirm the source video's license before distributing the game.
 - `hover.wav` is an edited excerpt of [btn402.mp3](https://freesound.org/s/26777/) by junggle, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Leading silence is trimmed; credit is required when distributing the game.
 - Add more effects by dropping a file in with a matching name and calling `SoundEffects.Play("name")` from gameplay code.

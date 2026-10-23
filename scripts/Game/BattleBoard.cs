@@ -203,7 +203,8 @@ public partial class BattleBoard : Control
         {
             int actor = visualBefore.selected[p];
             if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
-            if (Session.Rosters[p][actor] != CharacterClass.WARRIOR) continue;
+            CharacterClass type = Session.Rosters[p][actor];
+            if (type != CharacterClass.WARRIOR && type != CharacterClass.MAGE) continue;
             int oldHp = p == 0 ? visualBefore.player1CharacterHPs[actor] : visualBefore.player2CharacterHPs[actor];
             if (oldHp <= 0) continue;
             int slot = visualBefore.exchangeTick;
@@ -211,7 +212,8 @@ public partial class BattleBoard : Control
             if (slot < 0 || slot >= steps.Length) continue;
             int action = steps[slot];
             if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
-            if (action == -4) return "flame_sword";
+            if (type == CharacterClass.WARRIOR && action == -4) return "flame_sword";
+            if (type == CharacterClass.MAGE && action == -3) return "meteorite";
         }
         return null;
     }
