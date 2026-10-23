@@ -25,7 +25,6 @@ public partial class BattleBoard : Control
     
     readonly GDScript visualScript = GD.Load<GDScript>("res://scripts/Game/FighterVisual.gd");
     readonly Dictionary<(int, int), Node2D> actors = new();
-    readonly Dictionary<(int, int), (int action, int direction, int range, int slot)> previewActions = new();
     readonly Queue<(Snapshot before, Snapshot after)> queuedTicks = new();
     readonly List<(Vector2 position, string text, Color color)> damage = new();
     readonly Color blue = new("70d9ef"), red = new("ff9984"), gold = new("edcc88");
@@ -112,7 +111,7 @@ public partial class BattleBoard : Control
     public void Reset()
     {
         foreach (var actor in actors.Values) actor.QueueFree();
-        actors.Clear(); previewActions.Clear(); queuedTicks.Clear();
+        actors.Clear(); queuedTicks.Clear();
         visualBefore = visualAfter = null; impactShown = true; tickAnimationsWaiting = false;
         cameraScale = 0; hover = new(-1, -1); effects = null; damage.Clear(); ReplayFrame = null; QueueRedraw();
     }
@@ -146,36 +145,14 @@ public partial class BattleBoard : Control
                 if (planningPreview && actor.Visible)
                 {
                     actor.Call("slide_to", destination, 0.18f);
-                    PreviewAction(actor, key, unit.at);
                 }
                 else
                 {
-                    previewActions.Remove(key);
                     actor.Position = destination;
                 }
                 actor.ZIndex = unit.at.x * 2 + 10;
             }
         QueueRedraw();
-    }
-
-    void PreviewAction(Node2D actor, (int, int) key, IVector2 position)
-    {
-        int action = key.Item1 == Session.Viewer - 1 && key.Item2 == Session.Fighter
-            ? Session.Action
-            : 0;
-        if (action >= 0)
-        {
-            previewActions.Remove(key);
-            return;
-        }
-
-        var signature = (action, Session.Direction, Session.Range, Session.Slot);
-        if (previewActions.TryGetValue(key, out var previous) && previous == signature) return;
-        previewActions[key] = signature;
-        IVector2 target = action == 5
-            ? position
-            : MatchSession.Move(position, Session.Direction, Session.Range);
-        actor.Call("perform", action, Session.Direction, actor.Position, Center(target.x, target.y), (float)Session.TickSeconds);
     }
 
     Dictionary<(int, int), Vector2> GetTileOffsets(
