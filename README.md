@@ -54,7 +54,7 @@ The window is light brown, with tan panels, dark brown text and pastel green, bl
 
 ## Music and audio
 
-Music loads from `assets/music/`: `title`, `battle`, `victory`, and `defeat` are bundled, and each slot can be replaced with an `.ogg`, `.wav`, or `.mp3` file of the same name. The game crossfades between title, battle, and result themes. Combat hit sounds come from `assets/sounds/`; `hurt.wav` plays once per tick when a fighter loses HP. See the asset folders' README files for details.
+Music loads from `assets/music/`: `title`, `battle`, `victory`, and `defeat` are bundled and crossfade between screens. Sound effects cover combat attacks and impacts, with separate music and effects volume controls. See the asset folders' README files for sound names, attribution, and replacement instructions.
 
 **Audio settings** on the title screen and in the pause menu control music and effects volume and mute independently. Choices are saved to `user://audio.cfg` and restored on the next run.
 

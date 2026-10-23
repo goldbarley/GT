@@ -281,9 +281,13 @@ public partial class BattleBoard : Control
                             && before.cooldowns[p][i][skillIndex] <= 1)
                             TriggerAbilityLighting(actor, Session.Rosters[p][i], skillIndex);
                     }
-                    if (Session.Rosters[p][i] == CharacterClass.MAGE &&
-                        (action == -1 || action is -3 or -4))
-                        Sound?.Play("fireball", 0.05f);
+                    if (Session.Rosters[p][i] == CharacterClass.MAGE)
+                    {
+                        if (action == -1) Sound?.Play("fireball", 0.05f);
+                    }
+                    if (action == -1 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_basic", 0.05f);
+                    if (action == -2 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("twinstring", 0.05f);
+                    if (action == -3 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_piercer", 0.05f);
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("sword_draw", 0.05f);
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_godray");
                     tickImpactDelay = Math.Max(tickImpactDelay, (float)actor.Call("get_action_impact_time").AsDouble());
@@ -360,8 +364,11 @@ public partial class BattleBoard : Control
         if (Session.Rosters[player][actor] == CharacterClass.WARRIOR)
             return action switch { -1 or -2 => "sword_hit", -3 => "plunge", -4 => "flame_sword", _ => null };
 
-        if (Session.Rosters[player][actor] != CharacterClass.MAGE || !AttackHit(player)) return null;
-        return action is -1 or -3 or -4 ? "fireball_hit" : null;
+        if (Session.Rosters[player][actor] != CharacterClass.MAGE) return null;
+        if (action == -3) return "meteorite";
+        if (action == -4) return "quad_beam";
+        if (action == -1 && AttackHit(player)) return "fireball_hit";
+        return null;
     }
 
     bool AttackHit(int player)
