@@ -68,7 +68,7 @@ public static class MatchChecks
         BattleEngine.setStep(1, 0, 0, -4, 2, new(2, 2));
         Fight(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 30,
-            "Knight Rift Edge should deal 45 damage.");
+            "Knight's Edge should deal 45 damage.");
 
         Setup(CharacterClass.MAGE, CharacterClass.WARRIOR, new(7, 5), new(8, 5));
         BattleEngine.setStep(1, 0, 0, -1, 2); BattleEngine.setStep(1, 0, 1, -1, 2); BattleEngine.setStep(1, 0, 2, -1, 2);
@@ -100,18 +100,18 @@ public static class MatchChecks
             "Archer basic shot must apply its cooldown.");
 
         Setup(CharacterClass.ARCHER, CharacterClass.WARRIOR, new(7, 5), new(11, 5));
-        BattleEngine.setStep(1, 0, 0, -2, 2, new(4, 4));
+        BattleEngine.setStep(1, 0, 0, -2, 2, new(3, 3));
         Fight(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 105,
-            "Archer double shot must hit at four tiles.");
+            "Archer Twinstring must hit the selected pair at tiles three and four.");
         Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[1] == 4,
             "Archer double shot must apply its cooldown.");
 
-        Setup(CharacterClass.ARCHER, CharacterClass.WARRIOR, new(6, 5), new(12, 5));
-        BattleEngine.setStep(1, 0, 0, -3, 2, new(6, 6));
+        Setup(CharacterClass.ARCHER, CharacterClass.WARRIOR, new(6, 5), new(11, 5));
+        BattleEngine.setStep(1, 0, 0, -3, 2, new(5, 5));
         Fight(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 80,
-            "Archer Piercing Draw must deal 40 damage at six tiles.");
+            "Archer Piercer must deal 40 damage at five tiles.");
         Require(BattleEngine.getPlayer(1).getCharacter(0).currentCooldown()[2] == 4,
             "Archer Piercing Draw must apply its cooldown.");
 

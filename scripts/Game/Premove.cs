@@ -852,7 +852,7 @@ public partial class Premove : Control
             "Piercing Draw" => "Piercer",
             "Lance Thrust" => "Thrust",
             "Skybreaker" => "Skybreak",
-            "Rift Edge" => "Rift Edge",
+            "Knight's Edge" => "Knight's Edge",
             "Iron Vow" => "Iron Vow",
             _ => name
         };

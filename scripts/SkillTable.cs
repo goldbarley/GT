@@ -9,7 +9,7 @@ public enum AttackRange
     MAGE_FIREBALL = -1, MAGE_SHIELD = 0, MAGE_METEORITE = -1, MAGE_QUAD_BEAM = 4,
     WARRIOR_SLASH = 1, WARRIOR_STAB = 2, WARRIOR_PLUNGE = 3,
     WARRIOR_EDGE = 2, WARRIOR_SHIELD = 0,
-    ARCHER_BASIC = 3, ARCHER_DOUBLE = 5, ARCHER_STRONG = 6, ARCHER_ULTIMATE = -1,
+    ARCHER_BASIC = 3, ARCHER_DOUBLE = 4, ARCHER_STRONG = 5, ARCHER_ULTIMATE = -1,
 
     MAGE_ATTACK_SINGLE = MAGE_FIREBALL, MAGE_ATTACK_DIAGONAL_QUAD = MAGE_QUAD_BEAM,
     MAGE_ATTACK_AOE = MAGE_METEORITE, MAGE_ATTACK_AOE_AREA = 9,
@@ -122,7 +122,8 @@ public static class SkillTable
     }
     private static int KnightStab(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
-        Mark(At(p, Direction(a), 2), (int)SkillDamage.WARRIOR_STAB, ref g);
+        IVector2 d = Direction(a);
+        Mark(At(p, d, RequestedDistance(l, d)), (int)SkillDamage.WARRIOR_STAB, ref g);
         return 2;
     }
     private static int KnightPlunge(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
@@ -145,20 +146,21 @@ public static class SkillTable
 
     private static int ArcherBasic(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
-        Mark(At(p, Direction(a), 3), (int)SkillDamage.ARCHER_BASIC, ref g);
+        IVector2 d = Direction(a);
+        Mark(At(p, d, RequestedDistance(l, d)), (int)SkillDamage.ARCHER_BASIC, ref g);
         return 1;
     }
     private static int ArcherDouble(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
-
         IVector2 d = Direction(a);
-        Mark(At(p, d, 4), (int)SkillDamage.ARCHER_DOUBLE, ref g);
-        Mark(At(p, d, 5), (int)SkillDamage.ARCHER_DOUBLE, ref g);
+        int distance = RequestedDistance(l, d);
+        Mark(At(p, d, distance), (int)SkillDamage.ARCHER_DOUBLE, ref g);
+        Mark(At(p, d, distance + 1), (int)SkillDamage.ARCHER_DOUBLE, ref g);
         return 3;
     }
     private static int ArcherStrong(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
-        Mark(At(p, Direction(a), 6), (int)SkillDamage.ARCHER_STRONG, ref g);
+        Ray(p, Direction(a), 5, (int)SkillDamage.ARCHER_STRONG, ref g);
         return 3;
     }
     private static int ArcherUltimate(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
