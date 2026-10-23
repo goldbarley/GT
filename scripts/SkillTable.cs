@@ -135,7 +135,10 @@ public static class SkillTable
     }
     private static int KnightEdge(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
-        Mark(At(p, Direction(a), 2), (int)SkillDamage.WARRIOR_EDGE, ref g);
+        IVector2 d = Direction(a);
+        int distance = RequestedDistance(l, d);
+        Mark(At(p, d, distance), (int)SkillDamage.WARRIOR_EDGE, ref g);
+        Mark(At(p, d, distance + 1), (int)SkillDamage.WARRIOR_EDGE, ref g);
         return 2;
     }
     private static int KnightShield(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)

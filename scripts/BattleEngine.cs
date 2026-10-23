@@ -157,9 +157,20 @@ public static class BattleEngine
             int distance = step == 5 ? c.getLength(i).x : 1;
             if (distance <= 0) continue;
             IVector2 to = Destination(p, step == 5 ? c.getDirection(i) : step, distance);
-            if (step == 5) { p = to; if (!Inside(p) || map.map[p.x, p.y] == MapElement.W || map.map[p.x, p.y] == MapElement.K) break; }
+            if (step == 5)
+            {
+                if (!Inside(to) || map.map[to.x, to.y] == MapElement.W || map.map[to.x, to.y] == MapElement.K)
+                {
+                    if (Inside(to)) p = to;
+                    break;
+                }
+                p = to;
+            }
             else if (Inside(to) && map.map[to.x, to.y] != MapElement.W)
-            { p = to; if (map.map[p.x, p.y] == MapElement.K) break; }
+            {
+                p = to;
+                if (map.map[p.x, p.y] == MapElement.K) break;
+            }
         }
         return p;
     }
@@ -422,15 +433,13 @@ public static class BattleEngine
             {
                 Character c = players[p].getCharacter(i);
                 if (!c.isAlive()) continue;
-                IVector2 start = c.currentPosition();
-                if (c == active[p]) start = from[p];
-                if (Inside(start))
+                IVector2 pos = c.currentPosition();
+                if (Inside(pos))
                 {
-                    if (map.map[start.x, start.y] == MapElement.D) incoming[p][i] += TerrainDamage;
-                    if (map.map[start.x, start.y] == MapElement.K) kill[p][i] = true;
+                    if (map.map[pos.x, pos.y] == MapElement.D) incoming[p][i] += TerrainDamage;
+                    if (map.map[pos.x, pos.y] == MapElement.K) kill[p][i] = true;
                 }
                 if (kill[p][i]) { c.setHP(0); continue; }
-                IVector2 pos = c.currentPosition();
 
                 int blocked = 0;
                 if (Inside(pos))

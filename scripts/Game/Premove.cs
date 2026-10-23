@@ -280,16 +280,15 @@ public partial class Premove : Control
         {
             for (int p = 0; p < 2; p++)
             {
-                var hp = string.Join("  ", Enumerable.Range(0, match.TeamSize).Select(i => {
+                for (int i = 0; i < match.TeamSize; i++)
+                {
                     var unit = BattleEngine.getPlayer((uint)p + 1).getCharacter(i);
-                    return $"{MatchSession.ClassName(unit.characterClass())} {board.DisplayHP(p, i)} HP";
-                }));
-                int total = Enumerable.Range(0, match.TeamSize).Sum(i => board.DisplayHP(p, i));
-                int maximum = Enumerable.Range(0, match.TeamSize).Sum(i => BattleEngine.getPlayer((uint)p + 1).getCharacter(i).maxHP());
-                var stats = HealthDisplay($"Player {p + 1}", total, maximum, p == 0 ? cyan : coral);
-                stats.MouseFilter = MouseFilterEnum.Stop;
-                stats.TooltipText = hp + "\nDefeat all enemies. HP persists between rounds.";
-                header.AddChild(stats);
+                    int current = board.DisplayHP(p, i);
+                    int max = unit.maxHP();
+                    var stats = HealthDisplay($"{MatchSession.ClassName(unit.characterClass())}", current, max, p == 0 ? cyan : coral);
+                    stats.MouseFilter = MouseFilterEnum.Stop;
+                    header.AddChild(stats);
+                }
             }
         }
         if (match.Phase == MatchPhase.Menu) Menu();

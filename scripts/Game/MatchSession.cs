@@ -682,14 +682,21 @@ public sealed class MatchSession
                 int range = Math.Max(1, Distance(at, target));
                 int bestSkill = -1, bestDirection = direction, bestRange = range, bestDamage = 0;
                 for (int k = 0; k < cooldown.Length; k++)
+                {
                     if (cooldown[k] <= 0)
-                        for (int d = 1; d <= 4; d++)
+                    {
+                        foreach (int skillRange in SkillRanges(c.characterClass(), k))
                         {
-                            int[,] grid = new int[Map.GetLength(0), Map.GetLength(1)];
-                            SkillTable.skills[(int)c.characterClass()][k](at, new IVector2(range, range), Axis(d), ref grid);
-                            int damage = grid[target.x, target.y];
-                            if (damage > bestDamage) { bestDamage = damage; bestSkill = k; bestDirection = d; bestRange = range; }
+                            for (int d = 1; d <= 4; d++)
+                            {
+                                int[,] grid = new int[Map.GetLength(0), Map.GetLength(1)];
+                                SkillTable.skills[(int)c.characterClass()][k](at, new IVector2(skillRange, skillRange), Axis(d), ref grid);
+                                int damage = grid[target.x, target.y];
+                                if (damage > bestDamage) { bestDamage = damage; bestSkill = k; bestDirection = d; bestRange = skillRange; }
+                            }
                         }
+                    }
+                }
                 int action;
                 if (bestSkill >= 0)
                 { action = -bestSkill - 1; direction = bestDirection; range = bestRange; cooldown[bestSkill] = Cooldowns(c.characterClass())[bestSkill] + 1; }

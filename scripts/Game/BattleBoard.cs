@@ -203,7 +203,7 @@ public partial class BattleBoard : Control
         Character unit = BattleEngine.getPlayer((uint)p + 1).getCharacter(i);
         bool planning = Session.Phase is MatchPhase.Planning or MatchPhase.Foresight;
         bool hidden = planning && p != Session.Viewer - 1;
-        IVector2 position = hidden ? Session.Spawns[p][i] : unit.currentPosition();
+        IVector2 position = unit.currentPosition();
         if (planning && p == Session.Viewer - 1)
         {
             position = BattleEngine.previewPosition((uint)p + 1, i, Session.Slot - 1);
