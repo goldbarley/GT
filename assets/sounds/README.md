@@ -5,7 +5,7 @@ One-shot effects load from this folder by fixed names. The first matching format
 | File | Plays when |
 | --- | --- |
 | `hurt` | A fighter loses HP during a combat tick (once per tick, with slight pitch variation) |
-| `sword_hit` | A Knight's Slash connects, replacing `hurt` for that tick |
+| `sword_hit` | A Knight performs Slash, even when it misses; a connecting Slash replaces `hurt` for that tick |
 | `plunge` | A Knight's Plunge connects, replacing `hurt` for that tick |
 | `fireball` | A Mage casts Fireball (trimmed and faded to fit one combat tick) |
 | `fireball_hit` | A Mage's Fireball connects, replacing `hurt` for that tick |

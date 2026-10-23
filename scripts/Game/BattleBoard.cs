@@ -186,7 +186,32 @@ public partial class BattleBoard : Control
             hurt |= hp < oldHp;
         }
         if (hurt) Sound?.Play(ImpactSound() ?? "hurt", 0.06f);
+        else
+        {
+            string swing = SwingSound();
+            if (swing != null) Sound?.Play(swing, 0.06f);
+        }
         ImpactShown?.Invoke();
+    }
+
+    string SwingSound()
+    {
+        if (visualBefore == null) return null;
+        for (int p = 0; p < 2; p++)
+        {
+            int actor = visualBefore.selected[p];
+            if (actor < 0 || actor >= Session.Rosters[p].Count) continue;
+            if (Session.Rosters[p][actor] != CharacterClass.WARRIOR) continue;
+            int oldHp = p == 0 ? visualBefore.player1CharacterHPs[actor] : visualBefore.player2CharacterHPs[actor];
+            if (oldHp <= 0) continue;
+            int slot = visualBefore.exchangeTick;
+            int[] steps = visualBefore.steps[p][actor];
+            if (slot < 0 || slot >= steps.Length) continue;
+            int action = steps[slot];
+            if (action < 0 && visualBefore.cooldowns[p][actor][-action - 1] > 1) action = 0;
+            if (action == -1) return "sword_hit";
+        }
+        return null;
     }
 
     string ImpactSound()
