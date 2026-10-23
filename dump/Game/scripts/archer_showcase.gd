@@ -14,7 +14,10 @@ extends Node2D
 @onready var btn_reset: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls/BtnReset
 @onready var btn_play_idle: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls/BtnPlayIdle
 @onready var btn_play_walk: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls/BtnPlayWalk
-@onready var btn_play_shot: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls/BtnPlayShot
+@onready var btn_play_attack: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls2/BtnPlayAttack
+@onready var btn_play_skill: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls2/BtnPlaySkill
+@onready var btn_play_strong_skill: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls2/BtnPlayStrongSkill
+@onready var btn_play_shot: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls2/BtnPlayShot
 @onready var btn_stop: Button = $CanvasLayer/Panel/VBoxContainer/HBoxControls2/BtnStop
 @onready var slider_scrub: HSlider = $CanvasLayer/Panel/VBoxContainer/HBoxScrub/SliderScrub
 @onready var val_scrub: Label = $CanvasLayer/Panel/VBoxContainer/HBoxScrub/ValScrub
@@ -23,6 +26,9 @@ extends Node2D
 
 const CLIP_IDLE := ArcherAnims.IDLE
 const CLIP_WALK := ArcherAnims.WALK
+const CLIP_BASIC_ATTACK := ArcherAnims.BASIC_ATTACK
+const CLIP_SKILL := ArcherAnims.SKILL
+const CLIP_STRONG_SKILL := ArcherAnims.STRONG_SKILL
 const CLIP_SHOT := ArcherAnims.CHARGED_SHOT
 
 ## Where the demo shot is fired from, and which way it goes.  It is fired
@@ -112,6 +118,15 @@ func _connect_buttons() -> void:
 	if btn_play_walk:
 		btn_play_walk.pressed.connect(func(): _play_clip(CLIP_WALK))
 
+	if btn_play_attack:
+		btn_play_attack.pressed.connect(func(): _play_clip(CLIP_BASIC_ATTACK))
+
+	if btn_play_skill:
+		btn_play_skill.pressed.connect(func(): _play_clip(CLIP_SKILL))
+
+	if btn_play_strong_skill:
+		btn_play_strong_skill.pressed.connect(func(): _play_clip(CLIP_STRONG_SKILL))
+
 	if btn_play_shot:
 		btn_play_shot.pressed.connect(func(): _play_clip(CLIP_SHOT))
 
@@ -141,16 +156,29 @@ func _play_clip(clip_name: String) -> void:
 		p.play(clip_name)
 
 
-## The string has let go: the arrow goes.
+## The string has let go: the arrow or beam goes.
 func _on_clip_impact(clip_name: String) -> void:
-	if clip_name != CLIP_SHOT:
-		return
 	var rig := archers[SHOT_FROM]
 	var bow := rig.get_piece("bow")
 	if bow == null:
 		return
-	ArcherShot.fire(self, bow.global_position, SHOT_DIRECTION, SHOT_SPEED,
-			GROUND_Y, SCALE)
+	var bow_dir := Vector2.RIGHT.rotated(bow.global_rotation)
+	var facing_dir := Vector2.LEFT if rig.scale.x < 0.0 else Vector2.RIGHT
+
+	match clip_name:
+		CLIP_BASIC_ATTACK:
+			ArcherShot.fire_basic_attack(self, bow.global_position, facing_dir, 1200.0,
+					GROUND_Y, SCALE, bow)
+		CLIP_SKILL:
+			ArcherShot.fire_skill(self, bow.global_position, facing_dir, 1200.0,
+					GROUND_Y, SCALE, bow)
+		CLIP_STRONG_SKILL:
+			ArcherShot.fire_strong_skill(self, bow.global_position, facing_dir, 1500.0,
+					GROUND_Y, SCALE, bow)
+		CLIP_SHOT:
+			ArcherShot.fire(self, bow.global_position, bow_dir, SHOT_SPEED,
+					GROUND_Y, SCALE, bow)
+
 
 
 func _on_scrub_changed(value: float) -> void:

@@ -10,6 +10,11 @@ public partial class Premove : Control
     Control keyOverlay;
     PanelContainer keyPanel;
     MarginContainer battleCenterMargin;
+    Control phaseAnnouncement;
+    ColorRect phaseCurtain;
+    Label phaseTitle;
+    Tween phaseTween;
+    MatchPhase previousPhase = MatchPhase.Menu;
     readonly int[] executing = { 0, 0 };
     string screen = "title";
     int characterIndex, tutorialPage;
@@ -22,8 +27,8 @@ public partial class Premove : Control
     SoundEffects sfx;
     bool Choosing => match.Phase == MatchPhase.Menu;
     BattleBoard board;
-    VBoxContainer left, right, footer;
-    HBoxContainer header;
+    VBoxContainer left, right, footer, header;
+    VBoxContainer headerInfo;
     Control overlay, popup, showcaseStage;
     bool placementOpen;
     bool rewindPopup;
@@ -119,7 +124,9 @@ public partial class Premove : Control
         foreach (string side in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride("margin_" + side, 24);
         var root = new VBoxContainer(); margin.AddChild(root);
         var headerPanel = new PanelContainer(); headerPanel.AddThemeStyleboxOverride("panel", Box("ead6b6", "61432c")); root.AddChild(headerPanel);
-        header = new HBoxContainer { CustomMinimumSize = new Vector2(0, 42) }; headerPanel.AddChild(header);
+        header = new VBoxContainer();
+        header.AddThemeConstantOverride("separation", 4);
+        headerPanel.AddChild(header);
         var body = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; root.AddChild(body);
         var leftScroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 0), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         body.AddChild(leftScroll); leftScroll.Visible = false;
@@ -132,9 +139,32 @@ public partial class Premove : Control
         boardPanel.AddThemeStyleboxOverride("panel", Box("88674c", "38271f", 0)); center.AddChild(boardPanel);
         board = new BattleBoard { Session = match, CustomMinimumSize = new Vector2(380, 420), SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
         boardPanel.AddChild(board);
+        phaseAnnouncement = new Control { Name = "PhaseAnnouncement", MouseFilter = Control.MouseFilterEnum.Ignore, Visible = false, ZIndex = 2000 };
+        phaseAnnouncement.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        board.AddChild(phaseAnnouncement);
+        phaseCurtain = new ColorRect { Color = new Color("b38d65"), MouseFilter = Control.MouseFilterEnum.Ignore };
+        phaseCurtain.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        phaseAnnouncement.AddChild(phaseCurtain);
+        phaseTitle = Label("", 44, cyan);
+        phaseTitle.HorizontalAlignment = HorizontalAlignment.Center;
+        phaseTitle.VerticalAlignment = VerticalAlignment.Center;
+        phaseTitle.MouseFilter = Control.MouseFilterEnum.Ignore;
+        phaseTitle.AddThemeFontSizeOverride("font_size", 44);
+        phaseTitle.AddThemeConstantOverride("outline_size", 3);
+        phaseTitle.AddThemeColorOverride("font_outline_color", new Color("ead6b6"));
+        phaseTitle.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        phaseAnnouncement.AddChild(phaseTitle);
+        board.Resized += () =>
+        {
+            phaseCurtain.PivotOffset = board.Size / 2;
+            phaseTitle.PivotOffset = board.Size / 2;
+        };
         board.TileClicked += OnTile;
-        tileInfo = Label("ARENA   /   G: TILE VIEW", 12, muted); center.AddChild(tileInfo);
-        board.TileHovered += text => tileInfo.Text = text == "" ? "ARENA   /   G: TILE VIEW" : text;
+        board.TileHovered += text =>
+        {
+            if (GodotObject.IsInstanceValid(tileInfo))
+                tileInfo.Text = text == "" ? $"{match.MapName}   /   G: TILE VIEW" : text;
+        };
         keyPanel = new PanelContainer { MouseFilter = MouseFilterEnum.Ignore };
         keyPanel.AddThemeStyleboxOverride("panel", Box("c6d6dfef", "355c75", 0));
         keyOverlay = keyPanel; AddChild(keyPanel); keyPanel.SetAnchorsAndOffsetsPreset(LayoutPreset.RightWide);
@@ -146,7 +176,7 @@ public partial class Premove : Control
         };
         keyPanel.AddChild(rightScroll);
         right = new VBoxContainer { CustomMinimumSize = new Vector2(232, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill }; rightScroll.AddChild(right);
-        footer = new VBoxContainer { CustomMinimumSize = new Vector2(0, 115) }; root.AddChild(footer);
+        footer = new VBoxContainer { CustomMinimumSize = new Vector2(0, 78) }; root.AddChild(footer);
         overlay = new Control { MouseFilter = MouseFilterEnum.Ignore }; AddChild(overlay); overlay.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         GetViewport().SizeChanged += ResizeBattleLayout;
         ResizeBattleLayout();
@@ -159,7 +189,7 @@ public partial class Premove : Control
         float panelWidth = Mathf.Min(356, Mathf.Max(300, viewport.X * 0.278f));
         keyPanel.OffsetLeft = -panelWidth;
         keyPanel.OffsetRight = -24;
-        keyPanel.OffsetTop = 88;
+        keyPanel.OffsetTop = Mathf.Max(176, Mathf.RoundToInt(220 - viewport.Y * 0.05f));
         keyPanel.OffsetBottom = -24;
         battleCenterMargin?.AddThemeConstantOverride("margin_right", Mathf.RoundToInt(panelWidth));
     }
@@ -269,15 +299,28 @@ public partial class Premove : Control
             return;
         }
         board.Visible = true;
+        AnnouncePhaseTransition();
         board.CursorRow = match.Phase == MatchPhase.Deploy ? match.CursorRow : -1;
         board.CursorCol = match.Phase == MatchPhase.Deploy ? match.CursorCol : -1;
-        header.AddChild(Label("PREMOVE", 24, gold));
-        header.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        clock = Label("", 24, cyan); header.AddChild(clock);
+        var titleRow = new HBoxContainer { CustomMinimumSize = new Vector2(0, 32) };
+        header.AddChild(titleRow);
+        titleRow.AddChild(Label("PREMOVE", 21, gold));
+        clock = Label("", 20, cyan); titleRow.AddChild(clock);
         clock.MouseFilter = MouseFilterEnum.Stop;
         clock.TooltipText = "Plan moves before the timer runs out.";
+        titleRow.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
+        tileInfo = Label($"{match.MapName}   /   G: TILE VIEW", 12, muted);
+        tileInfo.HorizontalAlignment = HorizontalAlignment.Right;
+        tileInfo.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        titleRow.AddChild(tileInfo);
+        headerInfo = new VBoxContainer();
+        headerInfo.AddThemeConstantOverride("separation", 2);
+        header.AddChild(headerInfo);
         if (match.Phase != MatchPhase.Menu && match.Phase != MatchPhase.Deploy && match.Phase != MatchPhase.Handoff)
         {
+            var healthRow = new HBoxContainer { CustomMinimumSize = new Vector2(0, 68) };
+            healthRow.AddThemeConstantOverride("separation", 8);
+            header.AddChild(healthRow);
             for (int p = 0; p < 2; p++)
             {
                 for (int i = 0; i < match.TeamSize; i++)
@@ -287,7 +330,7 @@ public partial class Premove : Control
                     int max = unit.maxHP();
                     var stats = HealthDisplay($"{MatchSession.ClassName(unit.characterClass())}", current, max, p == 0 ? cyan : coral);
                     stats.MouseFilter = MouseFilterEnum.Stop;
-                    header.AddChild(stats);
+                    healthRow.AddChild(stats);
                 }
             }
         }
@@ -297,12 +340,81 @@ public partial class Premove : Control
         else Battle();
         if (match.Phase == MatchPhase.Combat || match.Phase == MatchPhase.Rewind)
         {
-            var feedback = new PanelContainer(); feedback.AddThemeStyleboxOverride("panel", Box("c19a6b99", "8a5a2b")); footer.AddChild(feedback);
-            lastMove = Label(moveText, 24, gold); feedback.AddChild(lastMove);
+            lastMove = Label(moveText, 20, gold); headerInfo.AddChild(lastMove);
         }
         if (match.Phase != MatchPhase.Combat && match.Phase != MatchPhase.Rewind) board.Sync();
         if (placementOpen) BuildPlacementPopup();
         if (match.Phase == MatchPhase.Menu) board.Sync();
+    }
+
+    void AnnouncePhaseTransition()
+    {
+        bool wasPremove = previousPhase is MatchPhase.Planning or MatchPhase.Foresight or MatchPhase.Handoff;
+        bool wasAction = previousPhase is MatchPhase.Combat or MatchPhase.Rewind;
+        if ((match.Phase is MatchPhase.Planning or MatchPhase.Foresight) && !wasPremove)
+            ShowPhaseAnnouncement("PREMOVE PHASE");
+        else if (match.Phase == MatchPhase.Combat && !wasAction)
+            ShowPhaseAnnouncement("ACTION PHASE");
+        previousPhase = match.Phase;
+    }
+
+    void ShowPhaseAnnouncement(string title)
+    {
+        if (phaseTween != null && phaseTween.IsRunning()) phaseTween.Kill();
+        phaseAnnouncement.Visible = true;
+        phaseCurtain.Color = new Color("b38d65");
+        phaseCurtain.Modulate = Colors.White;
+        phaseCurtain.Scale = new Vector2(0, 1);
+        phaseTitle.Text = title;
+        phaseTitle.Scale = new Vector2(0.72f, 0.72f);
+        phaseTitle.Rotation = -0.07f;
+        phaseTitle.Modulate = new Color(1, 1, 1, 0);
+
+        phaseTween = CreateTween();
+        phaseTween.TweenProperty(phaseCurtain, "scale:x", 1.06f, 0.42)
+            .SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        phaseTween.TweenProperty(phaseCurtain, "scale:x", 1.0f, 0.10)
+            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+        phaseTween.TweenCallback(Callable.From(AnimatePhaseTitleIn));
+    }
+
+    void AnimatePhaseTitleIn()
+    {
+        phaseTween = CreateTween().SetParallel(true);
+        phaseTween.TweenProperty(phaseTitle, "scale", Vector2.One, 0.38)
+            .SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+        phaseTween.TweenProperty(phaseTitle, "rotation", 0.0, 0.30)
+            .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
+        phaseTween.TweenProperty(phaseTitle, "modulate:a", 1.0, 0.24)
+            .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out);
+        phaseTween.Chain().TweenInterval(0.62);
+        phaseTween.Chain().TweenCallback(Callable.From(AnimatePhaseAnnouncementOut));
+    }
+
+    void AnimatePhaseAnnouncementOut()
+    {
+        phaseTween = CreateTween().SetParallel(true);
+        phaseTween.TweenProperty(phaseTitle, "scale", new Vector2(1.12f, 0.82f), 0.34)
+            .SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
+        phaseTween.TweenProperty(phaseTitle, "modulate:a", 0.0, 0.25)
+            .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.In);
+        phaseTween.TweenProperty(phaseCurtain, "scale:x", 0.0f, 0.46)
+            .SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
+        phaseTween.TweenProperty(phaseCurtain, "scale:y", 0.9f, 0.46)
+            .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.In);
+        phaseTween.TweenProperty(phaseCurtain, "modulate:a", 0.0, 0.34)
+            .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.In);
+        phaseTween.Chain().TweenCallback(Callable.From(FinishPhaseAnnouncement));
+    }
+
+    void FinishPhaseAnnouncement()
+    {
+        phaseAnnouncement.Visible = false;
+        phaseCurtain.Scale = Vector2.One;
+        phaseCurtain.Modulate = Colors.White;
+        phaseTitle.Scale = Vector2.One;
+        phaseTitle.Rotation = 0;
+        phaseTitle.Modulate = Colors.White;
     }
 
     VBoxContainer FullScreen(string title, float contentWidth = 600)
@@ -873,10 +985,6 @@ public partial class Premove : Control
     void Timeline()
     {
         Character unit = match.Current;
-        var heading = new HBoxContainer(); footer.AddChild(heading);
-        heading.AddChild(Label($"{MatchSession.ClassName(unit.characterClass()).ToUpperInvariant()} / {unit.stepCount()} MOVES (MAX {match.PremoveLimit})", 12, cyan));
-        heading.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        heading.AddChild(Label("WASD move · NUM skill · ←→ aim · ENTER add · SPACE lock", 12, muted));
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Auto, VerticalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsVertical = SizeFlags.ExpandFill };
         footer.AddChild(scroll);
         var slots = new HBoxContainer(); scroll.AddChild(slots);
@@ -891,9 +999,10 @@ public partial class Premove : Control
             if (ended) b.Modulate = new Color(0.6f, 0.65f, 0.7f);
             slots.AddChild(b); if (action == 0) ended = true;
         }
-        footer.AddChild(Label("Click a slot to edit; replacing it clears every later move. Skills on cooldown are skipped.", 12, muted));
+        right.AddChild(Text("WASD move · NUM skill · ←→ aim · ENTER add · SPACE lock", 12, muted));
+        right.AddChild(Text("Click a slot to edit; later moves clear. Skills on cooldown are skipped.", 12, muted));
         if (transient.Length > 0 || match.Message.Length > 0)
-            footer.AddChild(Label(transient.Length > 0 ? transient : match.Message, 12, muted));
+            right.AddChild(Text(transient.Length > 0 ? transient : match.Message, 12, muted));
     }
 
     void ShowLastMoves(Snapshot before)

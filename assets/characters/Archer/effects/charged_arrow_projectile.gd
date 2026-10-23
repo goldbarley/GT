@@ -12,10 +12,13 @@ var lifetime: float = 1.6
 var distance_traveled: float = 0.0
 var next_tear_distance: float = 30.0
 
+@onready var trail_particles: CPUParticles2D = $TrailParticles
 @onready var sprite: Sprite2D = $Sprite2D
 
 func _ready() -> void:
 	rotation = direction.angle()
+	if trail_particles:
+		trail_particles.emitting = true
 
 func _physics_process(delta: float) -> void:
 	var step = speed * delta

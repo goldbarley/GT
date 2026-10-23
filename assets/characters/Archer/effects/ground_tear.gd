@@ -2,9 +2,14 @@ extends Node2D
 class_name GroundTear
 
 @onready var tear_rect: ColorRect = $TearRect
+@onready var particles: CPUParticles2D = $Sparks
 
 @export var duration: float = 0.8
 var elapsed: float = 0.0
+
+func _ready() -> void:
+	if particles:
+		particles.emitting = true
 
 func _process(delta: float) -> void:
 	elapsed += delta

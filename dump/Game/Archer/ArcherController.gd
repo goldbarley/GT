@@ -73,6 +73,30 @@ func _build() -> void:
 		players[perspective] = player
 
 
+## Basic attack: raises arm with upright bow -> Frame 10 glow -> Frame 11 burst -> arrow fires straight.
+func play_basic_attack(direction: Vector2 = Vector2.RIGHT) -> void:
+	shot_direction = direction.normalized()
+	if shot_direction == Vector2.ZERO:
+		shot_direction = Vector2.RIGHT
+	play_action(ArcherAnims.BASIC_ATTACK)
+
+
+## Swift draw and release of a regular arrow.
+func play_skill(direction: Vector2 = Vector2.RIGHT) -> void:
+	shot_direction = direction.normalized()
+	if shot_direction == Vector2.ZERO:
+		shot_direction = Vector2.RIGHT
+	play_action(ArcherAnims.SKILL)
+
+
+## Deep power draw and release of a charged energy arrow.
+func play_strong_skill(direction: Vector2 = Vector2.RIGHT) -> void:
+	shot_direction = direction.normalized()
+	if shot_direction == Vector2.ZERO:
+		shot_direction = Vector2.RIGHT
+	play_action(ArcherAnims.STRONG_SKILL)
+
+
 ## Draws the bow back and lets it go.
 ##
 ## The shot leaves on the clip's impact, so the arrow and the burst happen on
@@ -85,12 +109,57 @@ func play_charged_shot(direction: Vector2 = Vector2.RIGHT) -> void:
 
 
 func _on_action_impact(action_name: String) -> void:
-	if action_name != ArcherAnims.CHARGED_SHOT:
+	match action_name:
+		ArcherAnims.BASIC_ATTACK:
+			fire_basic_attack()
+		ArcherAnims.SKILL:
+			fire_skill()
+		ArcherAnims.STRONG_SKILL:
+			fire_strong_skill()
+		ArcherAnims.CHARGED_SHOT:
+			fire_shot()
+
+
+## Puts the basic attack arrow into the world in a straight line.
+func fire_basic_attack() -> void:
+	var rig := active_rig as ArcherModularBase
+	if rig == null:
 		return
-	fire_shot()
+	var bow := rig.get_piece("bow")
+	if bow == null:
+		return
+	var origin: Vector2 = bow.global_position
+	ArcherShot.fire_basic_attack(_shot_host(), origin, shot_direction, arrow_speed * 0.9,
+			global_position.y, absf(scale.x), bow)
 
 
-## Puts the shot into the world, at the bow.
+## Puts the basic skill arrow into the world, at the bow.
+func fire_skill() -> void:
+	var rig := active_rig as ArcherModularBase
+	if rig == null:
+		return
+	var bow := rig.get_piece("bow")
+	if bow == null:
+		return
+	var origin: Vector2 = bow.global_position
+	ArcherShot.fire_skill(_shot_host(), origin, shot_direction, arrow_speed * 0.8,
+			global_position.y, absf(scale.x), bow)
+
+
+## Puts the strong skill charged arrow into the world, at the bow.
+func fire_strong_skill() -> void:
+	var rig := active_rig as ArcherModularBase
+	if rig == null:
+		return
+	var bow := rig.get_piece("bow")
+	if bow == null:
+		return
+	var origin: Vector2 = bow.global_position
+	ArcherShot.fire_strong_skill(_shot_host(), origin, shot_direction, arrow_speed,
+			global_position.y, absf(scale.x), bow)
+
+
+## Puts the ultimate shot into the world, at the bow.
 func fire_shot() -> void:
 	var rig := active_rig as ArcherModularBase
 	if rig == null:
@@ -102,7 +171,7 @@ func fire_shot() -> void:
 	# place the arrow leaves from
 	var origin: Vector2 = bow.global_position
 	ArcherShot.fire(_shot_host(), origin, shot_direction, arrow_speed,
-			global_position.y, absf(scale.x))
+			global_position.y, absf(scale.x), bow)
 
 
 ## Where the shot is put: the world the archer is standing in, not the motor

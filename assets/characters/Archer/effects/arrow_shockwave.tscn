@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://assets/characters/Archer/effects/arrow_shockwave.gd" id="1_script"]
 [ext_resource type="Shader" path="res://assets/characters/Archer/effects/arrow_shockwave.gdshader" id="2_shader"]
 [ext_resource type="Texture2D" path="res://assets/characters/Archer/effects/frame_1.png" id="3_frame1"]
+[ext_resource type="Texture2D" path="res://assets/characters/Archer/effects/pixel_particle_2px.png" id="4_particle_tex"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_shockwave"]
 shader = ExtResource("2_shader")
@@ -16,6 +17,10 @@ shader_parameter/elemental_tint = Color(1, 1, 1, 1)
 shader_parameter/pixel_grid_snap = true
 shader_parameter/pixel_grid_size = Vector2(48, 34)
 
+[sub_resource type="Gradient" id="Gradient_particles"]
+offsets = PackedFloat32Array(0, 0.45, 0.8, 1)
+colors = PackedColorArray(1, 0.88, 0.08, 1, 1, 0.82, 0.05, 0.95, 0.86, 0.52, 0, 0.6, 0.86, 0.52, 0, 0)
+
 [node name="ArrowShockwave" type="Node2D"]
 texture_filter = 1
 script = ExtResource("1_script")
@@ -25,3 +30,25 @@ texture_filter = 1
 material = SubResource("ShaderMaterial_shockwave")
 texture = ExtResource("3_frame1")
 offset = Vector2(24, 0)
+
+[node name="LingeringParticles" type="CPUParticles2D" parent="."]
+texture_filter = 1
+position = Vector2(16, 0)
+emitting = false
+amount = 23
+lifetime = 0.72
+one_shot = true
+explosiveness = 0.75
+texture = ExtResource("4_particle_tex")
+emission_shape = 2
+emission_rect_extents = Vector2(2, 14)
+direction = Vector2(-1, 0)
+spread = 28.0
+gravity = Vector2(0, 4)
+initial_velocity_min = 20.0
+initial_velocity_max = 45.0
+damping_min = 25.0
+damping_max = 40.0
+scale_amount_min = 0.6
+scale_amount_max = 0.6
+color_ramp = SubResource("Gradient_particles")

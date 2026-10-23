@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://assets/characters/Archer/effects/charged_arrow_projectile.gd" id="1_script"]
 [ext_resource type="Shader" path="res://assets/characters/Archer/effects/charged_arrow_energy.gdshader" id="2_shader"]
@@ -17,6 +17,10 @@ shader_parameter/opacity = 1.0
 shader_parameter/pixel_grid_snap = true
 shader_parameter/pixel_grid_size = Vector2(48, 24)
 
+[sub_resource type="Gradient" id="Gradient_trail"]
+offsets = PackedFloat32Array(0, 0.4, 0.8, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 0.88, 0.08, 0.9, 0.86, 0.52, 0, 0.6, 0.86, 0.52, 0, 0)
+
 [node name="ChargedArrowProjectile" type="Area2D"]
 z_index = 3
 collision_layer = 0
@@ -28,3 +32,17 @@ texture_filter = 1
 material = SubResource("ShaderMaterial_arrow")
 texture = ExtResource("3_arrow_tex")
 offset = Vector2(0, 0)
+
+[node name="TrailParticles" type="CPUParticles2D" parent="."]
+position = Vector2(-16, 0)
+emitting = false
+amount = 26
+lifetime = 0.35
+direction = Vector2(-1, 0)
+spread = 15.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 40.0
+initial_velocity_max = 85.0
+scale_amount_min = 1.2
+scale_amount_max = 2.4
+color_ramp = SubResource("Gradient_trail")

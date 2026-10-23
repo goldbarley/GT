@@ -54,10 +54,10 @@ CHARGE = {
     "gather":     dict(gather=1.00, spiral=0.10, focus=0.00, energy_bow=0.00, arrow=0.00, charge=0.10, flash=0.00),
     "spiral":     dict(gather=0.15, spiral=1.00, focus=0.00, energy_bow=0.00, arrow=0.00, charge=0.30, flash=0.00),
     "focus":      dict(gather=0.00, spiral=0.80, focus=1.00, energy_bow=0.00, arrow=0.00, charge=0.50, flash=0.00),
-    "energy_bow": dict(gather=0.00, spiral=0.40, focus=1.00, energy_bow=1.00, arrow=0.00, charge=0.70, flash=0.00),
-    "draw":       dict(gather=0.00, spiral=0.30, focus=1.00, energy_bow=1.00, arrow=0.60, charge=0.80, flash=0.00),
-    "hold":       dict(gather=0.00, spiral=0.25, focus=1.00, energy_bow=1.00, arrow=1.00, charge=0.90, flash=0.00),
-    "release":    dict(gather=0.00, spiral=0.00, focus=1.00, energy_bow=1.00, arrow=1.00, charge=1.00, flash=1.00),
+    "energy_bow": dict(gather=0.00, spiral=0.40, focus=1.00, energy_bow=1.00, charge=0.70, flash=0.00),
+    "draw":       dict(gather=0.00, spiral=0.30, focus=1.00, energy_bow=1.00, charge=0.80, flash=0.00),
+    "hold":       dict(gather=0.00, spiral=0.25, focus=1.00, energy_bow=1.00, charge=0.90, flash=0.00),
+    "release":    dict(gather=0.00, spiral=0.00, focus=1.00, energy_bow=1.00, charge=1.00, flash=1.00),
     "wind":       dict(gather=0.00, spiral=0.00, focus=0.50, energy_bow=0.20, arrow=0.00, charge=0.25, flash=0.15),
     "rest":       dict(gather=0.00, spiral=0.00, focus=0.00, energy_bow=0.00, arrow=0.00, charge=0.00, flash=0.00),
 }
@@ -137,7 +137,8 @@ def poses(v, stage, level):
     # The arm is turned by the amount that puts it flat, less the turn the
     # body is giving, so that it really does end up parallel to the ground.
     arm = level * reach - torso_rot
-    # the bow turns back against the arm, so it stays upright
+    # the bow turns back against the arm, so that it keeps pointing in the
+    # direction it began
     bow = -level * reach
 
     if stage in ("draw", "hold"):
@@ -150,22 +151,21 @@ def poses(v, stage, level):
             "foot_b": {"rot": -lean * 3.0},
         }
     if stage == "release":
-        # the beam goes and she is shoved back
+        # the beam goes without dragging the archer root position backwards
         return {
             "arm": {"rot": arm},
             "bow": {"rot": bow},
             "torso": {"rot": torso_rot, "pos": {"x": 0, "y": 1}},
             "foot_a": {"rot": lean * 5.0},
             "foot_b": {"rot": -lean * 5.0},
-            "root": {"pos": {"x": v["shove"][0], "y": v["shove"][1]}},
         }
     if stage == "wind":
         return {
             "arm": {"rot": arm},
             "bow": {"rot": bow},
             "torso": {"rot": torso_rot, "pos": {"x": 0, "y": 0}},
-            "root": {"pos": {"x": v["shove"][0] * 0.4, "y": v["shove"][1] * 0.4}},
         }
+
     # she squares up to the shot
     return {
         "arm": {"rot": arm},
