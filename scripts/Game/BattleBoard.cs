@@ -165,6 +165,7 @@ public partial class BattleBoard : Control
                     actor.Call("perform", action, direction, Center(to.x, to.y), Center(target.x, target.y), (float)Session.TickSeconds);
                     if (action == -1 && Session.Rosters[p][i] == CharacterClass.MAGE) Sound?.Play("fireball", 0.05f);
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("sword_draw", 0.05f);
+                    if (action == -2 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("twinstring", 0.05f);
                 }
             }
         }
