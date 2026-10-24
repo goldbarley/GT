@@ -1,102 +1,113 @@
 # Premove
 
-A pixel RPG tactics game where both players program their moves before combat resolves. Built with Godot 4.7 .NET and the existing C# battle engine.
+**Plan in secret. Resolve together.**
 
-## Run
+Premove is a pixel-art tactics game where both players choose their moves before either side acts. Build a team, predict where your opponent will go, and watch both plans play out at the same time. Defeat the opposing team to win.
 
-Install the **.NET edition of Godot 4.7.2** and a .NET SDK that supports `net8.0` (Android targets `net9.0`). From this folder:
+![Premove — planning an attack on the grassland arena](docs/media/planning.png)
 
-```sh
-dotnet build GT.csproj
-godot-mono --path .
-```
+[Watch the demo](docs/media/premove-demo.mp4) · [Learn to play](#your-first-match) · [Run locally](#run-locally) · [Presentation guide](docs/PRESENTATION.md)
 
-The executable may be called `godot` on your system. Open `project.godot` in the .NET editor to edit scenes or run with F6/F5. The main scene is `scenes/Premove.tscn`.
+## Demo
 
-## Playing
+[![Open the 30-second Premove walkthrough](docs/media/title.png)](docs/media/premove-demo.mp4)
 
-- Choose **LAN multiplayer**, **Couch multiplayer**, or **Practice**. Select Sky Island and a party of one to three fighters; a team may field the same class more than once.
-- Browse characters with Left/Right, then press Enter or use **Place on the map** to open a small map. Only safe, free tiles in your own half are offered: move the marker with WASD and press Enter, or click a tile. Each fighter in the party has a Remove button. Choose a perk with P and enter the arena with Space. Archer and Orc remain Coming soon.
-- Program each fighter's sequence. Choose a skill, click a tile along a row or column to aim, and confirm. The highlighted tiles show its exact effect.
-- Lock all plans, then choose a fighter. Both sides execute their selected sequences simultaneously. In skirmishes, unused living fighters act first; a survivor fills a fallen teammate's remaining exchange before the next planning cycle.
-- Health, position, and skill cooldowns persist across planning cycles. Defeat the enemy party to win. The result screen offers a rematch.
+**[Play or download the 30-second demo video →](docs/media/premove-demo.mp4)**
 
-Local matches use private handoff screens. During planning, enemy markers show their original deployment tiles, rather than live positions. Practice uses a computer opponent that navigates safe terrain and chooses skills by range and cooldown.
+A silent, captioned walkthrough of team selection, deployment, planning, and combat, edited from in-game screenshots. It introduces the match flow; use the live game to show the animations and simultaneous action.
+
+## The game at a glance
+
+| | |
+| --- | --- |
+| Core idea | Predict your opponent's next position before committing to an attack. |
+| Match flow | Deploy → plan privately → lock plans → choose a fighter → resolve together. |
+| Ways to play | Practice against the computer, share one computer, or connect over LAN. |
+| Teams | One to three fighters, with repeat classes allowed. |
+| Playable classes | Knight, Mage, and Archer. Orc is coming soon. |
+| Arenas | Sky Island, three Grassland maps, and three Volcanic Ruins maps. |
+| Built with | Godot 4.7 .NET and C#. |
+
+An attack targets where the opponent **will be** when it executes. Movement resolves before attacks, so a well-timed step can change an entire exchange. Health, positions, and cooldowns carry into the next planning cycle.
+
+## Your first match
+
+### 1. Pick a team and place your fighters
+
+Choose **Practice** for a first game. Select a map and party size, browse the classes, then choose a fighter. Open placement and click a safe tile on your half of the map, or use **WASD → Enter**. Fill your party, choose a team perk, and press **Space** to continue.
+
+![Deployment screen showing available ground, walls, hazards, and the enemy half](docs/media/deployment.png)
+
+### 2. Build a plan
+
+Choose a movement direction or skill, preview its effect, and press **Enter** to add it to the sequence. Aim a skill by clicking a tile along a row or column, or use the arrow keys. Use **+ / −** to adjust its range.
+
+![Annotated tutorial showing skill selection, target tiles, sequence slots, and the lock button](docs/media/planning-guide.svg)
+
+Try a short opening: **move once → attack → End**. Select **End** with **0** to finish the sequence. Click a sequence slot to replace an action. Press **Tab** to plan for another fighter, then **Space** when every fighter is ready.
+
+Hover over a skill for its damage, range, and cooldown. An attack aimed at the opponent's current tile can miss after they move. A skill used while on cooldown skips that action.
+
+### 3. Resolve and adapt
+
+After both sides lock their plans, choose a fighter and confirm. Both selected sequences execute together. Watch the positions and remaining health, then adjust your next plan. Defeat every opposing fighter to win; the result screen offers a rematch.
+
+![Combat screen with both fighters' active commands and team health](docs/media/combat.png)
+
+**Watch the terrain:** walls block walking, collisions cause damage, and chasms are fatal. Teleporting onto unsafe terrain is also fatal.
+
+## Controls
 
 | Input | Action |
 | --- | --- |
-| WASD | Move the placement marker / preview a move (planning) |
-| Numpad 1–5 / number row 1–5 | Select a class skill |
-| Arrow keys | Aim; browse fighters on selection screens |
-| + / - | Change skill range |
+| WASD | Move the placement marker or preview movement |
+| 1–5 / numpad 1–5 | Select a skill |
+| Click a tile / arrow keys | Aim a skill |
+| + / − | Adjust range |
+| Enter | Confirm placement, action, or fighter selection |
 | Tab | Switch the fighter being programmed |
-| Space | Lock plans / confirm a completed party |
-| Numpad 0 / 0 | End the sequence |
-| Click a map tile | Aim the selected skill |
-| Enter | Place a fighter, confirm the previewed action, or confirm a fighter |
-| T | Select teleport with the Teleport perk |
-| Backspace | Remove the last placed fighter / select the previous slot |
-| G / Tile view | Toggle terrain markings |
-| Escape | Pause / resume locally; open menu in LAN (match continues) |
+| 0 / numpad 0 | End the sequence |
+| Space | Confirm your party or lock plans |
+| T | Select teleport when using the Teleport perk |
+| G | Toggle terrain markings |
+| Escape | Pause locally; open the menu in LAN while the match continues |
 | F11 | Toggle fullscreen |
 
-Programming works as a preview: pressing a move or a skill shows what it will do, the dotted squares mark the tiles the skill can reach, and the aim can be set with the mouse by clicking a tile along the row or column. The preview is a shaded yellow square and turns green once the action is confirmed with Enter. Click any sequence slot to replace it. **End** terminates the sequence; later commands are discarded when locking. Guard and Quad Beam target automatically. Repeating a skill while it is on cooldown skips that action. Hover a skill button for damage, range, and cooldown details. Movement resolves before attacks; walls stop walking, collisions deal damage, and chasms kill instantly. Teleporting onto unsafe terrain is fatal.
+## Choose a team perk
 
-## LAN play
+| Perk | What it changes |
+| --- | --- |
+| King Crimson | Inspect enemy plans and edit yours during a 90-second window after both teams lock. |
+| Defy Destiny | Review an exchange and attempt to replace one final action, with a 70% success chance. |
+| Teleport | Add straight-line teleports with a chosen distance to your plan. |
+| Tactician | Reveal one enemy fighter's sequence before fighter selection. |
 
-Use the same game version on two computers on the same network. On the first, choose **LAN multiplayer → Host game**. On the second, enter the host's LAN IPv4 address and choose **Join game**. Once connected, the host chooses the map and party size. Traffic uses UDP port `28461`; allow that port through the host firewall if needed.
+Each perk can belong to only one team. Regular planning has no time limit.
 
-Both players set up at the same time: each picks their own fighters and places them on their own half of the island, then picks their team perk, then presses Space. Each player only sees their own deployment. Each side only ever sees its own plan; the other side is hidden until the plans are locked. Planning, fighter selection, and the Defy Destiny decision are private to the player they belong to, and the other player waits on an "opponent's turn" screen. The host's clock drives the ticks, so both machines resolve the same exchange in the same order. Disconnecting returns both players to the lobby; reconnect/resume is not implemented. The transport is intended for trusted local play, not competitive anti-cheat.
+## Run locally
 
-## Interface
-
-The window is light brown, with tan panels, dark brown text and pastel green, blue and red kept for highlights. Setup uses separate full-screen selections. The battle view has a statistics bar, a translucent numpad, and last-action messages. Executed skill and movement keys glow green. Hover skills and statistics for details; the three-page tutorial gives the essentials. The camera tracks the midpoint of the active fighters and widens its framing when they separate. The design follows the [Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/full-list/) on consistent keyboard access, concise help, and an option to disable camera tracking.
-
-## Music and audio
-
-Music loads from `assets/music/`: `title`, `battle`, `victory`, and `defeat` are bundled and crossfade between screens. Sound effects cover combat attacks and impacts, with separate music and effects volume controls. See the asset folders' README files for sound names, attribution, and replacement instructions.
-
-**Audio settings** on the title screen and in the pause menu control music and effects volume and mute independently. Choices are saved to `user://audio.cfg` and restored on the next run.
-
-## Team perks
-
-- **King Crimson:** after both teams lock, inspect enemy plans and edit your own during a 90-second window.
-- **Defy Destiny:** at the end of an exchange, review the move history and trail, then attempt to replace one final action with a 70% success chance.
-- **Teleport:** program cardinal teleports with a chosen distance.
-- **Tactician:** one enemy fighter's sequence is revealed before selection.
-
-A perk can only belong to one team. In a LAN match one player is picked at random to choose their perk first; the other waits for that choice before picking. Regular planning has no time limit; only King Crimson's future-sight window is timed.
-
-## Characters and assets
-
-**Mage** and **Knight** are playable, using the modular rigs, choreography, and effects from `dump/Game`. The incomplete Knight front sheet has been replaced with the complete supplied body, plume, shield, arm, sword, and boot pieces. Its shoulder/wrist hierarchy and perspective-specific slash, stab, plunge, guard, and front gait use anticipation, impact, and recovery poses. **Archer** is marked Coming soon because its controller only supports one combat perspective and its attack set is incomplete. **Orc** awaits character art and animations. Standing sprites are scaled proportionally to one tile. Each perspective is centered using the visible pixel bounds of its resting pose. Attacks animate around that center. The camera follows the active pair in combat; the pause menu can switch to a whole-map view. Six arenas are available: Grassland 1–3 and Volcanic Ruins 1–3. The original Sky Island map is also included as "Sky Island".; its JSON determines terrain and grid alignment.
-
-`scripts/Game/` contains the interface and match flow. `scripts/Animation/` contains the shared animation runtime. `assets/characters/` holds the integrated art. The source prototypes remain in `dump/`, excluded from C# compilation and Godot resource scanning. LAN reuses the prototype ENet transport with ordered host-relayed commands and a host clock.
-
-## Checks
+Install **Godot 4.7.2 .NET** and the **.NET 8 SDK** for desktop. From the repository folder:
 
 ```sh
-dotnet build GT.csproj --no-restore
-godot-mono --headless --editor --path . --quit
-godot-mono --headless --path . -- --smoke-test
+dotnet build GT.csproj
+godot-mono --editor --headless --path . --quit
+godot-mono --path .
 ```
 
-The runtime checks cover damage, defense, cooldowns, collisions, unsafe teleport, snapshot copies, future sight, rewind, private handoffs, planning timers, and skirmish cycles, then exercise both match modes with the active board and rigs.
+Your Godot executable may be named `godot`. Use the .NET edition. You can also open `project.godot` in the editor and press **F5**.
 
-A networked match can be checked from one machine by running two instances at once:
+For two computers, use the same game version on the same network. Choose **LAN multiplayer → Host game** on one machine. On the other, choose the discovered host or enter its LAN IPv4 address and select **Join game**. Allow UDP port **28461** through the host firewall if required. Reconnecting to an interrupted match is not supported.
 
-```sh
-godot-mono --headless --path . -- --lan-test-host
-godot-mono --headless --path . -- --lan-test-join
-```
+Music and sound levels can be changed independently from the title screen or pause menu. Settings are saved between sessions.
 
-Both bots pick a party, choose a perk, plan, select a fighter, answer the rewind decision and fight to a result. Each side prints its own outcome, clock and health; they must agree. `--capture-menu` renders a preview gallery of the title, map, party, planning, fighter selection, and combat screens in `/tmp`; use `--quit-after 180` to exit afterwards. It does not run the gameplay checks.
+## For the presentation
 
-## Credits
+Start with **Practice**, show placement, then explain one planned move and one attack before locking. Point out how simultaneous movement changes whether an attack connects. Finish by showing team perks and LAN play.
 
-- [Nilabhro Mondal](https://github.com/goldbarley)
-- [Abhinav Mishra](https://github.com/Mishra-4455)
-- [Aditya Raj](https://github.com/adiambassador)
-- [DeployedReject](https://github.com/deployedreject)
+The [presentation guide](docs/PRESENTATION.md) includes a short speaking script and demo checklist. [Development notes](docs/DEVELOPMENT.md) cover the project structure, combat rules, and validation commands. [Media notes](docs/media/README.md) describe the included assets and capture process.
 
-The Terminus bitmap font is by Dimitar Toshkov Zhekov, licensed under the SIL Open Font License; see `assets/fonts/Terminus.LICENSE.txt`.
+## Team
+
+[Nilabhro Mondal](https://github.com/goldbarley) · [Abhinav Mishra](https://github.com/Mishra-4455) · [Aditya Raj](https://github.com/adiambassador) · [DeployedReject](https://github.com/deployedreject)
+
+The Terminus font is by Dimitar Toshkov Zhekov, licensed under the SIL Open Font License. See [the license](assets/fonts/Terminus.LICENSE.txt).

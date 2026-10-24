@@ -86,9 +86,16 @@ public class Character
     }
     public void setPlan(int[] steps, int[] dirs, IVector2[] lens)
     {
-        if (steps.Length != stepOrder.Length || dirs.Length != stepOrder.Length || lens.Length != stepOrder.Length)
+        if (steps.Length != dirs.Length || steps.Length != lens.Length)
             throw new ArgumentException("Wrong plan length.");
         stepOrder = (int[])steps.Clone(); directions = (int[])dirs.Clone(); lengths = (IVector2[])lens.Clone();
+    }
+    public void resizeSteps(int length)
+    {
+        if (length < 1) throw new ArgumentOutOfRangeException(nameof(length));
+        Array.Resize(ref stepOrder, length);
+        Array.Resize(ref directions, length);
+        Array.Resize(ref lengths, length);
     }
     public void dealDamage(int x) { if (x > 0) HP = Math.Max(0, HP - x); }
     public void heal(int x) { if (x > 0 && isAlive()) HP = Math.Min(maxHP(), HP + x); }

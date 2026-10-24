@@ -23,7 +23,6 @@ var authored_impact := 0.0
 var impact_fraction := 0.58
 var playing_action := 0
 var reaction: Tween
-var beam_started := false
 var arena_clip := Rect2()
 var teleport_progress := -1.0
 var teleport_destination := Vector2.ZERO
@@ -191,7 +190,6 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 	authored_impact = 0.0
 	cast_target_local = target
 	playing_action = action
-	beam_started = false
 	if beam != null:
 		beam.set_playing(false)
 	if motion != null and motion.is_valid():
@@ -242,8 +240,8 @@ func perform(action: int, direction: int, destination: Vector2, target: Vector2,
 		current.restore_effect()
 		action_elapsed = 0.0
 		action_duration = current.get_duration()
-		impact_fraction = 0.20 if (kind == 0 and action == -2) or (kind == 1 and action == -5) else 0.58
 		authored_impact = float(current.clip_data.get("impact", current.get_duration() * 0.5))
+		impact_fraction = clampf(authored_impact / maxf(action_duration, 0.001), 0.0, 1.0)
 	if action == 0:
 		idle()
 	elif action >= 1 and action <= 4:
@@ -289,7 +287,17 @@ func _finish_move() -> void:
 func _animation_impact(clip: String) -> void:
 	if kind == 2:
 		_archer_impact(clip)
+		_spawn_attack_impact()
 		return
+	if kind == 0 and playing_action == -4:
+		_fire_beams()
+	elif kind == 1 and playing_action < 0 and playing_action != -5:
+		_spawn_attack_impact()
+
+func _spawn_attack_impact() -> void:
+	var point := global_position if playing_action == -2 or playing_action == -5 else _parent_to_global(cast_target_local)
+	var tint := Color("ffd27a") if kind == 1 else Color("b9f2ff") if kind == 0 else Color("c7f28a")
+	HitEffectClass.spawn_at(get_parent(), point, 0.46, 0.22, tint)
 
 func _archer_impact(_clip: String) -> void:
 	var rig: ModularRig = rigs[facing]
@@ -403,13 +411,23 @@ func set_arena_clip(area: Rect2) -> void:
 		if explosion != null:
 			explosion.clip_rect = area
 
-func react_to_hit(defeated: bool) -> void:
+func react_to_hit(defeated: bool, knockback: Vector2, damaged: bool) -> void:
 	if reaction != null and reaction.is_valid():
 		reaction.kill()
-	HitEffectClass.spawn_at(get_parent(), global_position, 0.55, 0.28, Color(1.0, 0.82, 0.28, 1.0))
-	modulate = Color(1.6, 0.75, 0.75, 1.0)
+	var tint := Color(1.0, 0.82, 0.28, 1.0) if damaged else Color(0.62, 1.0, 0.66, 1.0)
+	HitEffectClass.spawn_at(get_parent(), global_position, 0.55, 0.28, tint)
+	var home := position
+	var recoil := knockback.normalized() * maxf(tile_size * 0.12, 3.0) if damaged else Vector2.UP * maxf(tile_size * 0.08, 2.0)
+	var flash := Color(1.6, 0.72, 0.68, 1.0) if damaged else Color(0.72, 1.35, 0.82, 1.0)
 	reaction = create_tween()
-	reaction.tween_property(self, "modulate", Color(1, 1, 1, 0) if defeated else Color.WHITE, 0.24)
+	reaction.tween_property(self, "modulate", flash, 0.035)
+	reaction.tween_property(self, "position", home + recoil, 0.065).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	reaction.parallel().tween_property(self, "modulate", Color(1.2, 0.88, 0.76, 1.0), 0.065)
+	if defeated:
+		reaction.tween_property(self, "modulate", Color(1.0, 1.0, 1.0, 0.0), 0.18)
+	else:
+		reaction.tween_property(self, "position", home, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		reaction.parallel().tween_property(self, "modulate", Color.WHITE, 0.14)
 	if defeated:
 		reaction.tween_callback(hide)
 
@@ -461,9 +479,6 @@ func _process(delta: float) -> void:
 			teleport_progress = clampf(progress, 0.0, 1.0)
 			var opacity := 1.0 - teleport_progress if teleport_phase == 1 else teleport_progress
 			rigs[facing].modulate = Color(1.0, 1.0, 1.0, opacity)
-		if kind == 0 and playing_action == -4 and progress >= impact_fraction and not beam_started:
-			beam_started = true
-			_fire_beams()
 		if progress >= 1.0:
 			if playing_action == 5 and kind != 0:
 				if teleport_phase == 1:
@@ -510,7 +525,7 @@ func _draw() -> void:
 		var tint := Color(0.72, 0.93, 1.0, 0.9)
 		for y in [-offset, offset]:
 			draw_line(Vector2(-half_width, y), Vector2(half_width, y), tint, 2.0, true)
-	if kind != 1 or action_duration <= 0.0 or playing_action >= 0 or playing_action == -5:
+	if kind != 1 or action_duration <= 0.0 or playing_action >= 0 or playing_action == -5 or playing_action == -4:
 		return
 	var phase := action_elapsed / action_duration - impact_fraction
 	if phase < -0.08 or phase > 0.16:
@@ -523,9 +538,14 @@ func _draw() -> void:
 		var tip := direction * (19.0 + phase * 32.0)
 		draw_line((direction * 8.0).round(), tip.round(), tint, 2.0)
 		draw_line(tip.round(), (tip - direction.rotated(0.6) * 5.0).round(), tint, 1.0)
+	elif playing_action == -3:
+		var ground_y := roundf(tile_size * 0.32)
+		var reach := 7.0 + clampf(phase, 0.0, 0.16) * 90.0
+		draw_line(Vector2(-reach, ground_y), Vector2(reach, ground_y), tint, 2.0)
+		draw_line(Vector2(-reach * 0.65, ground_y + 3.0), Vector2(reach * 0.65, ground_y + 3.0), Color(tint, strength * 0.7), 1.0)
 	else:
-		var radius := 17.0 if playing_action == -1 else 22.0
-		var sweep := 1.1 if playing_action == -1 else 2.4
+		var radius := 17.0
+		var sweep := 1.1
 		for i in range(9):
 			var a := angle - sweep + float(i) * sweep / 4.5
 			var b := angle - sweep + float(i + 1) * sweep / 4.5

@@ -13,6 +13,9 @@ public partial class Premove : Control
     Control phaseAnnouncement;
     ColorRect phaseCurtain;
     Label phaseTitle;
+    PanelContainer syncPanel;
+    Label syncLabel;
+    ulong syncUntil;
     Tween phaseTween;
     MatchPhase previousPhase = MatchPhase.Menu;
     readonly int[] executing = { 0, 0 };
@@ -54,7 +57,15 @@ public partial class Premove : Control
         sfx = new SoundEffects { Name = "Sfx" }; AddChild(sfx);
         board.Sound = sfx;
         network.StatusChanged += status => { transient = status; if (match.Phase == MatchPhase.Menu) Refresh(); };
-        network.ConnectionLost += () => { ReturnToMenu(); transient = "Connection closed. Host or join again."; screen = "lan"; Refresh(); };
+        network.DiscoveryChanged += () => { if (screen == "lan") Refresh(); };
+        network.RemoteActivity += () => syncUntil = Time.GetTicksMsec() + 700;
+        network.ConnectionLost += () => { ReturnToMenu(); transient = "Connection closed. Host or join again."; screen = "lan"; network.BeginDiscovery(); Refresh(); };
+        network.GuestDisconnected += () =>
+        {
+            match.Lan = false; match.Local = match.Viewer = 1; modalOpen = false; screen = "lan"; match.Paused = false;
+            match.Phase = MatchPhase.Menu; board.Reset(); transient = "Player 2 disconnected. Hosting remains open.";
+            network.BeginDiscovery(); Refresh();
+        };
         match.Changed += () =>
         {
             if (rewindPopup && match.Phase != MatchPhase.Rewind)
@@ -90,10 +101,14 @@ public partial class Premove : Control
         theme.SetColor("font_color", "Button", ink);
         theme.SetColor("font_hover_color", "Button", new Color("182c3d"));
         theme.SetColor("font_disabled_color", "Button", new Color("8a7a63"));
+        theme.SetColor("font_color", "TooltipLabel", ink);
+        theme.SetFont("font", "TooltipLabel", font);
+        theme.SetFontSize("font_size", "TooltipLabel", 16);
+        theme.SetStylebox("panel", "TooltipPanel", Box("f1e3c5", "61432c"));
         theme.SetStylebox("normal", "Button", Box("efdfc1", "61432c", 0));
         theme.SetStylebox("hover", "Button", Box("c6dbe5", "355c75", 0));
-        theme.SetStylebox("pressed", "Button", Box("d8bb8d", "8a5a2b", 7));
-        var focus = Box("00000000", "2f4f7a", 0);
+        theme.SetStylebox("pressed", "Button", Box("e2b2a5", "a33b32", 0));
+        var focus = Box("00000000", "355c75", 0);
         focus.ShadowSize = 0;
         theme.SetStylebox("focus", "Button", focus);
         theme.SetStylebox("disabled", "Button", Box("cbb492", "a08a6b", 7));
@@ -110,9 +125,9 @@ public partial class Premove : Control
             BgColor = new Color(fill),
             CornerRadiusTopLeft = 0, CornerRadiusTopRight = 0, CornerRadiusBottomLeft = 0, CornerRadiusBottomRight = 0,
             BorderWidthLeft = 3, BorderWidthTop = 3, BorderWidthRight = 3, BorderWidthBottom = 3,
-            BorderColor = new Color(border).Lightened(0.12f),
-            BorderBlend = false, ShadowColor = new Color("6b4f2e"), ShadowSize = 3, ShadowOffset = new Vector2(3, 3),
-            ContentMarginLeft = 15, ContentMarginRight = 15, ContentMarginTop = 12, ContentMarginBottom = 12
+            BorderColor = new Color(border),
+            BorderBlend = false, ShadowColor = new Color("38271f"), ShadowSize = 2, ShadowOffset = new Vector2(4, 4),
+            ContentMarginLeft = 12, ContentMarginRight = 12, ContentMarginTop = 10, ContentMarginBottom = 10
         };
     }
 
@@ -178,6 +193,16 @@ public partial class Premove : Control
         right = new VBoxContainer { CustomMinimumSize = new Vector2(232, 0), SizeFlagsHorizontal = SizeFlags.ExpandFill }; rightScroll.AddChild(right);
         footer = new VBoxContainer { CustomMinimumSize = new Vector2(0, 78) }; root.AddChild(footer);
         overlay = new Control { MouseFilter = MouseFilterEnum.Ignore }; AddChild(overlay); overlay.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        syncPanel = new PanelContainer { Visible = false, MouseFilter = MouseFilterEnum.Ignore, ZIndex = 100 };
+        syncPanel.AnchorLeft = syncPanel.AnchorRight = 1;
+        syncPanel.AnchorTop = syncPanel.AnchorBottom = 0;
+        syncPanel.OffsetLeft = -126; syncPanel.OffsetRight = -20;
+        syncPanel.OffsetTop = 16; syncPanel.OffsetBottom = 48;
+        syncPanel.AddThemeStyleboxOverride("panel", Box("ead6b6", "355c75"));
+        syncLabel = Label("SYNC  |", 14, cyan);
+        syncLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        syncPanel.AddChild(syncLabel);
+        AddChild(syncPanel);
         GetViewport().SizeChanged += ResizeBattleLayout;
         ResizeBattleLayout();
     }
@@ -186,11 +211,14 @@ public partial class Premove : Control
     {
         if (keyPanel == null) return;
         Vector2 viewport = GetViewportRect().Size;
-        float panelWidth = Mathf.Min(356, Mathf.Max(300, viewport.X * 0.278f));
+        float margin = viewport.X < 1200 ? 12 : 24;
+        float panelWidth = Mathf.Min(356, Mathf.Max(232, viewport.X * 0.278f));
+        if (shell is MarginContainer shellMargin)
+            foreach (string side in new[] { "left", "right" }) shellMargin.AddThemeConstantOverride("margin_" + side, Mathf.RoundToInt(margin));
         keyPanel.OffsetLeft = -panelWidth;
-        keyPanel.OffsetRight = -24;
-        keyPanel.OffsetTop = Mathf.Max(176, Mathf.RoundToInt(220 - viewport.Y * 0.05f));
-        keyPanel.OffsetBottom = -24;
+        keyPanel.OffsetRight = -margin;
+        keyPanel.OffsetTop = Mathf.Max(144, Mathf.RoundToInt(220 - viewport.Y * 0.05f));
+        keyPanel.OffsetBottom = -margin;
         battleCenterMargin?.AddThemeConstantOverride("margin_right", Mathf.RoundToInt(panelWidth));
     }
 
@@ -229,7 +257,7 @@ public partial class Premove : Control
         b.AddThemeFontSizeOverride("font_size", 24);
         if (accent) { b.AddThemeStyleboxOverride("normal", Box("c6dcb6", "3d6548", 0)); b.AddThemeColorOverride("font_color", cyan); }
         b.Pressed += () => { transient = ""; action(); };
-        b.MouseEntered += () => { if (!b.Disabled) sfx?.Play("hover", 0f, -6f); };
+        b.MouseEntered += () => { if (!b.Disabled) sfx?.Play("hover", 0f, -16.5f); };
         b.MouseEntered += () => AnimateButtonHover(b, true);
         b.MouseExited += () => AnimateButtonHover(b, false);
         return b;
@@ -349,6 +377,11 @@ public partial class Premove : Control
 
     void AnnouncePhaseTransition()
     {
+        if (match.Lan)
+        {
+            previousPhase = match.Phase;
+            return;
+        }
         bool wasPremove = previousPhase is MatchPhase.Planning or MatchPhase.Foresight or MatchPhase.Handoff;
         bool wasAction = previousPhase is MatchPhase.Combat or MatchPhase.Rewind;
         if ((match.Phase is MatchPhase.Planning or MatchPhase.Foresight) && !wasPremove)
@@ -420,10 +453,13 @@ public partial class Premove : Control
     VBoxContainer FullScreen(string title, float contentWidth = 600)
     {
         Clear(overlay); shell.Visible = false; keyOverlay.Visible = false;
-        overlay.Modulate = new Color(1, 1, 1, 0);
-        var transition = overlay.CreateTween();
-        transition.TweenProperty(overlay, "modulate:a", 1.0, 0.24)
-            .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out);
+        overlay.Modulate = match.Lan ? Colors.White : new Color(1, 1, 1, 0);
+        if (!match.Lan)
+        {
+            var transition = overlay.CreateTween();
+            transition.TweenProperty(overlay, "modulate:a", 1.0, 0.24)
+                .SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out);
+        }
         var background = new ColorRect { Color = new Color("b38d65") }; overlay.AddChild(background); background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         var margin = new MarginContainer(); overlay.AddChild(margin); margin.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         foreach (string side in new[] { "left", "right", "top", "bottom" }) margin.AddThemeConstantOverride("margin_" + side, 36);
@@ -466,7 +502,7 @@ public partial class Premove : Control
             leftSide.AddChild(new PixelTitle { Caption = "PREMOVE", PixelScale = 10, Ink = cyan, CustomMinimumSize = new Vector2(380, 80) });
             var tagline = Label("Think ahead. Move together.", 20, coral); leftSide.AddChild(tagline);
             leftSide.AddChild(new Control { CustomMinimumSize = new Vector2(0, 18) });
-            leftSide.AddChild(Button("LAN MULTIPLAYER", () => { screen = "lan"; Refresh(); }, accent: true));
+            leftSide.AddChild(Button("LAN MULTIPLAYER", () => { screen = "lan"; network.BeginDiscovery(); Refresh(); }, accent: true));
             leftSide.AddChild(Button("Couch multiplayer", () => { solo = false; screen = "map"; Refresh(); }));
             leftSide.AddChild(Button("Practice", () => { solo = true; screen = "map"; Refresh(); }));
             leftSide.AddChild(Button("How to play", () => { tutorialPage = 0; ShowHelp(); }));
@@ -481,11 +517,25 @@ public partial class Premove : Control
         {
             page.AddChild(Label("Same local network. One hosts, one joins.", 20, cyan));
             page.AddChild(Button("Host game", () => { var error = network.Host(); transient = error == Error.Ok ? "Waiting for player two..." : error.ToString(); Refresh(); }));
+            page.AddChild(Label("GAMES ON YOUR NETWORK", 16, gold));
+            if (network.DiscoveredHosts.Count == 0)
+                page.AddChild(Text("Searching… You can also enter an address below.", 14, muted));
+            foreach (string host in network.DiscoveredHosts)
+            {
+                string addressFound = host;
+                page.AddChild(Button($"Join Premove match  ·  {host}", () =>
+                {
+                    network.Address = addressFound;
+                    var error = network.Join();
+                    transient = error == Error.Ok ? $"Connecting to {addressFound}…" : error.ToString();
+                    Refresh();
+                }));
+            }
             var address = new LineEdit { PlaceholderText = "Host IP address", Text = network.Address, CustomMinimumSize = new Vector2(0, 48) }; page.AddChild(address);
             address.TextChanged += value => network.Address = value;
             page.AddChild(Button("Join game", () => { var error = network.Join(); transient = error == Error.Ok ? "Connecting..." : error.ToString(); Refresh(); }));
             page.AddChild(Text(transient, 16, coral));
-            if (network.CanStart) page.AddChild(Text("Host IP: " + string.Join(", ", IP.GetLocalAddresses().Where(ip => ip.Contains('.') && !ip.StartsWith("127."))), 16, cyan));
+            if (network.IsHost) page.AddChild(Text("Host IP: " + string.Join(", ", IP.GetLocalAddresses().Where(ip => ip.Contains('.') && !ip.StartsWith("127."))), 16, cyan));
             page.AddChild(Button("Choose arena", () => { solo = false; screen = "map"; Refresh(); }, !network.CanStart, true));
             page.AddChild(Button("Back", () => { network.Close(); screen = "title"; Refresh(); }));
         }
@@ -598,9 +648,14 @@ public partial class Premove : Control
         if (!chooseFighter.Disabled) BlinkAttention(chooseFighter);
         main.AddChild(Label("← → Browse   Enter Choose   Backspace Remove", 16, muted));
         int perkIndex = (int)match.Perks[match.Viewer - 1];
-        var perk = Button($"Perk: {MatchSession.PerkNames[perkIndex]}  [P]", CyclePerk, !match.PerkTurn);
-        perk.TooltipText = MatchSession.PerkDetails[perkIndex]; main.AddChild(perk);
-        if (match.Lan) perk.TooltipText += "\nKing Crimson is available in couch play.";
+        var perkCard = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        perkCard.AddThemeStyleboxOverride("panel", Box("d8c9a8", perkIndex switch { 0 => "a33b32", 1 => "355c75", 2 => "62816a", _ => "8a5a2b" }));
+        var perkInfo = new VBoxContainer(); perkInfo.AddThemeConstantOverride("separation", 4); perkCard.AddChild(perkInfo); main.AddChild(perkCard);
+        var perkHeading = new HBoxContainer(); perkInfo.AddChild(perkHeading);
+        perkHeading.AddChild(Label("SUPER PERK", 16, gold));
+        var perk = Button($"{MatchSession.PerkNames[perkIndex]}  [P]", CyclePerk, !match.PerkTurn, true);
+        perk.SizeFlagsHorizontal = SizeFlags.ExpandFill; perkHeading.AddChild(perk);
+        perkInfo.AddChild(Text(MatchSession.PerkDetails[perkIndex], 16, ink));
         var sidebar = new PanelContainer { CustomMinimumSize = new Vector2(260, 0), SizeFlagsVertical = SizeFlags.ExpandFill };
         sidebar.AddThemeStyleboxOverride("panel", Box("c6dcb6", "3d6548")); columns.AddChild(sidebar);
         var party = new VBoxContainer(); sidebar.AddChild(party);
@@ -619,7 +674,7 @@ public partial class Premove : Control
                 continue;
             }
             var at = match.Spawns[match.Viewer - 1][i]; var kind = match.Rosters[match.Viewer - 1][i];
-            PortraitRow(fighterBox, MatchSession.ClassName(kind), $"Tile {at.y + 1},{at.x + 1}", kind == CharacterClass.MAGE ? "mage" : kind == CharacterClass.ARCHER ? "archer" : "knight", false);
+            PortraitRow(fighterBox, $"FIGHTER {i + 1} · {MatchSession.ClassName(kind)}", $"Tile {at.y + 1},{at.x + 1}", kind == CharacterClass.MAGE ? "mage" : kind == CharacterClass.ARCHER ? "archer" : "knight", false);
             int hp = kind switch { CharacterClass.MAGE => 75, CharacterClass.ARCHER => 100, _ => 120 };
             fighterBox.AddChild(HealthDisplay("", hp, hp, new Color("3d6548")));
             int index = i; fighterBox.AddChild(Button("Remove", () => match.RemoveFighter(index), !match.MyTurn));
@@ -640,7 +695,6 @@ public partial class Premove : Control
         for (int i = 1; i <= 4; i++)
         {
             int next = (start + i) % 4;
-            if (match.Lan && next == (int)SuperPerk.KingCrimson) continue;
             if ((int)match.Perks[2 - match.Viewer] == next) continue;
             match.SetPerk(next); break;
         }
@@ -672,7 +726,7 @@ public partial class Premove : Control
         if (GodotObject.IsInstanceValid(showcase)) showcase.Visible = false;
         var content = OpenPopup($"DEPLOY {MatchSession.ClassName((CharacterClass)match.SelectedClass).ToUpperInvariant()}");
         var map = new PlacementMap { Session = match, CursorRow = match.CursorRow, CursorCol = match.CursorCol, MapIndex = mapIndex };
-        map.TilePicked += (row, col) => { match.PlaceAt(row, col); ClosePlacementPopup(); };
+        map.TilePicked += (row, col) => { if (match.PlaceAt(row, col)) ClosePlacementPopup(); };
         content.AddChild(map);
         var legend = new GridContainer { Columns = 3 }; content.AddChild(legend);
         foreach (var (color, caption) in new[] { ("a8dfb2", "Ground"), ("f0d264", "Damage"), ("e74c3c", "Fatal"), ("2d1f1a", "Wall"), ("101010", "Enemy side"), ("f3eee9", "Cursor outline") })
@@ -727,7 +781,7 @@ public partial class Premove : Control
                 Character fighter = BattleEngine.getPlayer((uint)match.Viewer).getCharacter(index);
                 var position = fighter.currentPosition();
                 var choice = Button(
-                    $"{MatchSession.ClassName(fighter.characterClass())} · {fighter.currentHP()} HP · tile {position.y + 1},{position.x + 1}",
+                    $"FIGHTER {index + 1} · {MatchSession.ClassName(fighter.characterClass())} · {fighter.currentHP()} HP · tile {position.y + 1},{position.x + 1}",
                     () => { match.Fighter = index; match.ConfirmFighter(); },
                     accent: match.Fighter == index);
                 right.AddChild(choice);
@@ -744,7 +798,7 @@ public partial class Premove : Control
         if (planning) ActionPanel();
         if (planning)
         {
-            var next = Button($"{MatchSession.ClassName(match.Current.characterClass())}  [Tab]", () => { match.Fighter = (match.Fighter + 1) % match.TeamSize; match.Slot = 0; Refresh(); }); right.AddChild(next);
+            var next = Button($"FIGHTER {match.Fighter + 1} · {MatchSession.ClassName(match.Current.characterClass())}  [Tab]", CyclePlannedFighter); right.AddChild(next);
             next.TooltipText = "Plan moves for each fighter before locking.";
             var ready = Button(match.Phase == MatchPhase.Foresight ? "Continue to fighter selection  [Space]" : "Ready to fight  [Space]", match.LockPlan, accent: true);
             right.AddChild(ready);
@@ -770,6 +824,20 @@ public partial class Premove : Control
             ShowRewindPopup();
         }
         else if (match.Phase == MatchPhase.Combat) CombatKeys();
+    }
+
+    void CyclePlannedFighter()
+    {
+        for (int offset = 1; offset <= match.TeamSize; offset++)
+        {
+            int index = (match.Fighter + offset) % match.TeamSize;
+            if (!BattleEngine.getPlayer((uint)match.Viewer).getCharacter(index).isAlive()) continue;
+            match.Fighter = index;
+            match.Slot = 0;
+            match.Action = 0;
+            Refresh();
+            return;
+        }
     }
 
     void ShowRewindPopup()
@@ -926,25 +994,63 @@ public partial class Premove : Control
         Character unit = match.Current;
         if (unit == null) return;
         var actions = new VBoxContainer(); right.AddChild(actions);
+        var commandFrame = new PanelContainer();
+        commandFrame.AddThemeStyleboxOverride("panel", Box("e8ddc1", "355c75"));
+        actions.AddChild(commandFrame);
+        var commands = new VBoxContainer(); commandFrame.AddChild(commands);
+        commands.AddChild(Label("COMMANDS  ·  NUMPAD", 17, cyan));
         string[] names = MatchSession.SkillNames(unit.characterClass());
         string[] details = MatchSession.SkillDetails(unit.characterClass());
         int[] cooldown = PlanningCooldowns(unit);
-        var pad = new GridContainer { Columns = 3 }; actions.AddChild(pad);
+        var pad = new GridContainer { Columns = 3 }; commands.AddChild(pad);
         foreach (int number in new[] { 7, 8, 9, 4, 5, 6, 1, 2, 3 })
         {
             int skill = -number;
             bool exists = number <= names.Length;
-            string caption = exists ? $"{number}\n{SkillButtonName(names[number - 1])}\n{(cooldown[number - 1] > 0 ? "CD " + cooldown[number - 1] : "READY")}" : number.ToString();
+            int remaining = exists ? Math.Max(0, cooldown[number - 1]) : 0;
+            int maximumCooldown = exists ? MatchSession.Cooldowns(unit.characterClass())[number - 1] : 0;
+            bool ready = remaining == 0;
+            string caption = exists ? $"{number}\n{SkillButtonName(names[number - 1])}\n{(ready ? "READY" : $"CD {remaining}")}" : number.ToString();
             var key = Button(caption, () => { if (exists) match.SelectSkill(number); Refresh(); }, !exists, match.Action == skill);
             key.AddThemeFontSizeOverride("font_size", 16);
             key.CustomMinimumSize = new Vector2(65, 84); key.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            var cap = Box(match.Action == skill ? "f4e3c2" : "e6cfa8", match.Action == skill ? "8a5a2b" : "8a6a45aa");
+            string fillColor = !exists ? "77736d" : ready ? "8fd694" : "77736d";
+            string borderColor = match.Action == skill ? "355c75" : "8a6a45aa";
+            var cap = Box(fillColor, borderColor);
             cap.ContentMarginLeft = cap.ContentMarginRight = 4;
-            key.AddThemeStyleboxOverride("normal", cap); key.AddThemeStyleboxOverride("disabled", cap);
-            if (exists) key.TooltipText = details[number - 1];
+            key.AddThemeStyleboxOverride("normal", cap);
+            key.AddThemeStyleboxOverride("hover", Box(ready ? "a6e3a4" : "8b8980", borderColor));
+            key.AddThemeStyleboxOverride("pressed", Box(ready ? "76c77c" : "686760", borderColor));
+            key.AddThemeStyleboxOverride("disabled", Box("77736d", borderColor));
+            if (exists)
+            {
+                var recharge = new ProgressBar
+                {
+                    MinValue = 0,
+                    MaxValue = Math.Max(1, maximumCooldown),
+                    Value = ready || maximumCooldown == 0
+                        ? Math.Max(1, maximumCooldown)
+                        : Math.Clamp(maximumCooldown - remaining, 0, maximumCooldown),
+                    ShowPercentage = false,
+                    MouseFilter = MouseFilterEnum.Ignore,
+                    AnchorLeft = 0,
+                    AnchorRight = 1,
+                    AnchorTop = 1,
+                    AnchorBottom = 1,
+                    OffsetLeft = 5,
+                    OffsetRight = -5,
+                    OffsetTop = -13,
+                    OffsetBottom = -5
+                };
+                recharge.AddThemeStyleboxOverride("background", new StyleBoxFlat { BgColor = new Color("49453f") });
+                recharge.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = new Color("76c77c") });
+                key.AddChild(recharge);
+                key.TooltipText = details[number - 1] + (ready ? " · ready" : $" · recharging: {remaining} turn{(remaining == 1 ? "" : "s")} left");
+            }
             pad.AddChild(key);
         }
-        MovementKeys(actions, match.Action);
+        commands.AddChild(Label("MOVEMENT", 15, muted));
+        MovementKeys(commands, match.Action);
         if (match.Action < 0 || match.Action == 5)
         {
             actions.TooltipText = match.Action < 0 ? details[-match.Action - 1] : "Choose a safe teleport destination.";
@@ -1156,6 +1262,13 @@ public partial class Premove : Control
     {
         SyncMusic();
         GetTree().Paused = match.Paused;
+        bool syncing = network.Active && Time.GetTicksMsec() < syncUntil;
+        syncPanel.Visible = syncing;
+        if (syncing)
+        {
+            string[] frames = { "|", "/", "—", "\\" };
+            syncLabel.Text = $"SYNC  {frames[(int)((Time.GetTicksMsec() / 120) % (ulong)frames.Length)]}";
+        }
         if (network.Active && !match.Lan)
         {
             match.Lan = true; match.Local = network.LocalPlayer; match.Viewer = match.Local;
@@ -1205,7 +1318,7 @@ public partial class Premove : Control
                 else if (key.Keycode == Key.S) match.CursorRow = Math.Min(14, match.CursorRow + 1);
                 else if (key.Keycode == Key.A) match.CursorCol = Math.Max(0, match.CursorCol - 1);
                 else if (key.Keycode == Key.D) match.CursorCol = Math.Min(12, match.CursorCol + 1);
-                else if (key.Keycode is Key.Enter or Key.KpEnter) { match.PlaceAt(match.CursorRow, match.CursorCol); placementOpen = false; }
+                else if (key.Keycode is Key.Enter or Key.KpEnter) { if (match.PlaceAt(match.CursorRow, match.CursorCol)) placementOpen = false; }
                 else if (key.Keycode == Key.Escape) placementOpen = false;
                 else return;
                 Refresh(); return;
@@ -1228,18 +1341,7 @@ public partial class Premove : Control
                 match.Fighter = available[(index + (key.Keycode == Key.Left ? available.Length - 1 : 1)) % available.Length]; Refresh();
             }
             else if (key.Keycode == Key.Space) match.LockPlan();
-            else if (key.Keycode == Key.Tab && match.Current != null)
-            {
-                int next = match.Fighter;
-                for (int count = 0; count < match.TeamSize; count++)
-                {
-                    next = (next + 1) % match.TeamSize;
-                    if (BattleEngine.getPlayer((uint)match.Viewer).getCharacter(next).isAlive()) break;
-                }
-                match.Fighter = next;
-                match.Slot = 0;
-                Refresh();
-            }
+            else if (key.Keycode == Key.Tab && match.Current != null) CyclePlannedFighter();
             else if (key.Keycode is Key.Left or Key.Right or Key.Up or Key.Down)
             { match.Direction = key.Keycode switch { Key.Up => 1, Key.Down => 2, Key.Left => 3, _ => 4 }; Refresh(); }
             else if (key.Keycode is Key.KpAdd or Key.Equal or Key.Plus) { match.StepRange(1); Refresh(); }

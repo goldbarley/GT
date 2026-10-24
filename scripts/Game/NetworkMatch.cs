@@ -8,15 +8,20 @@ public partial class NetworkMatch : Node
     public string Address = "";
     public event Action<string> StatusChanged;
     public event Action ConnectionLost;
+    public event Action GuestDisconnected;
+    public event Action DiscoveryChanged;
+    public event Action RemoteActivity;
     LanSession transport;
     bool applying;
     double elapsed;
     public bool Active => transport != null && transport.Mode != LanSession.SessionMode.Hotseat;
     public bool CanStart => transport.Mode == LanSession.SessionMode.Host && transport.GuestConnected;
+    public bool IsHost => transport?.Mode == LanSession.SessionMode.Host;
     public int LocalPlayer => transport.Mode == LanSession.SessionMode.Client ? 2 : 1;
-    public bool Ready => transport.Mode == LanSession.SessionMode.Host
+    public new bool Ready => transport.Mode == LanSession.SessionMode.Host
         ? transport.GuestConnected
         : Multiplayer.MultiplayerPeer.GetConnectionStatus() == MultiplayerPeer.ConnectionStatus.Connected;
+    public System.Collections.Generic.IReadOnlyList<string> DiscoveredHosts => transport?.DiscoveredHosts ?? Array.Empty<string>();
 
     public sealed class Command
     {
@@ -42,8 +47,9 @@ public partial class NetworkMatch : Node
         Session.Intercept = Intercept;
         transport.StatusChanged += status => StatusChanged?.Invoke(status);
         transport.ConnectionLost += () => ConnectionLost?.Invoke();
-        transport.GuestLeft += () => ConnectionLost?.Invoke();
+        transport.GuestLeft += () => GuestDisconnected?.Invoke();
         transport.GuestJoined += () => StatusChanged?.Invoke("Player two joined. Choose a map to begin.");
+        transport.DiscoveryChanged += () => DiscoveryChanged?.Invoke();
         transport.CommandReceived += (player, rpcName, json) => {
             if (player != 2) return;
             try
@@ -58,6 +64,7 @@ public partial class NetworkMatch : Node
                 command.Sequence = ++sequence;
                 Apply(command);
                 transport.SendView(JsonSerializer.Serialize(command));
+                RemoteActivity?.Invoke();
             }
             catch (JsonException error) { GD.PushWarning($"Rejected malformed LAN command: {error.Message}"); }
         };
@@ -75,6 +82,7 @@ public partial class NetworkMatch : Node
                     sequence = command.Sequence;
                 }
                 Apply(command);
+                if (command.Name != "Update") RemoteActivity?.Invoke();
             }
             catch (JsonException error) { GD.PushWarning($"Rejected malformed host update: {error.Message}"); }
         };
@@ -84,21 +92,41 @@ public partial class NetworkMatch : Node
     {
         if (c.Arguments == null || c.Phase != (int)Session.Phase) return false;
         if (c.Viewer < 1 || c.Viewer > 2 || !Session.CanAct(c.Viewer)) return false;
-        if (c.Direction < 1 || c.Direction > 4 || c.Range < 1 || c.Range > 15 || c.Fighter < 0 || c.Fighter >= Session.TeamSize || c.Slot < 0 || c.Slot >= Session.CharacterMoveLimit(c.Viewer, c.Fighter) || c.Action < -5 || c.Action > 5) return false;
         return c.Name switch {
-            "Start" => c.Arguments.Length == 6,
-            "RemoveFighter" => c.Arguments.Length == 2,
-            "Deploy" => c.Arguments.Length == 4,
-            "SetPerk" => c.Arguments.Length == 2 && c.Arguments[1] >= 0 && c.Arguments[1] <= 3,
-            "UndoDeployment" or "ConfirmDeployment" or "ContinueHandoff" or "ClearPlan" or "LockPlan" or "FinishFutureSight" or "ConfirmFighter" => c.Arguments.Length == 1,
-            "Edit" => c.Arguments.Length == 2 && c.Arguments[1] >= -5 && c.Arguments[1] <= 5,
-            "Rewind" => c.Arguments.Length == 2,
+            "RemoveFighter" => c.Arguments.Length == 2 && c.Arguments[0] == c.Viewer
+                && c.Arguments[1] >= 0 && c.Arguments[1] < Session.Rosters[c.Viewer - 1].Count,
+            "Deploy" => ValidDeployment(c),
+            "SetPerk" => c.Arguments.Length == 2 && c.Arguments[0] == c.Viewer
+                && c.Arguments[1] >= 0 && c.Arguments[1] <= 3,
+            "UndoDeployment" or "ConfirmDeployment" or "ContinueHandoff" or "ClearPlan" or "LockPlan" or "FinishFutureSight" or "ConfirmFighter" =>
+                c.Arguments.Length == 1 && c.Arguments[0] == c.Viewer,
+            "Edit" => c.Arguments.Length == 2 && c.Arguments[0] == c.Viewer
+                && c.Arguments[1] >= -5 && c.Arguments[1] <= 5
+                && c.Fighter >= 0 && c.Fighter < Session.TeamSize
+                && c.Slot >= 0 && c.Slot < Session.CharacterMoveLimit(c.Viewer, c.Fighter)
+                && c.Direction >= 1 && c.Direction <= 4 && c.Range >= 1 && c.Range <= 15,
+            "Rewind" => c.Arguments.Length == 2 && c.Arguments[0] == c.Viewer
+                && c.Arguments[1] is 0 or 1,
             _ => false
         };
     }
 
+    bool ValidDeployment(Command c)
+    {
+        if (c.Arguments.Length != 4 || c.Arguments[0] != c.Viewer || Session.Map == null) return false;
+        int character = c.Arguments[1], row = c.Arguments[2], col = c.Arguments[3];
+        bool playableClass = character == (int)CharacterClass.MAGE
+            || character == (int)CharacterClass.WARRIOR
+            || character == (int)CharacterClass.ARCHER;
+        if (!playableClass || Session.Rosters[c.Viewer - 1].Count >= Session.TeamSize
+            || row < 0 || row >= Session.Map.GetLength(0) || col < 0 || col >= Session.Map.GetLength(1)
+            || !Session.Safe(row, col) || (c.Viewer == 1 ? row >= 8 : row < 8)) return false;
+        return !Session.Spawns[c.Viewer - 1].Exists(tile => tile.x == row && tile.y == col);
+    }
+
     public Error Host() => transport.Host();
     public Error Join() => transport.Join(Address);
+    public void BeginDiscovery() => transport.BeginDiscovery();
     public void Close() { transport?.Close(); elapsed = 0; }
 
     bool Intercept(string name, int[] arguments)

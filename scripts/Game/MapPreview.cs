@@ -31,8 +31,8 @@ public partial class MapPreview : Control
         // Volcanic Ruins
         tileTextures[MapElement.S] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Pixelated_Slate_Dungeon_Floor_Tile.png");
         tileTextures[MapElement.W] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Top_Down_Pixel_Art_Stone_Pillar_Tile.png");  // Override W for volcanic
-        tileTextures[MapElement.D] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Pixel_Art_Magma_Flow_Tile.png");
-        tileTextures[MapElement.K] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Cracked_Lava_Stone_Tile.png");
+        tileTextures[MapElement.D] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Cracked_Lava_Stone_Tile.png");
+        tileTextures[MapElement.K] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Pixel_Art_Magma_Flow_Tile.png");
     }
 
     public override void _Draw()
@@ -79,7 +79,7 @@ public partial class MapPreview : Control
             {
                 if (c >= row.Length) continue;
                 int tileId = row[c];
-                MapElement t = MatToMapElement(tileId);
+                MapElement t = MapTable.MatToMapElement(tileId, theme == "Volcanic Ruins");
 
                 float x = offsetX + c * scaledTileSize;
                 float y = offsetY + r * scaledTileSize;
@@ -104,8 +104,8 @@ public partial class MapPreview : Control
         {
             textures[MapElement.G] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Pixelated_Slate_Dungeon_Floor_Tile.png");
             textures[MapElement.W] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Top_Down_Pixel_Art_Stone_Pillar_Tile.png");
-            textures[MapElement.K] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Cracked_Lava_Stone_Tile.png");
-            textures[MapElement.D] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Pixel_Art_Magma_Flow_Tile.png");
+            textures[MapElement.K] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Pixel_Art_Magma_Flow_Tile.png");
+            textures[MapElement.D] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Cracked_Lava_Stone_Tile.png");
             textures[MapElement.S] = GD.Load<Texture2D>("res://assets/tiles/Volcanic Ruins/Pixelated_Slate_Dungeon_Floor_Tile.png");
         }
         else // Grasslands (default)
@@ -119,18 +119,4 @@ public partial class MapPreview : Control
         return textures;
     }
 
-    // Copy of MapTable.MatToMapElement for local use
-    MapElement MatToMapElement(int i)
-    {
-        switch (i)
-        {
-            case 0: return MapElement.G;
-            case 1: return MapElement.W;
-            case 2: return MapElement.K;
-            case 3: return MapElement.W;
-            case 4: return MapElement.S;
-            case 5: return MapElement.D;
-            default: return MapElement.G;
-        }
-    }
 }

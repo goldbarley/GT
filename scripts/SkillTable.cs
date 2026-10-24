@@ -8,7 +8,7 @@ public enum AttackRange
     ATTACK_UNKNOWN = -1,
     MAGE_FIREBALL = -1, MAGE_SHIELD = 0, MAGE_METEORITE = -1, MAGE_QUAD_BEAM = 4,
     WARRIOR_SLASH = 1, WARRIOR_STAB = 2, WARRIOR_PLUNGE = 3,
-    WARRIOR_EDGE = 2, WARRIOR_SHIELD = 0,
+    WARRIOR_EDGE = 1, WARRIOR_SHIELD = 0,
     ARCHER_BASIC = 3, ARCHER_DOUBLE = 4, ARCHER_STRONG = 5, ARCHER_ULTIMATE = -1,
 
     MAGE_ATTACK_SINGLE = MAGE_FIREBALL, MAGE_ATTACK_DIAGONAL_QUAD = MAGE_QUAD_BEAM,
@@ -136,9 +136,8 @@ public static class SkillTable
     private static int KnightEdge(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)
     {
         IVector2 d = Direction(a);
-        int distance = RequestedDistance(l, d);
+        int distance = (int)AttackRange.WARRIOR_EDGE;
         Mark(At(p, d, distance), (int)SkillDamage.WARRIOR_EDGE, ref g);
-        Mark(At(p, d, distance + 1), (int)SkillDamage.WARRIOR_EDGE, ref g);
         return 2;
     }
     private static int KnightShield(IVector2 p, IVector2 l, Cardinal a, ref int[,] g)

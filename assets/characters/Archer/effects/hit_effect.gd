@@ -1,4 +1,4 @@
-class_name HitEffect
+class_name ArcherHitEffect
 extends Node2D
 
 ## Reusable Hit Impact Animation Component

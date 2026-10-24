@@ -15,6 +15,10 @@ run/main_scene="res://scenes/Premove.tscn"
 config/features=PackedStringArray("4.7", "C#", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+
 [display]
 
 window/size/viewport_width=1440
@@ -29,6 +33,10 @@ window/size/min_height=820
 [dotnet]
 
 project/assembly_name="GT"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
 
 [physics]
 

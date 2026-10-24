@@ -64,8 +64,8 @@ public static class MatchChecks
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 50,
             "Knight Skybreaker should deal 25 damage in its impact area.");
 
-        Setup(CharacterClass.WARRIOR, CharacterClass.MAGE, new(6, 5), new(8, 5));
-        BattleEngine.setStep(1, 0, 0, -4, 2, new(2, 2));
+        Setup(CharacterClass.WARRIOR, CharacterClass.MAGE, new(7, 5), new(8, 5));
+        BattleEngine.setStep(1, 0, 0, -4, 2, new(1, 1));
         Fight(); BattleEngine.advanceOneTick();
         Require(BattleEngine.getPlayer(2).getCharacter(0).currentHP() == 30,
             "Knight's Edge should deal 45 damage.");
@@ -194,7 +194,7 @@ public static class MatchChecks
         session.ContinueHandoff(); session.Slot = 0; session.Edit(2); session.LockPlan();
         session.ContinueHandoff(); session.Slot = 0; session.Edit(1); session.LockPlan(); session.ContinueHandoff(); session.ConfirmFighter(); session.ContinueHandoff(); session.ConfirmFighter();
         Require(session.Phase == MatchPhase.Combat, "Local match did not start.");
-        session.Update(3); session.Update(3);
+        session.Update(3); session.Update(3); session.Update(3);
         Require(session.Phase == MatchPhase.Handoff, "Second exchange selection must be private.");
         session.ContinueHandoff(); Require(session.Fighter == 1, "Fighter must act once per cycle."); session.ConfirmFighter();
         session.ContinueHandoff(); session.ConfirmFighter(); session.Update(3); session.Update(3);
@@ -246,6 +246,26 @@ public static class MatchChecks
         foresightSession.Update(30);
         Require(foresightSession.Seconds == 60, "Future-sight timer must count down.");
 
+        var lanForesight = new MatchSession { Lan = true, Local = 1 };
+        lanForesight.Start(false, 1, 0, 5, 654);
+        lanForesight.SetPerkAs(1, (int)SuperPerk.KingCrimson);
+        int lanSpawnOne = Enumerable.Range(0, lanForesight.Map.GetLength(1)).First(col => lanForesight.CanPlace(6, col));
+        int lanSpawnTwo = Enumerable.Range(0, lanForesight.Map.GetLength(1)).First(col => lanForesight.Safe(9, col));
+        lanForesight.DeployAs(1, CharacterClass.MAGE, 6, lanSpawnOne);
+        lanForesight.DeployAs(2, CharacterClass.WARRIOR, 9, lanSpawnTwo);
+        lanForesight.ConfirmDeploymentAs(1); lanForesight.ConfirmDeploymentAs(2);
+        lanForesight.LockPlanAs(1); lanForesight.LockPlanAs(2);
+        Require(lanForesight.Phase == MatchPhase.Foresight &&
+            BattleEngine.getVisibleOpponentSteps(1).Length == 1,
+            "King Crimson must reveal enemy plans in a LAN match.");
+        lanForesight.EditAs(1, 1);
+        Require(BattleEngine.getPlayer(1).getCharacter(0).getStep(0) == 1,
+            "King Crimson must allow edits after locking in LAN.");
+        lanForesight.FinishFutureSightAs(1);
+        Require(lanForesight.Phase == MatchPhase.Selection &&
+            BattleEngine.getVisibleOpponentSteps(1).Length == 0,
+            "LAN Future Sight must close and resume fighter selection.");
+
         var defySession = new MatchSession();
         defySession.Start(true, 1, 0, 5, 789);
         defySession.SetPerk((int)SuperPerk.DefyDestiny);
@@ -261,7 +281,7 @@ public static class MatchChecks
         Require(defySession.Replay.Count >= 2 && defySession.ReplayExchangeStart < defySession.Replay.Count - 1,
             "Defy Destiny review should retain the full exchange history.");
 
-        GD.Print("CHECKS PASS: damage, defense, cooldowns, snapshots, teleport, collisions, future sight, rewind, privacy, clock, cycles");
+        GD.Print("CHECKS PASS: damage, defense, cooldowns, snapshots, teleport, collisions, future sight, LAN future sight, rewind, privacy, clock, cycles");
     }
 
     public static void CheckSpriteScale(BattleBoard board)

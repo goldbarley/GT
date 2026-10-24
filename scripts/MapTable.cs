@@ -40,6 +40,7 @@ public static class MapTable
         for (byte i = 0; i < mapFiles.Length; i++)
         {
             var matrix = mapFiles[i].AsGodotDictionary()["matrix"].AsGodotArray();
+            bool volcanic = mapNames[i].Contains("Volcanic", OrdinalIgnoreCase);
             int rows = matrix.Count;
             int cols = matrix[0].AsGodotArray().Count;
             MapElement[,] map = new MapElement[rows, cols];
@@ -48,14 +49,14 @@ public static class MapTable
             {
                 var row = matrix[j].AsGodotArray();
                 for (int k = 0; k < cols; k++)
-                    map[j, k] = MatToMapElement(row[k].AsUInt16());
+                    map[j, k] = MatToMapElement(row[k].AsUInt16(), volcanic);
             }
 
             maps[i] = map;
         }
     }
 
-    public static MapElement MatToMapElement(int i)
+    public static MapElement MatToMapElement(int i, bool volcanic = false)
     {
         switch (i)
         {
@@ -64,13 +65,13 @@ public static class MapTable
             case 1:
                 return MapElement.W;
             case 2:
-                return MapElement.K;
+                return volcanic ? MapElement.D : MapElement.K;
             case 3:
                 return MapElement.W;
             case 4:
                 return MapElement.G;
             case 5:
-                    return MapElement.D;
+                return volcanic ? MapElement.K : MapElement.D;
             default:
                 throw new ArgumentException($"{i} is not a valid tile element.");
         }

@@ -104,6 +104,7 @@ static func spawn_at(parent: Node, world_pos: Vector2, scale_factor: float = 1.0
 		return null
 	var effect = load("res://assets/effects/hit/hit_effect.gd").new()
 	effect.scale = Vector2(scale_factor, scale_factor)
+	effect.z_index = 100
 	parent.add_child(effect)
 	effect.global_position = world_pos
 	effect.hit_finished.connect(func(): effect.queue_free())

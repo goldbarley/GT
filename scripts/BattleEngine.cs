@@ -107,7 +107,7 @@ public static class BattleEngine
     public static int getFirstPerkPicker() => firstPerkPicker + 1;
     public static bool isExchangeActive() => exchangeActive;
     public static bool needsRewindDecision() => rewindPending;
-    public static int getFutureSightSeconds() => 90;
+    public static int getFutureSightSeconds() => 40;
 
     public static int getOutcome()
     {
@@ -148,12 +148,15 @@ public static class BattleEngine
     {
         Character c = GetPlayer(player).getCharacter(characterIndex);
         IVector2 p = c.currentPosition();
+        int teleportCooldown = c.currentTeleportCooldown();
         for (int i = 0; i <= throughSlot && i < c.stepCount(); i++)
         {
             int step = c.getStep(i);
             if (step == 0) break;
+            teleportCooldown--;
             if (step < 1 || step > 5) continue;
-            if (step == 5 && GetPlayer(player).getPerk() != SuperPerk.Teleport) continue;
+            if (step == 5 && (GetPlayer(player).getPerk() != SuperPerk.Teleport || teleportCooldown > 0)) continue;
+            if (step == 5) teleportCooldown = 2;
             int distance = step == 5 ? c.getLength(i).x : 1;
             if (distance <= 0) continue;
             IVector2 to = Destination(p, step == 5 ? c.getDirection(i) : step, distance);
@@ -187,6 +190,15 @@ public static class BattleEngine
         p.getCharacter(characterIndex).setStep(slot, step, direction, length);
         UpdateCurrent();
     }
+    public static void resizePlan(uint player, int characterIndex, int stepCount)
+    {
+        if (exchangeActive || rewindPending) throw new InvalidOperationException("Cannot resize plans during combat.");
+        Player p = GetPlayer(player);
+        int owner = (int)player - 1;
+        if (planningLocked[owner]) throw new InvalidOperationException("Cannot resize a locked plan.");
+        p.getCharacter(characterIndex).resizeSteps(stepCount);
+        UpdateCurrent();
+    }
     public static bool selectCharacter(uint player, int characterIndex)
     {
         if (exchangeActive || rewindPending || getOutcome() != 0 || !canSelectCharacters()) return false;
@@ -197,8 +209,6 @@ public static class BattleEngine
     public static bool startExchange()
     {
         if (!Ready() || exchangeActive || rewindPending || getOutcome() != 0 || !canSelectCharacters()) return false;
-        if (players[0].getSelectedCharacter() == null || players[1].getSelectedCharacter() == null)
-            return false;
         exchangeTick = 0;
         defyUsed = false;
         exchangeActive = true;
@@ -211,8 +221,8 @@ public static class BattleEngine
         ResolveTick(-1, 0, 1, new IVector2(1, 1));
 
         rewindPending = ExchangeComplete() && !defyUsed &&
-            (players[0].getPerk() == SuperPerk.DefyDestiny ||
-             players[1].getPerk() == SuperPerk.DefyDestiny);
+            ((players[0].getPerk() == SuperPerk.DefyDestiny && players[0].getSelectedCharacter() != null) ||
+             (players[1].getPerk() == SuperPerk.DefyDestiny && players[1].getSelectedCharacter() != null));
         if (!rewindPending) FinalizeTick();
         UpdateCurrent();
         return true;
@@ -329,6 +339,7 @@ public static class BattleEngine
         for (int p = 0; p < 2; p++)
         {
             Character c = active[p];
+            if (c == null) continue;
             from[p] = c.currentPosition(); target[p] = from[p];
             if (!c.isAlive() || exchangeTick >= c.stepCount()) continue;
             actions[p] = c.getStep(exchangeTick);
@@ -398,7 +409,7 @@ public static class BattleEngine
         for (int p = 0; p < 2; p++)
         {
             int action = actions[p];
-            if (action >= 0 || !active[p].isAlive() || kill[p][players[p].getSelectedIndex()]) continue;
+            if (action >= 0 || active[p] == null || !active[p].isAlive() || kill[p][players[p].getSelectedIndex()]) continue;
             int skill = -(action + 1);
             uint axes = DirectionAxis(dirs[p]);
             if (active[p].tryExecuteSkill(skill, axes, lengths[p], out int[,] effect))

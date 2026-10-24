@@ -143,17 +143,4 @@ public partial class PlacementMap : Control
         DrawRect(cursorRect.Grow(-2), new Color("f3eee9"), false, 2);
     }
 
-    MapElement MatToMapElement(int i)
-    {
-        switch (i)
-        {
-            case 0: return MapElement.G;
-            case 1: return MapElement.W;
-            case 2: return MapElement.K;
-            case 3: return MapElement.W;
-            case 4: return MapElement.S;
-            case 5: return MapElement.D;
-            default: return MapElement.G;
-        }
-    }
 }

@@ -25,6 +25,7 @@ public partial class BattleBoard : Control
     
     readonly GDScript visualScript = GD.Load<GDScript>("res://scripts/Game/FighterVisual.gd");
     readonly Dictionary<(int, int), Node2D> actors = new();
+    readonly Dictionary<(int, int), CharacterClass> actorClasses = new();
     readonly Queue<(Snapshot before, Snapshot after)> queuedTicks = new();
     readonly List<(Vector2 position, string text, Color color)> damage = new();
     readonly Color blue = new("70d9ef"), red = new("ff9984"), gold = new("edcc88");
@@ -33,6 +34,8 @@ public partial class BattleBoard : Control
     Snapshot visualBefore, visualAfter;
     float tickElapsed, tickImpactDelay;
     bool impactShown = true;
+    bool knightEdgeLeadScheduled;
+    const float KnightEdgeLeadSeconds = 0.15f; // Lead the flame cue so its peak meets the sword's impact pose.
     public event Action ImpactShown;
     public event Action TickAnimationsFinished;
     bool tickAnimationsWaiting;
@@ -101,7 +104,7 @@ public partial class BattleBoard : Control
         if (input is InputEventMouseMotion)
         {
             hover = new Vector2I(col, row);
-            string type = Session.Map[row, col] switch { MapElement.W => "Wall / obstacle · blocks movement", MapElement.K => "Chasm · fatal", MapElement.D => "Hazard · damages fighters", _ => "Safe ground" };
+            string type = Session.Map[row, col] switch { MapElement.W => "Wall · blocks movement", MapElement.K => "Kill tile · instant knockout", MapElement.D => "Hazard · deals 8 damage each turn", _ => "Safe ground" };
             TileHovered?.Invoke($"{col + 1:00} / {row + 1:00}   {type}"); QueueRedraw();
         }
         if (input is InputEventMouseButton mouse && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
@@ -111,7 +114,7 @@ public partial class BattleBoard : Control
     public void Reset()
     {
         foreach (var actor in actors.Values) actor.QueueFree();
-        actors.Clear(); queuedTicks.Clear();
+        actors.Clear(); actorClasses.Clear(); queuedTicks.Clear();
         visualBefore = visualAfter = null; impactShown = true; tickAnimationsWaiting = false;
         cameraScale = 0; hover = new(-1, -1); effects = null; damage.Clear(); ReplayFrame = null; QueueRedraw();
     }
@@ -129,11 +132,19 @@ public partial class BattleBoard : Control
             for (int i = 0; i < Session.Rosters[p].Count; i++)
             {
                 var key = (p, i);
+                CharacterClass characterClass = Session.Rosters[p][i];
+                if (actors.TryGetValue(key, out Node2D existing) && actorClasses[key] != characterClass)
+                {
+                    existing.QueueFree();
+                    actors.Remove(key);
+                    actorClasses.Remove(key);
+                }
                 if (!actors.TryGetValue(key, out Node2D actor))
                 {
                     actor = new Node2D { ProcessMode = ProcessModeEnum.Pausable }; actor.SetScript(visualScript); world.AddChild(actor);
-                    actor.Call("configure", (int)Session.Rosters[p][i]);
+                    actor.Call("configure", (int)characterClass);
                     actors[key] = actor;
+                    actorClasses[key] = characterClass;
                 }
                 var unit = Unit(p, i);
                 bool planningPreview = Session.Phase is MatchPhase.Planning or MatchPhase.Foresight
@@ -209,7 +220,7 @@ public partial class BattleBoard : Control
             position = BattleEngine.previewPosition((uint)p + 1, i, Session.Slot - 1);
             if (Session.Fighter == i && Session.Action is >= 1 and <= 4)
                 position = MatchSession.Move(position, Session.Action, 1);
-            else if (Session.Fighter == i && Session.Action == 5)
+            else if (Session.Fighter == i && Session.Action == 5 && TeleportReadyForSlot(unit, Session.Slot))
                 position = MatchSession.Move(position, Session.Direction, Session.Range);
         }
         return (position, DisplayHP(p, i), max);
@@ -229,6 +240,7 @@ public partial class BattleBoard : Control
     {
         if (actors.Count == 0) Sync();
         visualBefore = before; visualAfter = after; tickElapsed = 0; tickImpactDelay = 0; impactShown = false;
+        knightEdgeLeadScheduled = false;
         tickAnimationsWaiting = true;
         damage.Clear(); effects = new int[Rows, Columns]; flash = 0;
         abilityLighting.Visible = false;
@@ -289,6 +301,12 @@ public partial class BattleBoard : Control
                     if (action == -2 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("twinstring", 0.05f);
                     if (action == -3 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_piercer", 0.05f);
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR) Sound?.Play("sword_draw", 0.05f);
+                    if (action == -4 && Session.Rosters[p][i] == CharacterClass.WARRIOR && !knightEdgeLeadScheduled)
+                    {
+                        knightEdgeLeadScheduled = true;
+                        float lead = Math.Max(0f, (float)actor.Call("get_action_impact_time").AsDouble() - KnightEdgeLeadSeconds);
+                        GetTree().CreateTimer(lead, false).Timeout += () => Sound?.Play("flame_sword", 0.06f);
+                    }
                     if (action == -4 && Session.Rosters[p][i] == CharacterClass.ARCHER) Sound?.Play("archer_godray");
                     tickImpactDelay = Math.Max(tickImpactDelay, (float)actor.Call("get_action_impact_time").AsDouble());
                 }
@@ -329,19 +347,43 @@ public partial class BattleBoard : Control
             if (oldHp == hp) continue;
             var to = p == 0 ? visualAfter.player1CharacterPositions[i] : visualAfter.player2CharacterPositions[i];
             damage.Add((Center(to.x, to.y), hp <= 0 ? "KO" : hp < oldHp ? $"−{oldHp - hp}" : $"+{hp - oldHp}", hp < oldHp ? red : settled));
-            actors[(p, i)].Call("react_to_hit", hp <= 0);
+            actors[(p, i)].Call("react_to_hit", hp <= 0, HitKnockbackDirection(p, to), hp < oldHp);
             hurt |= hp < oldHp;
         }
         bool attackSound = false;
+        bool knightEdgeHit = false;
         for (int p = 0; p < 2; p++)
         {
+            int actor = visualBefore.selected[p];
+            if (actor >= 0 && actor < Session.Rosters[p].Count &&
+                Session.Rosters[p][actor] == CharacterClass.WARRIOR &&
+                visualBefore.exchangeTick < visualBefore.steps[p][actor].Length &&
+                visualBefore.steps[p][actor][visualBefore.exchangeTick] == -4 &&
+                visualBefore.cooldowns[p][actor][3] <= 1)
+                knightEdgeHit |= AttackHit(p);
             string sound = AttackImpactSound(p);
             if (sound == null) continue;
             Sound?.Play(sound, 0.06f);
             attackSound = true;
         }
-        if (hurt && !attackSound) Sound?.Play("hurt", 0.06f);
+        if (hurt && !attackSound && !knightEdgeHit) Sound?.Play("hurt", 0.06f);
         ImpactShown?.Invoke();
+    }
+
+    Vector2 HitKnockbackDirection(int defender, IVector2 target)
+    {
+        int attacker = 1 - defender;
+        int[,] grid = attacker == 0 ? visualAfter.player1SkillGrid : visualAfter.player2SkillGrid;
+        if (grid == null || target.x < 0 || target.y < 0 ||
+            target.x >= grid.GetLength(0) || target.y >= grid.GetLength(1) || grid[target.x, target.y] <= 0)
+            return Vector2.Zero;
+
+        int fighter = visualBefore.selected[attacker];
+        if (fighter < 0 || fighter >= Session.Rosters[attacker].Count) return Vector2.Zero;
+        IVector2 source = attacker == 0
+            ? visualBefore.player1CharacterPositions[fighter]
+            : visualBefore.player2CharacterPositions[fighter];
+        return new Vector2(target.y - source.y, target.x - source.x).Normalized();
     }
 
     string AttackImpactSound(int player)
@@ -361,13 +403,11 @@ public partial class BattleBoard : Control
         if (action >= 0) return null;
         if (visualBefore.cooldowns[player][actor][-action - 1] > 1) return null;
 
+        if (!AttackHit(player)) return null;
         if (Session.Rosters[player][actor] == CharacterClass.WARRIOR)
-            return action switch { -1 or -2 => "sword_hit", -3 => "plunge", -4 => "flame_sword", _ => null };
-
-        if (Session.Rosters[player][actor] != CharacterClass.MAGE) return null;
-        if (action == -3) return "meteorite";
-        if (action == -4) return "quad_beam";
-        if (action == -1 && AttackHit(player)) return "fireball_hit";
+            return action switch { -1 or -2 => "sword_hit", -3 => "plunge", _ => null };
+        if (Session.Rosters[player][actor] == CharacterClass.MAGE)
+            return action switch { -1 => "fireball_hit", -3 => "meteorite", -4 => "quad_beam", _ => null };
         return null;
     }
 
@@ -514,7 +554,7 @@ public partial class BattleBoard : Control
                 Rect2 rect = Tile(r, c);
                 if (TileView)
                 {
-                    Color tint = Session.Map[r, c] switch { MapElement.W => new Color(0.65f, 0.6f, 0.5f, 0.48f), MapElement.K => new Color(0.3f, 0.5f, 1, 0.55f), _ => new Color(0.4f, 0.9f, 0.8f, 0.12f) };
+                    Color tint = Session.Map[r, c] switch { MapElement.W => new Color(0.35f, 0.3f, 0.26f, 0.72f), MapElement.K => new Color(0.95f, 0.18f, 0.12f, 0.68f), MapElement.D => new Color(1f, 0.78f, 0.16f, 0.58f), _ => new Color(0.38f, 0.82f, 0.48f, 0.16f) };
                     DrawRect(rect.Grow(-1), tint);
                 }
                 if (deploy && Session.Safe(r, c) && (Session.Viewer == 1 ? r < 8 : r >= 8))
@@ -584,11 +624,13 @@ public partial class BattleBoard : Control
         }
         else if (action == 5)
         {
-            Shade(MatchSession.Move(from, Session.Direction, Session.Range), pending);
+            if (TeleportReadyForSlot(unit, Session.Slot))
+                Shade(MatchSession.Move(from, Session.Direction, Session.Range), pending);
         }
         else if (action < 0)
         {
             int skill = -action - 1;
+            if (!SkillReadyForSlot(unit, skill)) return;
             var selected = SkillCells(unit, skill, Session.Direction, Session.Range).ToHashSet();
             var alternatives = new HashSet<(int row, int col)>();
             foreach (int distance in MatchSession.SkillRanges(unit.characterClass(), skill))
@@ -598,6 +640,33 @@ public partial class BattleBoard : Control
             foreach (var cell in alternatives) ShadeAlternative(cell);
             foreach (var cell in selected) Shade(new IVector2(cell.row, cell.col), pending);
         }
+    }
+
+    bool TeleportReadyForSlot(Character unit, int slot)
+    {
+        if (Session.Perks[Session.Viewer - 1] != SuperPerk.Teleport) return false;
+        int cooldown = unit.currentTeleportCooldown();
+        for (int i = 0; i <= slot && i < unit.stepCount(); i++)
+        {
+            cooldown--;
+            if (i == slot || unit.getStep(i) == 0) break;
+            if (unit.getStep(i) == 5 && cooldown <= 0) cooldown = 2;
+        }
+        return cooldown <= 0;
+    }
+
+    bool SkillReadyForSlot(Character unit, int skill)
+    {
+        int[] cooldown = unit.currentCooldown();
+        for (int i = 0; i <= Session.Slot && i < unit.stepCount(); i++)
+        {
+            for (int k = 0; k < cooldown.Length; k++) cooldown[k]--;
+            if (i == Session.Slot || unit.getStep(i) == 0) break;
+            int action = unit.getStep(i);
+            if (action < 0 && cooldown[-action - 1] <= 0)
+                cooldown[-action - 1] = MatchSession.Cooldowns(unit.characterClass())[-action - 1] + 1;
+        }
+        return skill >= 0 && skill < cooldown.Length && cooldown[skill] <= 0;
     }
 
     void DrawSelectionPlans()

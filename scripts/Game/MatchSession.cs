@@ -26,6 +26,8 @@ public sealed class MatchSession
     public readonly HashSet<int>[] Used = { new(), new() };
     public readonly Editor[] Editors = { new(), new() };
     readonly int[][] characterMoveLimits = { Array.Empty<int>(), Array.Empty<int>() };
+    readonly int[][] bonusMoves = { Array.Empty<int>(), Array.Empty<int>() };
+    readonly HashSet<int>[] accountedDeaths = { new(), new() };
     public MapElement[,] Map;
     public string MapName = "";
     public int MapIndex;
@@ -41,10 +43,18 @@ public sealed class MatchSession
     public int PerkOrder = 1;
     public int SelectedClass = 0;
     public int CursorRow = 6, CursorCol = 5;
-    public int CharacterMoveLimit(int player, int fighter) =>
-        player >= 1 && player <= 2 && fighter >= 0 && fighter < characterMoveLimits[player - 1].Length
+    public int CharacterMoveLimit(int player, int fighter)
+    {
+        if (player < 1 || player > 2 || fighter < 0) return PremoveLimit;
+        if (configured)
+        {
+            var team = BattleEngine.getPlayer((uint)player);
+            if (fighter < team.count()) return team.getCharacter(fighter).stepCount();
+        }
+        return fighter < characterMoveLimits[player - 1].Length
             ? characterMoveLimits[player - 1][fighter]
             : PremoveLimit;
+    }
     public static int MoveLimit(CharacterClass characterClass, int maximum) =>
         characterClass == CharacterClass.MAGE ? Math.Max(1, maximum - 1) : maximum;
 
@@ -53,13 +63,27 @@ public sealed class MatchSession
     bool Route(string name, params int[] arguments) => Intercept?.Invoke(name, arguments) ?? false;
 
     public Editor Mine => Editors[Viewer - 1];
-    public int Fighter { get => Mine.Fighter; set => Mine.Fighter = value; }
+    public int Fighter
+    {
+        get => Mine.Fighter;
+        set
+        {
+            if (Mine.Fighter == value) return;
+            Mine.Fighter = value;
+            Mine.Slot = 0;
+            Mine.Action = 0;
+            Mine.Direction = 2;
+            Mine.Range = 1;
+        }
+    }
     public int Slot { get => Mine.Slot; set => Mine.Slot = value; }
     public int Direction { get => Mine.Direction; set => Mine.Direction = value; }
     public int Range { get => Mine.Range; set => Mine.Range = value; }
     public int Action { get => Mine.Action; set => Mine.Action = value; }
 
-    public Character Current => configured ? BattleEngine.getPlayer((uint)Viewer).getCharacter(Fighter) : null;
+    public Character Current => configured && Fighter >= 0 && Fighter < BattleEngine.getPlayer((uint)Viewer).count()
+        ? BattleEngine.getPlayer((uint)Viewer).getCharacter(Fighter)
+        : null;
     public bool PerkTurn => !Lan || !confirmed[Local - 1];
 
     public static string ClassName(CharacterClass c) => c == CharacterClass.WARRIOR ? "Knight" : c.ToString()[0] + c.ToString().Substring(1).ToLowerInvariant();
@@ -83,13 +107,13 @@ public sealed class MatchSession
             ? new[] { "18 damage · one cardinal target at 2 or 3 tiles · cooldown 1", "15 damage · locks onto tiles 2–3 or 3–4 · cooldown 3", "40 damage · pierces all targets along 5 tiles · cooldown 3", "25 damage along the full cardinal line · cooldown 4" }
             : c == CharacterClass.ORC
                 ? new[] { "28 damage · cardinal target", "20 damage · 3 × 3 area", "Block 25 damage · self" }
-                : new[] { "20 damage · 1 tile · cooldown 0", "30 damage · cardinal target at 1–2 tiles · cooldown 2", "25 damage · 3 × 3 · range 2–3 · cooldown 4", "45 damage · 2 tiles · cooldown 2", "Block 30 damage · self · cooldown 2" };
+                : new[] { "20 damage · 1 tile · cooldown 0", "30 damage · cardinal target at 1–2 tiles · cooldown 2", "25 damage · 3 × 3 · range 2–3 · cooldown 4", "45 damage · 1 tile · cooldown 2", "Block 30 damage · self · cooldown 2" };
     public static string[] PerkNames = { "King Crimson", "Defy Destiny", "Teleport", "Tactician" };
     public static string[] PerkDetails = {
-        "See enemy plans for 90 seconds after both sides lock. Edit your own plan in that window.",
-        "Once per exchange, attempt to replace the last action. Success chance: 70%.",
-        "Program a cardinal teleport. Landing on a wall or chasm is fatal.",
-        "One enemy fighter's sequence is revealed before selection."
+        "After both sides lock, read every enemy sequence and revise your own plan for 40 seconds. Works in couch and LAN matches.",
+        "Once per exchange, risk a 70% chance to replace your final action after seeing the result.",
+        "Plan a straight-line teleport. It can cross obstacles, but landing on a wall or chasm is fatal.",
+        "Before choosing a fighter, reveal one random enemy sequence for the exchange."
     };
     public static string ActionName(int action, CharacterClass c) => action switch
     {
@@ -124,7 +148,11 @@ public sealed class MatchSession
         Solo = solo; TeamSize = size; Viewer = Lan ? Local : 1;
         configured = false; Paused = false; tickPending = tickAnimationPending = false; Replay.Clear(); ReplayExchangeStart = 0;
         characterMoveLimits[0] = characterMoveLimits[1] = Array.Empty<int>();
-        for (int p = 0; p < 2; p++) { Rosters[p].Clear(); Spawns[p].Clear(); Used[p].Clear(); Editors[p] = new Editor(); }
+        for (int p = 0; p < 2; p++)
+        {
+            Rosters[p].Clear(); Spawns[p].Clear(); Used[p].Clear(); Editors[p] = new Editor();
+            bonusMoves[p] = Array.Empty<int>(); accountedDeaths[p].Clear();
+        }
         confirmed[0] = confirmed[1] = false;
         futureSightUsed = false;
         Perks[0] = SuperPerk.Teleport;
@@ -150,7 +178,7 @@ public sealed class MatchSession
         int p = viewer - 1;
         if (Rosters[p].Count >= TeamSize) { Message = "Your team is full. Remove a fighter to change it."; Notify(); return; }
 
-        if (!Safe(row, col) || (viewer == 1 ? row >= 8 : row < 8)) { Message = "Deploy on a safe tile in your highlighted half."; Notify(); return; }
+        if (!Safe(row, col) || (viewer == 1 ? row >= 8 : row < 8)) { Message = "Deploy on a spawnable tile in your highlighted half."; Notify(); return; }
         if (Spawns[p].Any(t => t.x == row && t.y == col)) { Message = "Choose an unoccupied deployment tile."; Notify(); return; }
         Rosters[p].Add(type); Spawns[p].Add(new IVector2(row, col));
         Message = $"{ClassName(type)} deployed. {Rosters[p].Count}/{TeamSize} fighters ready.";
@@ -169,11 +197,12 @@ public sealed class MatchSession
     public bool CanPlace(int row, int col) => Safe(row, col) && (Viewer == 1 ? row < 8 : row >= 8)
         && !Spawns[Viewer - 1].Exists(t => t.x == row && t.y == col);
 
-    public void PlaceAt(int row, int col)
+    public bool PlaceAt(int row, int col)
     {
-        if (Phase != MatchPhase.Deploy) return;
-        if (!CanPlace(row, col)) { Message = "Place a fighter on a free tile in your own half."; Notify(); return; }
+        if (Phase != MatchPhase.Deploy || !CanAdd) return false;
+        if (!CanPlace(row, col)) { Message = "Place a fighter on a free tile in your own half."; Notify(); return false; }
         Deploy((CharacterClass)SelectedClass, row, col);
+        return true;
     }
 
     public void RemoveFighter(int index) => RemoveFighterAs(Viewer, index);
@@ -190,11 +219,12 @@ public sealed class MatchSession
     public static int[] SkillRanges(CharacterClass c, int skill) => (c, skill) switch
     {
         (CharacterClass.MAGE, 0) => new[] { 1, 2, 3, 4, 5, 6 },
+        (CharacterClass.MAGE, 1) => new[] { 1 },
         (CharacterClass.MAGE, 2) => new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
         (CharacterClass.WARRIOR, 0) => new[] { 1 },
         (CharacterClass.WARRIOR, 1) => new[] { 1, 2 },
         (CharacterClass.WARRIOR, 2) => new[] { 2, 3 },
-        (CharacterClass.WARRIOR, 3) => new[] { 2 },
+        (CharacterClass.WARRIOR, 3) => new[] { 1 },
         (CharacterClass.ARCHER, 0) => new[] { 2, 3 },
         (CharacterClass.ARCHER, 1) => new[] { 2, 3 },
         (CharacterClass.ARCHER, 2) => new[] { 5 },
@@ -221,7 +251,7 @@ public sealed class MatchSession
     {
         if (Route(nameof(SetPerk), viewer, perk)) return;
         if (Phase != MatchPhase.Deploy || perk < 0 || perk > 3) return;
-        if (!CanAct(viewer) || (Lan && perk == (int)SuperPerk.KingCrimson)) return;
+        if (!CanAct(viewer)) return;
         if (Perks[2 - viewer] == (SuperPerk)perk) return;
         Perks[viewer - 1] = (SuperPerk)perk; Notify();
     }
@@ -249,7 +279,16 @@ public sealed class MatchSession
                 for (int i = 0; i < TeamSize; i++)
                 {
                     Rosters[1].Add(i == 0 ? CharacterClass.WARRIOR : CharacterClass.MAGE);
-                    Spawns[1].Add(new IVector2(11, 5 + i * 2));
+                }
+                var computerTiles = new List<IVector2>();
+                for (int row = 8; row < Map.GetLength(0); row++)
+                    for (int col = 0; col < Map.GetLength(1); col++)
+                        if (Safe(row, col)) computerTiles.Add(new IVector2(row, col));
+                for (int i = 0; i < TeamSize; i++)
+                {
+                    int tileIndex = deploymentRandom.Next(computerTiles.Count);
+                    Spawns[1].Add(computerTiles[tileIndex]);
+                    computerTiles.RemoveAt(tileIndex);
                 }
                 Configure();
             }
@@ -285,6 +324,8 @@ public sealed class MatchSession
         {
             var limits = Rosters[p].Select(c => MoveLimit(c, PremoveLimit)).ToArray();
             characterMoveLimits[p] = limits;
+            bonusMoves[p] = new int[Rosters[p].Count];
+            accountedDeaths[p].Clear();
             int[][] plans = Rosters[p].Select((c, i) => new int[limits[i]]).ToArray();
             BattleEngine.setupPlayer((uint)p + 1, (uint)TeamSize, Rosters[p].ToArray(), plans, Spawns[p].ToArray(), Perks[p]);
         }
@@ -298,9 +339,24 @@ public sealed class MatchSession
         for (int p = 0; p < 2; p++)
         {
             var team = BattleEngine.getPlayer((uint)p + 1);
+            int inheritedMoves = 0;
             for (int fighter = 0; fighter < team.count(); fighter++)
             {
                 Character character = team.getCharacter(fighter);
+                if (character.isAlive() || !accountedDeaths[p].Add(fighter)) continue;
+                inheritedMoves += characterMoveLimits[p][fighter] + bonusMoves[p][fighter];
+                bonusMoves[p][fighter] = 0;
+            }
+            int recipient = Enumerable.Range(0, team.count())
+                .FirstOrDefault(fighter => team.getCharacter(fighter).isAlive(), -1);
+            if (recipient >= 0) bonusMoves[p][recipient] += inheritedMoves;
+
+            for (int fighter = 0; fighter < team.count(); fighter++)
+            {
+                Character character = team.getCharacter(fighter);
+                if (character.isAlive())
+                    BattleEngine.resizePlan((uint)p + 1, fighter,
+                        characterMoveLimits[p][fighter] + bonusMoves[p][fighter]);
                 for (int slot = 0; slot < character.stepCount(); slot++)
                     BattleEngine.setStep((uint)p + 1, fighter, slot, 0);
             }
@@ -315,8 +371,12 @@ public sealed class MatchSession
     void Planning()
     {
         Phase = MatchPhase.Planning; Fighter = FirstAlive(Viewer); Slot = 0; Action = 0;
+        Direction = 2; Range = 1;
         Seconds = 0;
-        Message = "Program each fighter. Both sides act at the same time. Zero ends a sequence.";
+        int inheritedMoves = bonusMoves[Viewer - 1][Fighter];
+        Message = inheritedMoves > 0
+            ? $"{ClassName(Current.characterClass())} has {inheritedMoves} inherited extra moves. Both sides act at the same time."
+            : "Program each fighter. Both sides act at the same time. Zero ends a sequence.";
     }
 
     public void ContinueHandoff() => ContinueHandoffAs(Viewer);
@@ -341,10 +401,16 @@ public sealed class MatchSession
         if ((Phase != MatchPhase.Planning && Phase != MatchPhase.Foresight) || !CanAct(viewer)) return;
         var editor = Editors[viewer - 1];
         Character fighter = BattleEngine.getPlayer((uint)viewer).getCharacter(editor.Fighter);
+        if (fighter.stepCount() == 0) return;
+        editor.Slot = Math.Clamp(editor.Slot, 0, fighter.stepCount() - 1);
+        int firstEmpty = 0;
+        while (firstEmpty < fighter.stepCount() && fighter.getStep(firstEmpty) != 0) firstEmpty++;
+        if (firstEmpty < fighter.stepCount() && editor.Slot > firstEmpty) editor.Slot = firstEmpty;
+        editor.Action = action;
         BattleEngine.setStep((uint)viewer, editor.Fighter, editor.Slot, action, editor.Direction, new IVector2(editor.Range, editor.Range));
         for (int slot = editor.Slot + 1; slot < fighter.stepCount(); slot++)
             BattleEngine.setStep((uint)viewer, editor.Fighter, slot, 0);
-        if (editor.Slot < fighter.stepCount() - 1) editor.Slot++;
+        if (action != 0 && editor.Slot < fighter.stepCount() - 1) editor.Slot++;
         editor.Action = 0;
         Message = ""; Notify();
     }
@@ -380,7 +446,7 @@ public sealed class MatchSession
         var editor = Editors[viewer - 1];
         Character fighter = BattleEngine.getPlayer((uint)viewer).getCharacter(editor.Fighter);
         for (int i = 0; i < fighter.stepCount(); i++) BattleEngine.setStep((uint)viewer, editor.Fighter, i, 0);
-        editor.Slot = 0; Notify();
+        editor.Slot = 0; editor.Action = 0; editor.Direction = 2; editor.Range = 1; Notify();
     }
 
     public void LockPlan() => LockPlanAs(Viewer);
@@ -421,7 +487,8 @@ public sealed class MatchSession
     public void FinishFutureSightAs(int viewer)
     {
         if (Route(nameof(FinishFutureSight), viewer)) return;
-        if (!futureSightUsed) return;
+        if (Phase != MatchPhase.Foresight || viewer < 1 || viewer > 2 ||
+            Perks[viewer - 1] != SuperPerk.KingCrimson || !futureSightUsed) return;
         BattleEngine.finishFutureSight((uint)viewer);
         BeginSelection();
         Notify();
@@ -479,15 +546,38 @@ public sealed class MatchSession
     void Selection()
     {
         Phase = MatchPhase.Selection;
-        Fighter = Available(Viewer).First();
-        Message = "Choose a living fighter who has not acted this cycle.";
+        int[] available = Available(Viewer).ToArray();
+        if (available.Length > 0)
+        {
+            Fighter = available[0];
+            Message = "Choose a living fighter who has not acted this cycle.";
+            return;
+        }
+
+        Fighter = -1;
+        Message = "No unused living fighters remain; your team sits out this exchange.";
+        if (Lan)
+        {
+            if (!Available(3 - Viewer).Any()) StartExchange();
+        }
+        else if (Solo)
+        {
+            SelectAutomatically(2);
+            StartExchange();
+        }
+        else if (Viewer == 1)
+            Handoff(2, "Choose your next fighter privately", Selection);
+        else
+            StartExchange();
     }
 
     void SelectAutomatically(int player)
     {
-        int fighter = Available(player).First();
+        int[] available = Available(player).ToArray();
+        if (available.Length == 0) return;
+        int fighter = available[0];
         Editors[player - 1].Fighter = fighter;
-        BattleEngine.selectCharacter((uint)player, fighter);
+        if (!BattleEngine.selectCharacter((uint)player, fighter)) return;
         Used[player - 1].Add(fighter);
     }
 
@@ -504,8 +594,7 @@ public sealed class MatchSession
     public IEnumerable<int> Available(int player)
     {
         var alive = Enumerable.Range(0, TeamSize).Where(i => BattleEngine.getPlayer((uint)player).getCharacter(i).isAlive());
-        var fresh = alive.Where(i => !Used[player - 1].Contains(i)).ToArray();
-        return fresh.Length > 0 ? fresh : alive;
+        return alive.Where(i => !Used[player - 1].Contains(i));
     }
 
     public void ConfirmFighter() => ConfirmFighterAs(Viewer);
@@ -516,12 +605,15 @@ public sealed class MatchSession
         if (Phase != MatchPhase.Selection) return;
         var editor = Editors[viewer - 1];
         if (!Available(viewer).Contains(editor.Fighter)) return;
-        BattleEngine.selectCharacter((uint)viewer, editor.Fighter);
+        if (!BattleEngine.selectCharacter((uint)viewer, editor.Fighter)) { Notify(); return; }
         Used[viewer - 1].Add(editor.Fighter);
         if (Lan)
         {
             var details = BattleEngine.getDetails();
-            if (details != null && details.selected[0] >= 0 && details.selected[1] >= 0 && BattleEngine.startExchange())
+            if (details != null
+                && (details.selected[0] >= 0 || !Available(1).Any())
+                && (details.selected[1] >= 0 || !Available(2).Any())
+                && BattleEngine.startExchange())
             { ReplayExchangeStart = Math.Max(0, Replay.Count - 1); Phase = MatchPhase.Combat; tickClock = 0.25; tickPending = false; Message = "Both parties are executing their plans."; }
             Notify(); return;
         }
@@ -685,13 +777,15 @@ public sealed class MatchSession
                 {
                     if (cooldown[k] <= 0)
                     {
+                        bool mageGuard = c.characterClass() == CharacterClass.MAGE && k == 1;
+                        if (mageGuard && c.currentHP() > c.maxHP() / 2 && Distance(at, target) > 2) continue;
                         foreach (int skillRange in SkillRanges(c.characterClass(), k))
                         {
                             for (int d = 1; d <= 4; d++)
                             {
                                 int[,] grid = new int[Map.GetLength(0), Map.GetLength(1)];
                                 SkillTable.skills[(int)c.characterClass()][k](at, new IVector2(skillRange, skillRange), Axis(d), ref grid);
-                                int damage = grid[target.x, target.y];
+                                int damage = mageGuard ? 100 : grid[target.x, target.y];
                                 if (damage > bestDamage) { bestDamage = damage; bestSkill = k; bestDirection = d; bestRange = skillRange; }
                             }
                         }
