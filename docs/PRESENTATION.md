@@ -10,7 +10,7 @@
 2. Place a fighter on a safe tile. Point out walls and fatal terrain.
 3. Preview one movement action and press **Enter**. Select a skill, aim, and confirm. Hover the skill to show its range and cooldown.
 4. End the sequence with **0**, complete the other fighters' plans, and lock with **Space**.
-5. Choose a fighter and resolve. Explain that movement happens before attacks, so positioning can turn a hit into a miss.
+5. Choose a fighter if prompted and resolve. Explain that movement happens before attacks, so positioning can turn a hit into a miss.
 6. Show the updated health and positions. Explain that these carry into the next planning cycle.
 7. Mention couch multiplayer, LAN, and the four team perks.
 
@@ -23,9 +23,11 @@
 - Run the build and smoke checks from the development notes.
 - Open the game and confirm that music and effects are at a suitable level.
 - Start a practice match once to check the display and controls.
-- Keep [the 30-second video](media/premove-demo.mp4) available locally as a fallback. It is a captioned screenshot walkthrough, not a continuous gameplay recording.
+- Keep [the gameplay recording](../assets/presentation/premove-demo.mp4) available locally as a fallback. It is a continuous real-time screen recording with game audio.
 - For a LAN demonstration, test both computers and the host firewall beforehand.
 
-## Screenshot provenance
+## Media provenance
 
 The bundled screens use the repository's `--capture-menu` preview scenario. It constructs representative match states rather than recording a complete human-played match. Transient phase announcement cards were omitted in a temporary capture build so the board is visible. No characters or gameplay effects were generated for the screenshots.
+
+The README GIF is a real-time combat excerpt from the MP4. The recording uses scripted keyboard and mouse input through the ordinary game interface; it does not alter combat rules, animation speed, or game state.

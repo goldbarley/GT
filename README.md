@@ -6,15 +6,15 @@ Premove is a pixel-art tactics game where both players choose their moves before
 
 ![Premove — planning an attack on the grassland arena](docs/media/planning.png)
 
-[Watch the demo](docs/media/premove-demo.mp4) · [Learn to play](#your-first-match) · [Run locally](#run-locally) · [Presentation guide](docs/PRESENTATION.md)
+[Watch the demo](assets/presentation/premove-demo.mp4) · [Learn to play](#your-first-match) · [Run locally](#run-locally) · [Presentation guide](docs/PRESENTATION.md)
 
 ## Demo
 
-[![Open the 30-second Premove walkthrough](docs/media/title.png)](docs/media/premove-demo.mp4)
+![Premove gameplay — live simultaneous movement, attacks, and defensive skills](docs/media/premove-gameplay.gif)
 
-**[Play or download the 30-second demo video →](docs/media/premove-demo.mp4)**
+**[Watch the full gameplay recording with audio →](assets/presentation/premove-demo.mp4)**
 
-A silent, captioned walkthrough of team selection, deployment, planning, and combat, edited from in-game screenshots. It introduces the match flow; use the live game to show the animations and simultaneous action.
+Recorded directly from the running game at normal speed. The GIF loops a combat exchange; the MP4 includes team setup, private planning, movement, and attacks.
 
 ## The game at a glance
 
@@ -50,7 +50,7 @@ Hover over a skill for its damage, range, and cooldown. An attack aimed at the o
 
 ### 3. Resolve and adapt
 
-After both sides lock their plans, choose a fighter and confirm. Both selected sequences execute together. Watch the positions and remaining health, then adjust your next plan. Defeat every opposing fighter to win; the result screen offers a rematch.
+After both sides lock their plans, choose a fighter if prompted. Single-fighter local matches start automatically. Both selected sequences execute together. Watch the positions and remaining health, then adjust your next plan. Defeat every opposing fighter to win; the result screen offers a rematch.
 
 ![Combat screen with both fighters' active commands and team health](docs/media/combat.png)
 
@@ -77,12 +77,23 @@ After both sides lock their plans, choose a fighter and confirm. Both selected s
 
 | Perk | What it changes |
 | --- | --- |
-| King Crimson | Inspect enemy plans and edit yours during a 90-second window after both teams lock. |
+| King Crimson | Inspect enemy plans and edit yours during a 40-second window after both teams lock. |
 | Defy Destiny | Review an exchange and attempt to replace one final action, with a 70% success chance. |
 | Teleport | Add straight-line teleports with a chosen distance to your plan. |
 | Tactician | Reveal one enemy fighter's sequence before fighter selection. |
 
 Each perk can belong to only one team. Regular planning has no time limit.
+
+## Linux release
+
+Extract the Linux release archive, keep the executable beside its `data_GT_linuxbsd_x86_64` folder, and launch:
+
+```sh
+chmod +x Premove.x86_64
+./Premove.x86_64
+```
+
+The desktop release includes its .NET runtime; Godot and the .NET SDK are only needed to build from source. See [release notes](docs/LINUX_RELEASE.md) for packaging and validation details.
 
 ## Run locally
 

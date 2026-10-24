@@ -39,7 +39,7 @@ The two bots should agree on the outcome, clock, and health. LAN uses ENet over 
 
 Players deploy one to three fighters, choose a team perk, plan privately, and select a fighter for simultaneous resolution. In skirmishes, unused living fighters act first; a survivor fills a fallen teammate's remaining exchange before the next planning cycle. Health, position, and cooldowns persist.
 
-Local multiplayer uses handoff screens to keep plans private. During planning, enemy markers show their original deployment tiles. Regular planning has no timer; King Crimson's edit window lasts 90 seconds.
+Local multiplayer uses handoff screens to keep plans private. During planning, enemy markers show their original deployment tiles. Regular planning has no timer; King Crimson's edit window lasts 40 seconds.
 
 Movement resolves before attacks. Walls stop walking, collisions cause damage, and chasms kill instantly. Using a skill while it is on cooldown skips that action. End terminates a sequence and discards later commands when locking.
 

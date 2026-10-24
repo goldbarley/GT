@@ -35,7 +35,9 @@ public partial class SoundEffects : Node
         ApplyVolume();
     }
 
-    public override void _ExitTree()
+    public override void _ExitTree() => StopAll();
+
+    public void StopAll()
     {
         foreach (var voice in voices)
         {

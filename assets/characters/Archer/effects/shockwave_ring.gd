@@ -1,8 +1,8 @@
 extends Node2D
 
 func _draw() -> void:
-	var wb = get_parent() as ArcherChargedWorkbench
-	if not wb:
+	var wb = get_parent()
+	if not wb or not "shockwave_alpha" in wb or not "shockwave_radius" in wb:
 		return
 	if wb.shockwave_alpha > 0.01 and wb.shockwave_radius > 1.0:
 		# Multi-temperature forward shockwave arc/ring expanding from bow

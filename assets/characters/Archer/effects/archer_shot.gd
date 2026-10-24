@@ -34,7 +34,7 @@ static func fire_basic_attack(parent: Node, origin: Vector2, direction: Vector2,
 		dir = Vector2.RIGHT
 	dir = Vector2(signf(dir.x) if dir.x != 0.0 else 1.0, 0.0)
 	if source_node and is_instance_valid(source_node):
-		origin = source_node.global_position
+		origin = source_node.to_global(source_node.get_rect().get_center()) if source_node is Sprite2D else source_node.global_position
 
 	var size := Vector2(arrow_scale, arrow_scale)
 
@@ -45,7 +45,7 @@ static func fire_basic_attack(parent: Node, origin: Vector2, direction: Vector2,
 		arrow.direction = dir
 		arrow.speed = speed
 		parent.add_child(arrow)
-		arrow.global_position = origin + dir * 10.0 * arrow_scale
+		arrow.global_position = origin
 		arrow.rotation = dir.angle()
 
 

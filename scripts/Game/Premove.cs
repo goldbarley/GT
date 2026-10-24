@@ -38,13 +38,14 @@ public partial class Premove : Control
     readonly System.Collections.Generic.Dictionary<int, Node2D> showcaseCache = new();
     Node2D showcaseHolder;
     Label clock, tileInfo, selectionClock;
-    bool solo = true, modalOpen;
+    bool solo = true, modalOpen, quitting;
     int teamSize = 1, mapIndex, premoveLimit = 8;
     string transient = "";
 
     public override void _Ready()
     {
         ProcessMode = ProcessModeEnum.Always;
+        GetTree().AutoAcceptQuit = false;
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         Theme = MakeTheme();
         BuildShell();
@@ -507,7 +508,7 @@ public partial class Premove : Control
             leftSide.AddChild(Button("Practice", () => { solo = true; screen = "map"; Refresh(); }));
             leftSide.AddChild(Button("How to play", () => { tutorialPage = 0; ShowHelp(); }));
             leftSide.AddChild(Button("Audio settings", ShowAudio));
-            leftSide.AddChild(Button("Quit", () => GetTree().Quit()));
+            leftSide.AddChild(Button("Quit", () => QuitGame()));
             var rightSide = new PanelContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(420, 0) }; rightSide.AddThemeStyleboxOverride("panel", Box("a08660", "61432c"));
             columns.AddChild(rightSide);
             var tiles = new TitleTiles { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
@@ -1205,6 +1206,23 @@ public partial class Premove : Control
     {
         network?.Close(); match.Lan = false; match.Local = match.Viewer = 1; modalOpen = false; screen = "title"; match.Paused = false; match.Phase = MatchPhase.Menu; board.Reset(); Refresh();
     }
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMCloseRequest) QuitGame();
+    }
+
+    public async void QuitGame(int exitCode = 0)
+    {
+        if (quitting) return;
+        quitting = true;
+        match.Paused = true;
+        music?.StopAll();
+        sfx?.StopAll();
+        // Audio playback releases are processed on the next mixer updates.
+        await ToSignal(GetTree().CreateTimer(0.15), SceneTreeTimer.SignalName.Timeout);
+        GetTree().Quit(exitCode);
+    }
+
     void ToggleFullscreen() => DisplayServer.WindowSetMode(DisplayServer.WindowGetMode() == DisplayServer.WindowMode.Fullscreen ? DisplayServer.WindowMode.Windowed : DisplayServer.WindowMode.Fullscreen);
 
     void SyncMusic()
@@ -1260,6 +1278,7 @@ public partial class Premove : Control
 
     public override void _Process(double delta)
     {
+        if (quitting) return;
         SyncMusic();
         GetTree().Paused = match.Paused;
         bool syncing = network.Active && Time.GetTicksMsec() < syncUntil;
@@ -1476,7 +1495,7 @@ public partial class Premove : Control
             GD.Print("SMOKE: local phase=" + match.Phase + " tick=" + BattleEngine.getClock());
             GD.Print("SMOKE PASS");
         }
-        catch (Exception error) { GD.PushError("SMOKE FAIL: " + error); GetTree().Quit(1); return; }
-        GetTree().Quit();
+        catch (Exception error) { GD.PushError("SMOKE FAIL: " + error); QuitGame(1); return; }
+        QuitGame();
     }
 }

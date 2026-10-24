@@ -1,15 +1,36 @@
 # Presentation media
 
 - `title.png`, `characters.png`, `deployment.png`, `planning.png`, `combat.png`: real 1440 × 900 game captures.
-- `planning-guide.svg`: a vector tutorial layout with the planning capture embedded, numbered highlights, and matching instructions.
-- `premove-demo.mp4`: a 30-second, silent H.264 walkthrough with five captioned screenshot scenes. It is edited presentation footage, not a continuous gameplay recording.
+- `planning-guide.svg`: a vector tutorial with numbered controls and an embedded planning capture.
+- `premove-gameplay.gif`: a looping nine-second combat excerpt, 864 × 540 at 15 fps, at the original gameplay speed.
+- [Full MP4](../../assets/presentation/premove-demo.mp4): a continuous screen recording at 1440 × 900 and 30 fps, with game audio. It replaces the earlier screenshot slideshow.
 
-The capture scenario is available with:
+## Recording
+
+`tools/record_demo.gd` drives normal keyboard and mouse events through team setup, private planning, and combat. It uses the normal game clock and leaves gameplay rules untouched. Launch it with a visible display:
+
+```sh
+godot-mono --path . --windowed --position 0,0 --resolution 1440x900 --script tools/record_demo.gd
+```
+
+The runner writes `/tmp/premove-recording.ready` and waits for `/tmp/premove-recording.start`. Remove stale marker files before another take. Start a window capture with FFmpeg or a desktop recorder, then create the start marker. Record the Premove window only. The runner exits after the combat exchange.
+
+Create the GIF from the MP4 with FFmpeg:
+
+```sh
+ffmpeg -ss 30 -t 9 -i assets/presentation/premove-demo.mp4 \
+  -vf 'fps=15,scale=864:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3' \
+  -loop 0 docs/media/premove-gameplay.gif
+```
+
+The GIF plays inline in the README. The MP4 preserves the full-resolution recording and audio.
+
+## Tutorial stills
+
+The tutorial stills use the repository's `--capture-menu` sample-state scenario. Phase announcement cards were omitted in a temporary capture build so the board is visible. The recording retains the ordinary phase transitions.
 
 ```sh
 godot-mono --path . --quit-after 180 -- --capture-menu
 ```
 
-It saves preview images to `/tmp/premove-*.png`. It constructs sample states automatically. For these presentation stills, phase announcement cards were disabled in a temporary copy of the project so they did not obscure the board. The repository's transition behavior is unchanged.
-
-The video uses the five PNG files in the order listed above, six seconds each, with a separate caption area. It contains no audio and requires no external video host. GitHub may offer a download instead of inline playback for a repository MP4 link.
+The command saves preview images to `/tmp/premove-*.png`.

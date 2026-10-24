@@ -25,7 +25,7 @@ public partial class LanBot : Node
         if (mapIndex < 0 || mapIndex >= maps.Length)
         {
             GD.Print($"LAN FAIL: invalid map index {mapIndex}");
-            GetTree().Quit(1);
+            ((Premove)GetParent()).QuitGame(1);
             return;
         }
         Network.Address = "127.0.0.1";
@@ -33,7 +33,7 @@ public partial class LanBot : Node
         else GD.Print("LAN JOIN: " + Network.Join());
         int waited = 0;
         while (!Network.Ready && waited < 600) { await Frame(); waited++; }
-        if (!Network.Ready) { GD.Print("LAN FAIL: no connection"); GetTree().Quit(1); return; }
+        if (!Network.Ready) { GD.Print("LAN FAIL: no connection"); ((Premove)GetParent()).QuitGame(1); return; }
         GD.Print("LAN " + role.ToUpperInvariant() + ": connected as player " + Network.LocalPlayer);
 
         if (role == "host") { Session.Start(false, threeFighter ? 3 : 1, mapIndex); }
@@ -41,7 +41,7 @@ public partial class LanBot : Node
         if (Session.MapIndex != mapIndex || Session.MapName != maps[mapIndex])
         {
             GD.Print($"LAN FAIL: expected map {maps[mapIndex]}, got {Session.MapName} ({Session.MapIndex})");
-            GetTree().Quit(1);
+            ((Premove)GetParent()).QuitGame(1);
             return;
         }
         GD.Print($"LAN {role.ToUpperInvariant()}: selected map {Session.MapName}");
@@ -57,12 +57,16 @@ public partial class LanBot : Node
                     var spot = Enumerable.Range(0, Session.Map.GetLength(0))
                         .SelectMany(row => Enumerable.Range(0, Session.Map.GetLength(1))
                             .Select(col => (row, col)))
-                        .First(tile => Session.CanPlace(tile.row, tile.col));
+                        .First(tile => Session.CanPlace(tile.row, tile.col)
+                            && (threeFighter || tile.row == (Session.Local == 1 ? 7 : 8)
+                                && Session.Safe(7, tile.col) && Session.Safe(8, tile.col)));
+                    GD.Print($"LAN {role.ToUpperInvariant()}: deploying player {Session.Local} at {spot.row},{spot.col}");
                     Session.Deploy(CharacterClass.WARRIOR, spot.row, spot.col);
                     while (Session.Rosters[Session.Local - 1].Count <= i) await Frame();
                 }
                 Session.SetPerk(Session.Local == 1 ? (int)SuperPerk.DefyDestiny : (int)SuperPerk.Tactician);
                 Session.ConfirmDeployment();
+                GD.Print($"LAN {role.ToUpperInvariant()}: deployment submitted phase={Session.Phase}");
             }
         }
 
@@ -105,8 +109,11 @@ public partial class LanBot : Node
                 {
                     Session.Fighter = fighter;
                     Session.Slot = 0;
-                    Session.Edit(2);
-                    while (BattleEngine.getPlayer((uint)Session.Local).getCharacter(fighter).getStep(0) != 2)
+                    int action = threeFighter ? 2 : -1;
+                    Session.Direction = Session.Local == 1 ? 2 : 1;
+                    Session.Range = 1;
+                    Session.Edit(action);
+                    while (BattleEngine.getPlayer((uint)Session.Local).getCharacter(fighter).getStep(0) != action)
                         await Frame();
                 }
                 sawThirdPlan |= Session.TeamSize == 3
@@ -125,14 +132,14 @@ public partial class LanBot : Node
                 if (BattleEngine.getDetails().selected[Session.Local - 1] >= 0)
                 {
                     GD.Print($"LAN {role.ToUpperInvariant()} FAIL: fighter was selected before player confirmation");
-                    GetTree().Quit(1);
+                    ((Premove)GetParent()).QuitGame(1);
                     return;
                 }
                 int fighter = Session.Available(Session.Local).Last();
                 if (!selectedFightersThisCycle.Add(fighter))
                 {
                     GD.Print($"LAN {role.ToUpperInvariant()} FAIL: fighter {fighter} selected twice in one cycle");
-                    GetTree().Quit(1);
+                    ((Premove)GetParent()).QuitGame(1);
                     return;
                 }
                 selectionsThisCycle++;
@@ -146,7 +153,7 @@ public partial class LanBot : Node
                 bool threeFighterPassed = Session.TeamSize == 3 && sawSelection &&
                     Session.MapName == maps[mapIndex];
                 GD.Print($"LAN {role.ToUpperInvariant()}: {(threeFighterPassed ? "three-fighter sync passed" : "failed")} map={Session.MapName} fullSelectionCycle={sawFullSelectionCycle} phase={Session.Phase} clock={BattleEngine.getClock()}");
-                GetTree().Quit(threeFighterPassed ? 0 : 1);
+                ((Premove)GetParent()).QuitGame(threeFighterPassed ? 0 : 1);
                 return;
             }
         }
@@ -154,7 +161,7 @@ public partial class LanBot : Node
         for (int i = 0; i < 180 && connected; i++) await Frame();
         bool passed = connected && sawRewind && sawSelection && BattleEngine.getClock() > 1;
         GD.Print($"LAN {role.ToUpperInvariant()}: {(passed ? "finished" : "failed")} rewind={sawRewind} outcome={BattleEngine.getOutcome()} clock={BattleEngine.getClock()} hp={BattleEngine.getPlayer(1).getCharacter(0).currentHP()}/{BattleEngine.getPlayer(2).getCharacter(0).currentHP()}");
-        GetTree().Quit(passed ? 0 : 1);
+        ((Premove)GetParent()).QuitGame(passed ? 0 : 1);
     }
 
     async Task Frame() => await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);

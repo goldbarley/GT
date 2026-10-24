@@ -4,3 +4,6 @@
 scripts/*.uid 
 scripts/*.uid.*
 
+
+# Packaged releases
+/builds/

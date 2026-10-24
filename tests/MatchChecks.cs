@@ -241,10 +241,10 @@ public static class MatchChecks
         foresightSession.ConfirmDeployment();
         foresightSession.LockPlan();
         foresightSession.ContinueHandoff();
-        Require(foresightSession.Phase == MatchPhase.Foresight && foresightSession.Seconds == 90,
-            "King Crimson planning must provide a 90-second future-sight window.");
+        Require(foresightSession.Phase == MatchPhase.Foresight && foresightSession.Seconds == 40,
+            "King Crimson planning must provide a 40-second future-sight window.");
         foresightSession.Update(30);
-        Require(foresightSession.Seconds == 60, "Future-sight timer must count down.");
+        Require(foresightSession.Seconds == 10, "Future-sight timer must count down.");
 
         var lanForesight = new MatchSession { Lan = true, Local = 1 };
         lanForesight.Start(false, 1, 0, 5, 654);

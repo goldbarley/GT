@@ -37,7 +37,9 @@ public partial class MusicPlayer : Node
         ApplyVolume();
     }
 
-    public override void _ExitTree()
+    public override void _ExitTree() => StopAll();
+
+    public void StopAll()
     {
         fade?.Kill();
         foreach (var player in players)
