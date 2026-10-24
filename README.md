@@ -10,11 +10,13 @@ Premove is a pixel-art tactics game where both players choose their moves before
 
 ## Demo
 
-![Premove gameplay — live simultaneous movement, attacks, and defensive skills](docs/media/premove-gameplay.gif)
+![Premove movement tutorial — WASD previews, Enter confirms, and both plans execute together](docs/media/premove-gameplay.gif)
 
 **[Watch the full gameplay recording with audio →](assets/presentation/premove-demo.mp4)**
 
-Recorded directly from the running game at normal speed. The GIF loops a combat exchange; the MP4 includes team setup, private planning, movement, and attacks.
+Recorded directly from the running game at normal speed, with animated key prompts and step-by-step captions. The GIF shows a left-then-up route being planned and executed; the full MP4 also covers deployment, aiming, and attacks.
+
+**Movement:** press **WASD** to preview a step, then **Enter** to queue it. Repeat for each step, press **0** to end the sequence, and **Space** to lock your plan. The planning view previews your route; combat executes it once both players lock. **Arrow keys aim skills.**
 
 ## The game at a glance
 
