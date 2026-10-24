@@ -6,7 +6,7 @@ Premove is a pixel-art tactics game where both players choose their moves before
 
 ![Premove — planning an attack on the grassland arena](docs/media/planning.png)
 
-[Watch the demo](assets/presentation/premove-demo.mp4) · [Learn to play](#your-first-match) · [Run locally](#run-locally) · [Presentation guide](docs/PRESENTATION.md)
+[Download Linux](https://github.com/goldbarley/GT/releases/download/v0.1.0/Premove-Linux-x86_64.tar.gz) · [Watch the demo](assets/presentation/premove-demo.mp4) · [Learn to play](#your-first-match) · [Run locally](#run-locally) · [Presentation guide](docs/PRESENTATION.md)
 
 ## Demo
 
@@ -86,7 +86,7 @@ Each perk can belong to only one team. Regular planning has no time limit.
 
 ## Linux release
 
-Extract the Linux release archive, keep the executable beside its `data_GT_linuxbsd_x86_64` folder, and launch:
+Download the **[Linux x86_64 release](https://github.com/goldbarley/GT/releases/tag/v0.1.0)**, extract the archive, keep the executable beside its `data_GT_linuxbsd_x86_64` folder, and launch:
 
 ```sh
 chmod +x Premove.x86_64
@@ -110,6 +110,24 @@ Your Godot executable may be named `godot`. Use the .NET edition. You can also o
 For two computers, use the same game version on the same network. Choose **LAN multiplayer → Host game** on one machine. On the other, choose the discovered host or enter its LAN IPv4 address and select **Join game**. Allow UDP port **28461** through the host firewall if required. Reconnecting to an interrupted match is not supported.
 
 Music and sound levels can be changed independently from the title screen or pause menu. Settings are saved between sessions.
+
+## Tech stack
+
+| Technology | Role |
+| --- | --- |
+| Godot 4.7.2 .NET | Game engine, scenes, interface, and desktop export |
+| C# / .NET 8 | Battle engine, character rules, match flow, and networking |
+| GDScript | Animation playback, character rigs, and visual effects |
+| ENet over UDP | Local-network multiplayer |
+| JSON | Maps, character rig data, and animation clips |
+| OpenGL compatibility renderer | Pixel-art rendering on desktop |
+| FFmpeg | Gameplay screen recording and the README GIF |
+
+## Development approach
+
+The **sprites, animations, original BattleEngine, and sound effects were handmade by the team**.
+
+Most of the surrounding implementation was developed through AI-assisted coding (often called “vibe coding”) because of the hackathon time constraint. This included much of the interface, menus, match flow, networking integration, documentation, and release tooling. AI assistance also supported integration, testing, and bug fixes around the handmade components.
 
 ## For the presentation
 

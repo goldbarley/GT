@@ -79,4 +79,4 @@ This is a playtest demo. The package passed file/static checks, but **C# compila
 **Quick regression test:** Start a local game. Choose Tactician, deploy a Mage, change the perk to Teleport, then deploy a second Mage. Finish the team. After the opponent finishes their team, press Numpad 3 to select Meteorite, hover a tile three rows above your Mage, click it, observe the dotted 3×3 impact outline, and press Enter. Check slot 1 and the saved translucent impact area. Repeat in both host and guest LAN instances.
 
 
-See `REPLAY_CHANGES.md` for the new exchange/replay rules and tests.
+For the current game rules and checks, see the [project README](../../README.md).

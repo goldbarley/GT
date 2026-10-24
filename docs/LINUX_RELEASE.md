@@ -1,6 +1,6 @@
 # Linux release
 
-The release is a self-contained Linux x86_64 desktop build. It includes the .NET runtime and uses Godot's OpenGL compatibility renderer.
+Download [Premove v0.1.0](https://github.com/goldbarley/GT/releases/tag/v0.1.0). The release is a self-contained Linux x86_64 desktop build. It includes the .NET runtime and uses Godot's OpenGL compatibility renderer.
 
 ## Play
 

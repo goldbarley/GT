@@ -52,3 +52,7 @@ The title, battle, victory, and defeat music slots are bundled. Music crossfades
 The camera follows the active pair during combat. The pause menu offers a whole-map view. The interface supports mouse and keyboard input, skill tooltips, and terrain markings.
 
 See [presentation media](media/README.md) for the capture command and screenshot provenance.
+
+## Animation asset limits
+
+The Knight left-view rig has a smaller authored sword and combined body, shield, and cape pieces. Independent articulation differs between perspectives; additional separated artwork would be needed to make every view equivalent.
